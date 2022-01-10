@@ -1,0 +1,152 @@
+@startuml Test
+StatefulWidget <|-- TrendChart
+
+StatelessWidget <|-- TimeSharingChart
+StatelessWidget <|-- KLineChart
+TrendChart <.. TimeSharingChart
+TrendChart <.. KLineChart
+
+KLineChart <.. CMSKLineChart
+TimeSharingChart <.. CMSTimeSharingChart
+note "业务相关（数据加载，多主题，以及其他定制化需求）" as N1
+CMSKLineChart .. N1
+CMSTimeSharingChart .. N1
+
+'note left of TrendChart: 趋势图，K线及分时图的核心组件
+class TrendChart {
+    +List<Series> series
+    +LayoutManager layoutManager
+    +TrendChartController controller
+    +num initialUnit
+    +num? minUnit
+    +num? maxUnit
+}
+
+State <|-- _TrendChartState 
+class State <TrendChart>
+
+_TrendChartState <.. TrendChart
+CustomPaint <.. _TrendChartState
+
+TrendChart *-- LayoutManager
+TrendChart *-- TrendChartController
+TrendChart *- Series
+
+!startsub TrendChartController
+class TrendChartController {
+    +void jumpTo(num phase, bool animated)
+    +void scaleTo(num unit, bool animated)
+}
+!endsub
+
+class LayoutManager {
+    +Rect rectForGrid(String identifier)
+    +Rect rectFromGrid(Rect rect)
+    +Rect rectToGrid(Rect rect)
+    +Offset pointFromGrid(Offset point)
+    +Offset pointToGrid(Offset point)
+}
+
+abstract Series <Data> {
+    +List<Data> datas
+    +SeriesStyle style
+    +String gridKey
+    +CustomPainter createPainter()
+} 
+note right: 数据分组，最小化可绘制的数据集
+abstract SeriesStyle
+
+Series <|-- LineSeries 
+Series <|-- CandleSeries
+Series <|-- BarSeries
+Series <|-- FragmentSeries
+
+LineSeriesPainter --|> CustomPainter 
+CandleSeriesPainter --|> CustomPainter 
+BarSeriesPainter --|> CustomPainter 
+FragmentSeriesPainter --|> CustomPainter 
+
+LineSeries ..> LineSeriesPainter
+CandleSeries ..> CandleSeriesPainter
+BarSeries ..> BarSeriesPainter
+FragmentSeries ..> FragmentSeriesPainter
+
+class LineSeriesPainter {
+    +LineSeries series
+}
+
+class CandleSeriesPainter {
+    +CandleSeries series
+}
+
+class BarSeriesPainter {
+    +BarSeries series
+}
+
+class FragmentSeriesPainter {
+    +FragmentSeries series
+}
+
+class LineSeries {
+    +LineSeriesStyle style
+}
+
+class CandleSeries {
+    +CandleSeriesStyle style
+}
+
+class BarSeries {
+    +BarSeriesStyle style
+}
+
+LineSeriesStyle --|> SeriesStyle 
+CandleSeriesStyle --|> SeriesStyle 
+BarSeriesStyle --|> SeriesStyle 
+
+SeriesStyle --* Series 
+
+' note bottom of LineSeries: 线形图，指标线，分时线
+' note bottom of CandleSeries: 蜡烛图
+' note bottom of BarSeries: 柱状图
+' note bottom of FragmentSeries: 数据集分组，将若干数据集并行显示（eg: 五日分时）
+
+class Range {
+    +num lower
+    +num upper
+}
+
+abstract Boundary {
+    +Range createRange(Range range)
+}
+
+Range <. Boundary
+
+abstract DistanceBoundary {
+    +num distance
+}
+
+abstract AlignBoundary {
+    +num align
+}
+
+Boundary <|-- DistanceBoundary
+Boundary <|-- AlignBoundary
+
+class Grid {
+    +String identifier
+    +EdgeInets padding
+    +List<Boundary> yBoundaries
+    +GridStyle style
+    +GridPainter createPainter()
+}
+Grid --* GridStyle
+Boundary -[hidden]> GridStyle
+
+class GridPainter {
+    +Grid grid
+}
+CustomPainter <|-- GridPainter
+
+Grid --* Boundary
+TrendChart --* Grid
+@enduml

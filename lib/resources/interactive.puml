@@ -1,0 +1,36 @@
+@startuml Interactive
+!includesub trend_chart.puml!TrendChartController
+
+' 交互信息
+class InteractiveDetails {
+    +Offset userLocation
+    +Offset userPosition
+    +Offset modelLocation
+    +Offset modelPosition
+    +List<dynamic> seriesEntries
+}
+note right of InteractiveDetails::userLocation 
+当前用户交互位置
+end note
+note right of InteractiveDetails::userPosition
+当前用户交互位置（缩放至0～1）
+end note
+note right of InteractiveDetails::modelLocation
+当前标尺显示位置
+end note
+note right of InteractiveDetails::modelPosition
+当前标尺显示位置（缩放至0～1）
+end note
+
+class TrendChartController {
+    +InteractiveDetails? details
+}
+
+TrendChartController ..> InteractiveDetails
+ChangeNotifier <|-- TrendChartController
+
+class ChangeNotifier {
+    +addListener(void Function listener)
+    +removeListener(void Function listener)
+}
+@enduml
