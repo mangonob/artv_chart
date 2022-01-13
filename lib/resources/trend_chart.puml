@@ -28,9 +28,9 @@ class State <TrendChart>
 _TrendChartState <.. TrendChart
 CustomPaint <.. _TrendChartState
 
-TrendChart --* LayoutManager
-TrendChart --* TrendChartController
-TrendChart -* Series
+TrendChart *--> LayoutManager
+TrendChart *--> TrendChartController
+TrendChart *-> Series
 
 !startsub TrendChartController
 class TrendChartController {
@@ -107,7 +107,7 @@ LineSeriesStyle --|> SeriesStyle
 CandleSeriesStyle --|> SeriesStyle 
 BarSeriesStyle --|> SeriesStyle 
 
-SeriesStyle *-- Series 
+SeriesStyle <--* Series 
 
 ' note bottom of LineSeries: 线形图，指标线，分时线
 ' note bottom of CandleSeries: 蜡烛图
@@ -143,7 +143,7 @@ class Grid {
     +GridStyle style
     +GridPainter createPainter()
 }
-Grid --* GridStyle
+Grid *--> GridStyle
 Boundary -[hidden]> GridStyle
 
 class GridPainter {
@@ -151,6 +151,6 @@ class GridPainter {
 }
 CustomPainter <|-- GridPainter
 
-Grid --* Boundary
-TrendChart --* Grid
+Grid *--> Boundary
+TrendChart *--> Grid
 @enduml
