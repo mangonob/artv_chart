@@ -28,9 +28,9 @@ class State <TrendChart>
 _TrendChartState <.. TrendChart
 CustomPaint <.. _TrendChartState
 
-TrendChart *-- LayoutManager
-TrendChart *-- TrendChartController
-TrendChart *- Series
+TrendChart --* LayoutManager
+TrendChart --* TrendChartController
+TrendChart -* Series
 
 !startsub TrendChartController
 class TrendChartController {
@@ -40,7 +40,7 @@ class TrendChartController {
 !endsub
 
 class LayoutManager {
-    +Rect rectForGrid(String identifier)
+    +Rect rectForGrid(Grid grid, BoxConstraints constraints)
     +Rect rectFromGrid(Rect rect)
     +Rect rectToGrid(Rect rect)
     +Offset pointFromGrid(Offset point)
@@ -87,6 +87,10 @@ class FragmentSeriesPainter {
     +FragmentSeries series
 }
 
+class FragmentSeries {
+    +List<Series> series
+}
+
 class LineSeries {
     +LineSeriesStyle style
 }
@@ -103,7 +107,7 @@ LineSeriesStyle --|> SeriesStyle
 CandleSeriesStyle --|> SeriesStyle 
 BarSeriesStyle --|> SeriesStyle 
 
-SeriesStyle --* Series 
+SeriesStyle *-- Series 
 
 ' note bottom of LineSeries: 线形图，指标线，分时线
 ' note bottom of CandleSeries: 蜡烛图
@@ -133,7 +137,7 @@ Boundary <|-- DistanceBoundary
 Boundary <|-- AlignBoundary
 
 class Grid {
-    +String identifier
+    +String? identifier
     +EdgeInets padding
     +List<Boundary> yBoundaries
     +GridStyle style
