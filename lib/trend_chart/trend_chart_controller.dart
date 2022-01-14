@@ -23,7 +23,6 @@ class TrendChartController extends ChangeNotifier {
   }
 
   void bindState(TrendChartState state) {
-    assert(_state == null || _state == state);
     if (state != _state) {
       _state = state;
     }
@@ -33,6 +32,12 @@ class TrendChartController extends ChangeNotifier {
   void dispose() {
     super.dispose();
     _state = null;
+  }
+
+  static TrendChartController of(BuildContext context) {
+    final scope = context.dependOnInheritedWidgetOfExactType<TrendChartScope>();
+    assert(scope != null, "$TrendChartScope not found.");
+    return scope!.controller;
   }
 
   /// Change phase animated if needed.
@@ -74,7 +79,8 @@ class TrendChartController extends ChangeNotifier {
         _paramsAnimation = RenderParamsTween(
                 begin: oldValue, end: oldValue.copyWith(unit: unit))
             .animate(
-                CurvedAnimation(parent: _animationController, curve: curve));
+          CurvedAnimation(parent: _animationController, curve: curve),
+        );
       });
       _animationController.duration = duration;
       _animationController.forward(from: 0);

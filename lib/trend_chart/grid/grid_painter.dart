@@ -1,9 +1,17 @@
-import 'package:flutter/rendering.dart';
+import 'package:flutter/material.dart';
+
+import 'grid.dart';
 
 class GridPainter extends CustomPainter {
+  final Grid grid;
+
+  GridPainter({
+    required this.grid,
+  });
+
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    return true;
+  bool shouldRepaint(covariant GridPainter oldDelegate) {
+    return oldDelegate.grid != grid;
   }
 
   @override

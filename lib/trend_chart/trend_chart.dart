@@ -1,18 +1,40 @@
+import 'package:artv_chart/trend_chart/grid/grid_paint.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 
 import '../utils/utils.dart';
 import 'common/render_params.dart';
+import 'grid/grid.dart';
 import 'layout_manager.dart';
 import 'trend_chart_controller.dart';
+import 'package:collection/collection.dart';
+
+typedef GridWidgetBuilder = Widget? Function(
+    BuildContext context, Grid grid, int index);
 
 class TrendChart extends StatefulWidget {
   final TrendChartController controller;
   final LayoutManager layoutManager;
+  final List<Grid> grids;
+
+  /// Builder optional header for every grid
+  /// [ ------ Header? ------ ]
+  /// [ ------   Grid  ------ ]
+  /// [ ------ Footer? ------ ]
+  ///
+  final GridWidgetBuilder? headerBuilder;
+
+  /// Builder optional footer for every grid
+  final GridWidgetBuilder? footerBuilder;
 
   const TrendChart({
     Key? key,
     required this.controller,
     required this.layoutManager,
+    this.grids = const [],
+    this.headerBuilder,
+    this.footerBuilder,
   }) : super(key: key);
 
   @override
@@ -73,6 +95,66 @@ class TrendChartState extends State<TrendChart> {
 
   @override
   Widget build(BuildContext context) {
-    throw UnimplementedError();
+    return LayoutBuilder(builder: (ctx, constraints) {
+      return TrendChartScope(
+        controller: widget.controller,
+        layoutManager: widget.layoutManager,
+        child: GestureDetector(
+          child: RepaintBoundary(
+            child: Builder(builder: (ctx) {
+              return _buildGrids(ctx, constraints);
+            }),
+          ),
+        ),
+      );
+    });
+  }
+
+  Widget _buildGrids(BuildContext context, BoxConstraints constraints) {
+    if (widget.grids.isEmpty) {
+      return const SizedBox();
+    } else {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: widget.grids.mapIndexed((index, g) {
+          final header = widget.headerBuilder?.call(context, g, index);
+          final footer = widget.footerBuilder?.call(context, g, index);
+
+          return [
+            if (header != null) header,
+            SizedBox(
+              height: widget.layoutManager.heightForGrid(g, constraints),
+              child: GridPaint(grid: g),
+            ),
+            if (footer != null) footer,
+          ];
+        }).reduce((acc, v) => [...acc, ...v]),
+      );
+    }
+  }
+}
+
+class TrendChartScope extends InheritedWidget {
+  final TrendChartController controller;
+  final LayoutManager layoutManager;
+
+  const TrendChartScope({
+    Key? key,
+    required Widget child,
+    required this.controller,
+    required this.layoutManager,
+  }) : super(
+          key: key,
+          child: child,
+        );
+
+  _changed<T>(T a, T b) {
+    return a != b;
+  }
+
+  @override
+  bool updateShouldNotify(covariant TrendChartScope oldWidget) {
+    return _changed(oldWidget.controller, controller) ||
+        _changed(oldWidget.layoutManager, layoutManager);
   }
 }

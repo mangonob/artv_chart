@@ -9,6 +9,9 @@ typedef LineData = Tuple2<double, LineStyle>;
 class GridStyle {
   final EdgeInsets? padding;
   final EdgeInsets? margin;
+  final double? height;
+  final double? ratio;
+  final Color? color;
   final Decoration? decoration;
   final TextStyle? labelStyle;
   final Color? lineColor;
@@ -30,21 +33,16 @@ class GridStyle {
   const GridStyle({
     this.margin = EdgeInsets.zero,
     this.padding = EdgeInsets.zero,
+    this.height,
+    this.ratio = 0.8,
+    this.color,
     this.decoration,
-    this.labelStyle,
-    this.lineColor,
-    this.lineType,
-    this.lineWidth,
-    this.pattern,
+    this.labelStyle = const TextStyle(),
+    this.lineColor = Colors.grey,
+    this.lineType = LineType.solid,
+    this.lineWidth = 1,
+    this.pattern = const [2, 2],
     this.xCustomLine,
     this.yCustomLine,
-  });
-
-  factory GridStyle.defaultStyle() => const GridStyle(
-        labelStyle: TextStyle(),
-        lineColor: Colors.grey,
-        lineType: LineType.solid,
-        lineWidth: 1,
-        pattern: [2, 2],
-      );
+  }) : assert(color == null || decoration == null);
 }
