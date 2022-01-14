@@ -1,7 +1,13 @@
+import 'dart:math';
+
+import 'package:artv_chart/trend_chart/grid/boundary.dart';
 import 'package:artv_chart/trend_chart/grid/grid.dart';
 import 'package:artv_chart/trend_chart/grid/grid_style.dart';
+import 'package:artv_chart/trend_chart/grid/label/chart_label.dart';
+import 'package:artv_chart/trend_chart/grid/label/text_label.dart';
 import 'package:artv_chart/trend_chart/layout_manager.dart';
 import 'package:artv_chart/trend_chart/series/line_series/line_series.dart';
+import 'package:artv_chart/trend_chart/series/series.dart';
 import 'package:artv_chart/trend_chart/trend_chart.dart';
 import 'package:artv_chart/trend_chart/trend_chart_controller.dart';
 import 'package:flutter/material.dart';
@@ -60,36 +66,59 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
         color: Colors.white,
         child: ListView(
           children: [
-            Container(
-              color: Colors.grey[200],
-              child: TrendChart(
-                controller: _controller,
-                layoutManager: _layoutManager,
-                grids: [
-                  Grid(
-                    style: const GridStyle(ratio: 0.8),
-                    series: [
-                      LineSeries(
-                        [
-                          const Offset(1, 0),
-                          const Offset(2, 4),
-                          const Offset(3, 42),
-                          const Offset(4, 3),
-                          const Offset(5, -10),
-                          const Offset(6, 20),
-                        ],
-                      ),
-                    ],
+            TrendChart(
+              controller: _controller,
+              layoutManager: _layoutManager,
+              grids: [
+                Grid(
+                  style: GridStyle(
+                    ratio: 0.8,
+                    margin: const EdgeInsets.all(10).copyWith(bottom: 20),
                   ),
-                  Grid(
-                    style: const GridStyle(height: 100),
+                  boundaries: [AlignBoundary(5 * 0.05)],
+                  series: [
+                    LineSeries(
+                      List.generate(100, (idx) {
+                        final value = Random.secure().nextDouble() * 100 - 30;
+                        return Offset(idx.toDouble(), value.toDouble());
+                      }),
+                      xValue: xValue,
+                      yValue: yValue,
+                    ),
+                  ],
+                  xLabel: xLabel,
+                  yLabel: yLabel,
+                ),
+                Grid(
+                  style: GridStyle(
+                    height: 100,
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                          color: Colors.grey[200] ?? Colors.grey, width: 1),
+                    ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ],
         ),
       ),
     );
+  }
+
+  double xValue(Offset offset, int index, Series<Offset> series) {
+    return offset.dx;
+  }
+
+  double yValue(Offset offset, int index, Series<Offset> series) {
+    return offset.dy;
+  }
+
+  ChartLabel? xLabel(double value) {
+    return TextLabel(value.toStringAsFixed(0));
+  }
+
+  ChartLabel? yLabel(double value) {
+    return TextLabel(value.toStringAsFixed(2));
   }
 }

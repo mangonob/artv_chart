@@ -53,10 +53,9 @@ class LayoutManager extends ChangeNotifier {
   double heightForGrid(Grid grid, BoxConstraints constraints) {
     _ensureConstraints(constraints);
     final margin = grid.style.margin ?? EdgeInsets.zero;
-    final contentWidth = constraints.maxWidth - margin.left + margin.right;
+    final contentWidth = constraints.maxWidth - margin.horizontal;
     return (grid.style.height ?? grid.style.ratio! * contentWidth) +
-        margin.top +
-        margin.bottom;
+        margin.vertical;
   }
 
   Rect convertRectFromGrid(Rect rect, Grid grid) {
@@ -78,7 +77,6 @@ class LayoutManager extends ChangeNotifier {
   LayoutDetails createLayoutInfo(Grid grid) {
     return LayoutDetails(
       grid: grid,
-      series: [],
       renderParams: _state!.renderParams,
     );
   }

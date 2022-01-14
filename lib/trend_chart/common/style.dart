@@ -2,26 +2,36 @@ import 'package:flutter/material.dart';
 
 import 'enum.dart';
 
-class LineStyle {
-  Color? color;
-  double? size;
-  LineType? type;
+typedef LinePattern = List<double>;
 
-  LineStyle({
-    this.color,
+class LineStyle {
+  final Color? color;
+  final double? size;
+  final LineType? type;
+
+  /// Pattern when line type is [LineType.dash] or [LineType.dot]
+  /// Eg: pattern [2, 1] of [LineType.dash] will draw "-- -- --"
+  ///
+  final LinePattern pattern;
+
+  const LineStyle({
+    this.color = Colors.grey,
     this.size = 1,
     this.type = LineType.solid,
+    this.pattern = const [2, 2],
   });
 
   LineStyle copyWith({
     Color? color,
     double? size,
     LineType? type,
+    LinePattern? pattern,
   }) {
     return LineStyle(
       color: color ?? this.color,
       size: size ?? this.size,
       type: type ?? this.type,
+      pattern: pattern ?? this.pattern,
     );
   }
 
@@ -32,6 +42,7 @@ class LineStyle {
       color: other.color,
       size: other.size,
       type: other.type,
+      pattern: other.pattern,
     );
   }
 
@@ -41,7 +52,8 @@ class LineStyle {
         other is LineStyle &&
             color == other.color &&
             size == other.size &&
-            type == other.type;
+            type == other.type &&
+            pattern == other.pattern;
   }
 
   @override
@@ -49,5 +61,6 @@ class LineStyle {
         color,
         size,
         type,
+        hashList(pattern),
       );
 }

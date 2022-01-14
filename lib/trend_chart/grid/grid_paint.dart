@@ -1,3 +1,4 @@
+import 'package:artv_chart/trend_chart/common/render_params.dart';
 import 'package:flutter/material.dart';
 
 import 'grid.dart';
@@ -15,7 +16,7 @@ class GridPaint extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CustomPaint(
-      painter: grid.createPainter(),
+      painter: grid.createPainter(RenderParams.of(context)),
       child: child,
     );
   }

@@ -19,7 +19,8 @@ class Range {
 
   const Range.unbounded() : this(double.negativeInfinity, double.infinity);
 
-  bool isEmpty() => lower >= upper;
+  bool get isEmpty => lower > upper;
+  bool get isNotEmpty => lower <= upper;
 
   double get length => upper - lower;
 
@@ -47,5 +48,14 @@ class Range {
   @override
   String toString() {
     return 'Range($lower, $upper)';
+  }
+
+  List<double> split(int count) {
+    if (isEmpty) {
+      return [];
+    } else {
+      final step = length / count;
+      return List.generate(count + 1, (index) => lower + step * index);
+    }
   }
 }

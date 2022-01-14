@@ -34,7 +34,7 @@ TrendChart *-> Series
 
 !startsub TrendChartController
 class TrendChartController {
-    +void jumpTo(num phase, bool animated)
+    +void jumpTo(num xOffset, bool animated)
     +void scaleTo(num unit, bool animated)
 }
 !endsub

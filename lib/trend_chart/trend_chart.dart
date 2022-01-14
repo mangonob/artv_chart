@@ -1,26 +1,31 @@
 import 'package:artv_chart/trend_chart/grid/grid_paint.dart';
-import 'package:flutter/gestures.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 
 import '../utils/utils.dart';
 import 'common/render_params.dart';
 import 'grid/grid.dart';
 import 'layout_manager.dart';
 import 'trend_chart_controller.dart';
-import 'package:collection/collection.dart';
 
 typedef GridWidgetBuilder = Widget? Function(
     BuildContext context, Grid grid, int index);
+
+enum ReserveMode {
+  none,
+  ceil,
+  floor,
+}
 
 class TrendChart extends StatefulWidget {
   final TrendChartController controller;
   final LayoutManager layoutManager;
   final List<Grid> grids;
+  final ReserveMode xOffsetReserveMode;
 
   /// Builder optional header for every grid
   /// [ ------ Header? ------ ]
-  /// [ ------   Grid  ------ ]
+  /// [ ------  Grid   ------ ]
   /// [ ------ Footer? ------ ]
   ///
   final GridWidgetBuilder? headerBuilder;
@@ -33,6 +38,7 @@ class TrendChart extends StatefulWidget {
     required this.controller,
     required this.layoutManager,
     this.grids = const [],
+    this.xOffsetReserveMode = ReserveMode.none,
     this.headerBuilder,
     this.footerBuilder,
   }) : super(key: key);
@@ -65,7 +71,8 @@ class TrendChartState extends State<TrendChart> {
 
     _renderParams = RenderParams(
       unit: widget.controller.initialUnit,
-      phase: widget.controller.initialPhase,
+      xOffset: widget.controller.initialXOffset,
+      xOffsetReserveMode: widget.xOffsetReserveMode,
     );
 
     widget.controller.bindState(this);
@@ -96,14 +103,17 @@ class TrendChartState extends State<TrendChart> {
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (ctx, constraints) {
-      return TrendChartScope(
-        controller: widget.controller,
-        layoutManager: widget.layoutManager,
-        child: GestureDetector(
-          child: RepaintBoundary(
-            child: Builder(builder: (ctx) {
-              return _buildGrids(ctx, constraints);
-            }),
+      return RenderParamsScope(
+        renderParams: _renderParams,
+        child: TrendChartScope(
+          controller: widget.controller,
+          layoutManager: widget.layoutManager,
+          child: GestureDetector(
+            child: RepaintBoundary(
+              child: Builder(builder: (ctx) {
+                return _buildGrids(ctx, constraints);
+              }),
+            ),
           ),
         ),
       );
@@ -128,7 +138,7 @@ class TrendChartState extends State<TrendChart> {
             ),
             if (footer != null) footer,
           ];
-        }).reduce((acc, v) => [...acc, ...v]),
+        }).reduce((acc, v) => acc + v),
       );
     }
   }

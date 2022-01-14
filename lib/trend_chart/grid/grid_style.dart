@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:tuple/tuple.dart';
 
 import '../common/style.dart';
-import '../common/enum.dart';
 
 typedef LineData = Tuple2<double, LineStyle>;
 
@@ -13,36 +12,26 @@ class GridStyle {
   final double? ratio;
   final Color? color;
   final Decoration? decoration;
-  final TextStyle? labelStyle;
-  final Color? lineColor;
+  final TextStyle? _labelStyle;
+  final LineStyle? _lineStyle;
 
-  /// Default [LineType]
-  final LineType? lineType;
-
-  /// Default 1.0
-  final double? lineWidth;
-
-  /// Pattern when line type is [LineType.dash] or [LineType.dot]
-  /// Eg: pattern [1, 2] of [LineType.dash] will draw "-  -  -  -"
-  ///
-  final List<double>? pattern;
+  LineStyle? get lineStyle => _lineStyle;
+  TextStyle? get labelStyle => _labelStyle;
 
   final List<LineData>? xCustomLine;
   final List<LineData>? yCustomLine;
 
-  const GridStyle({
+  GridStyle({
     this.margin = EdgeInsets.zero,
     this.padding = EdgeInsets.zero,
     this.height,
     this.ratio = 0.8,
     this.color,
     this.decoration,
-    this.labelStyle = const TextStyle(),
-    this.lineColor = Colors.grey,
-    this.lineType = LineType.solid,
-    this.lineWidth = 1,
-    this.pattern = const [2, 2],
+    LineStyle? lineStyle,
     this.xCustomLine,
     this.yCustomLine,
-  }) : assert(color == null || decoration == null);
+  })  : assert(color == null || decoration == null),
+        _lineStyle = lineStyle ?? LineStyle(color: Colors.grey[200]),
+        _labelStyle = TextStyle(fontSize: 10, color: Colors.grey[500]);
 }

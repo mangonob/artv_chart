@@ -8,15 +8,15 @@ class TrendChartController extends ChangeNotifier {
   TrendChartState? _state;
 
   final double initialUnit;
-  final double initialPhase;
+  final double initialXOffset;
   late AnimationController _animationController;
 
   Animation<RenderParams>? _paramsAnimation;
 
   TrendChartController({
     required TickerProvider vsync,
-    this.initialUnit = 10,
-    this.initialPhase = 0,
+    this.initialUnit = 20,
+    this.initialXOffset = 0,
   }) {
     _animationController = AnimationController(vsync: vsync);
     _animationController.addListener(_animationListener);
@@ -40,21 +40,21 @@ class TrendChartController extends ChangeNotifier {
     return scope!.controller;
   }
 
-  /// Change phase animated if needed.
+  /// Change xOffset animated if needed.
   /// [animated] default is false
   void jumpTo(
-    double phase, {
+    double xOffset, {
     bool animated = false,
     Curve curve = Curves.easeOut,
     Duration duration = const Duration(milliseconds: 250),
   }) {
     if (!animated) {
       _paramsAnimation = null;
-      _state?.mutateRenderParams((p) => p.copyWith(phase: phase));
+      _state?.mutateRenderParams((p) => p.copyWith(xOffset: xOffset));
     } else {
       _state?.renderParams.flatMap((oldValue) {
         _paramsAnimation = RenderParamsTween(
-                begin: oldValue, end: oldValue.copyWith(phase: phase))
+                begin: oldValue, end: oldValue.copyWith(xOffset: xOffset))
             .animate(
                 CurvedAnimation(parent: _animationController, curve: curve));
       });
