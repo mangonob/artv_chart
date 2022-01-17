@@ -72,11 +72,12 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
               layoutManager: _layoutManager,
               grids: [
                 Grid(
+                  ySplitCount: 10,
                   style: GridStyle(
                     ratio: 0.8,
                     margin: const EdgeInsets.all(10).copyWith(bottom: 20),
                   ),
-                  boundaries: [AlignBoundary(5 * 0.05)],
+                  boundaries: [AlignBoundary(10 * 0.05)],
                   series: [
                     LineSeries(
                       List.generate(100, (idx) {
@@ -117,6 +118,13 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
 
   ChartLabel? xLabel(double value) {
     return TextLabel(value.toStringAsFixed(0));
+    // return DecorationLabel(
+    //   size: const Size(8, 8),
+    //   decoration: const BoxDecoration(
+    //     color: Colors.green,
+    //     shape: BoxShape.circle,
+    //   ),
+    // );
   }
 
   ChartLabel? yLabel(double value) {

@@ -12,6 +12,7 @@ extension NullableMonad<T> on T? {
   }
 }
 
+/// Zip two iterable into a tuple list.
 List<Tuple2<T1, T2>> zip<T1, T2>(Iterable<T1> i1, Iterable<T2> i2) {
   final iter1 = i1.iterator;
   final iter2 = i2.iterator;
@@ -27,6 +28,8 @@ List<Tuple2<T1, T2>> zip<T1, T2>(Iterable<T1> i1, Iterable<T2> i2) {
 /// Ignore unused variable warning
 void ignoreUnused<T>(T any) {}
 
+/// Unsafed value for any type.
+/// Your code should never access this value, or it will cause some error.
 D undefined<D, S>(S obj) {
   return null as D;
 }

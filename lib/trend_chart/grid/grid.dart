@@ -8,6 +8,7 @@ import '../common/style.dart';
 import '../grid/grid_style.dart';
 import '../series/series.dart';
 import 'boundary.dart';
+import 'custom_line.dart';
 import 'grid_painter.dart';
 
 typedef ValueFormatter = ChartLabel? Function(double);
@@ -21,6 +22,8 @@ class Grid {
   final List<Boundary> boundaries;
   final ValueFormatter? xLabel;
   final ValueFormatter? yLabel;
+  final List<CustomLine>? xCustomLines;
+  final List<CustomLine>? yCustomLines;
 
   GridStyle get style => _style;
 
@@ -33,6 +36,8 @@ class Grid {
     this.boundaries = const [],
     this.xLabel,
     this.yLabel,
+    this.xCustomLines,
+    this.yCustomLines,
   }) : _style = style ?? GridStyle();
 
   @override
@@ -46,7 +51,9 @@ class Grid {
           listEquals(series, other.series) &&
           listEquals(boundaries, other.boundaries) &&
           xLabel == other.xLabel &&
-          yLabel == other.yLabel;
+          yLabel == other.yLabel &&
+          listEquals(xCustomLines, other.xCustomLines) &&
+          listEquals(yCustomLines, other.yCustomLines);
 
   @override
   int get hashCode => hashValues(
@@ -58,6 +65,8 @@ class Grid {
         hashList(boundaries),
         xLabel,
         yLabel,
+        hashList(xCustomLines),
+        hashList(yCustomLines),
       );
 
   CustomPainter createPainter(RenderParams renderParams) => GridPainter(
