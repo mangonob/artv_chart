@@ -1,7 +1,8 @@
 import 'dart:ui';
 
-import 'package:artv_chart/trend_chart/trend_chart.dart';
 import 'package:flutter/material.dart';
+
+import 'enum.dart';
 
 class RenderParams {
   final double unit;

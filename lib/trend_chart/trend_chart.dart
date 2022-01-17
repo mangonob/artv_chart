@@ -3,6 +3,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
 import '../utils/utils.dart';
+import 'common/enum.dart';
 import 'common/render_params.dart';
 import 'grid/grid.dart';
 import 'layout_manager.dart';
@@ -10,13 +11,6 @@ import 'trend_chart_controller.dart';
 
 typedef GridWidgetBuilder = Widget? Function(
     BuildContext context, Grid grid, int index);
-
-enum ReserveMode {
-  none,
-  ceil,
-  floor,
-  round,
-}
 
 class TrendChart extends StatefulWidget {
   final TrendChartController controller;
