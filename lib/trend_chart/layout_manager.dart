@@ -1,3 +1,4 @@
+import 'package:artv_chart/trend_chart/common/render_params.dart';
 import 'package:flutter/widgets.dart';
 
 import 'grid/grid.dart';
@@ -37,19 +38,35 @@ class LayoutManager extends ChangeNotifier {
         margin.vertical;
   }
 
-  Rect convertRectFromGrid(Rect rect, Grid grid) {
+  Rect convertRectFromGrid(
+    Rect rect,
+    Grid grid, {
+    required RenderParams params,
+  }) {
     return rect;
   }
 
-  Rect convertRectToGrid(Rect rect, Grid grid) {
+  Rect convertRectToGrid(
+    Rect rect,
+    Grid grid, {
+    required RenderParams params,
+  }) {
     return rect;
   }
 
-  Offset convertPointFromGrid(Offset point, Grid grid) {
+  Offset convertPointFromGrid(
+    Offset point,
+    Grid grid, {
+    required RenderParams params,
+  }) {
     return point;
   }
 
-  Offset convetPointToGrid(Offset point, Grid grid) {
+  Offset convetPointToGrid(
+    Offset point,
+    Grid grid, {
+    required RenderParams params,
+  }) {
     return point;
   }
 
