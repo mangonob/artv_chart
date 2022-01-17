@@ -7,12 +7,14 @@ class RenderParams {
   final double unit;
   final double xOffset;
   final EdgeInsets padding;
+  final bool isIgnoredUnitVolume;
   final ReserveMode xOffsetReserveMode;
 
   const RenderParams({
     required this.unit,
     required this.xOffset,
     required this.padding,
+    this.isIgnoredUnitVolume = true,
     required this.xOffsetReserveMode,
   });
 
@@ -20,12 +22,14 @@ class RenderParams {
     double? unit,
     double? xOffset,
     EdgeInsets? padding,
+    bool? isIgnoredUnitVolume,
     ReserveMode? xOffsetReserveMode,
   }) =>
       RenderParams(
         unit: unit ?? this.unit,
         xOffset: xOffset ?? this.xOffset,
         padding: padding ?? this.padding,
+        isIgnoredUnitVolume: isIgnoredUnitVolume ?? this.isIgnoredUnitVolume,
         xOffsetReserveMode: this.xOffsetReserveMode,
       );
 
@@ -36,6 +40,7 @@ class RenderParams {
           unit == other.unit &&
           xOffset == other.xOffset &&
           padding == other.padding &&
+          isIgnoredUnitVolume == other.isIgnoredUnitVolume &&
           xOffsetReserveMode == other.xOffsetReserveMode;
 
   @override
@@ -43,6 +48,7 @@ class RenderParams {
         unit,
         xOffset,
         padding,
+        isIgnoredUnitVolume,
         xOffsetReserveMode,
       );
 
@@ -51,6 +57,7 @@ class RenderParams {
       unit: lerpDouble(a.unit, b.unit, t)!,
       xOffset: lerpDouble(a.xOffset, b.xOffset, t)!,
       padding: EdgeInsets.lerp(a.padding, b.padding, t)!,
+      isIgnoredUnitVolume: b.isIgnoredUnitVolume,
       xOffsetReserveMode: b.xOffsetReserveMode,
     );
   }
