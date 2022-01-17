@@ -27,7 +27,7 @@ class GridPainter extends CustomPainter {
   late Range _yRange;
   late List<double> _xValues;
 
-  void _prepare() {
+  void _prepareForSize(Size size) {
     _xRange = grid.xRange();
     _yRange = grid.yRange();
     _xValues = grid.xValues();
@@ -35,7 +35,7 @@ class GridPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    _prepare();
+    _prepareForSize(size);
 
     final margin = grid.style.margin ?? EdgeInsets.zero;
     canvas.translate(margin.left, margin.top);

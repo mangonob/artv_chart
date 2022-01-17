@@ -6,7 +6,6 @@ import '../common/style.dart';
 typedef LineData = Tuple2<double, LineStyle>;
 
 class GridStyle {
-  final EdgeInsets? padding;
   final EdgeInsets? margin;
   final double? height;
   final double? ratio;
@@ -23,7 +22,6 @@ class GridStyle {
 
   GridStyle({
     this.margin = EdgeInsets.zero,
-    this.padding = EdgeInsets.zero,
     this.height,
     this.ratio = 0.8,
     this.color,

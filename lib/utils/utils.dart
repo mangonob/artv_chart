@@ -23,3 +23,10 @@ List<Tuple2<T1, T2>> zip<T1, T2>(Iterable<T1> i1, Iterable<T2> i2) {
 
   return result;
 }
+
+/// Ignore unused variable warning
+void ignoreUnused<T>(T any) {}
+
+D undefined<D, S>(S obj) {
+  return null as D;
+}

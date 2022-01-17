@@ -6,22 +6,26 @@ import 'package:flutter/material.dart';
 class RenderParams {
   final double unit;
   final double xOffset;
+  final EdgeInsets padding;
   final ReserveMode xOffsetReserveMode;
 
   const RenderParams({
     required this.unit,
     required this.xOffset,
+    required this.padding,
     required this.xOffsetReserveMode,
   });
 
   RenderParams copyWith({
     double? unit,
     double? xOffset,
+    EdgeInsets? padding,
     ReserveMode? xOffsetReserveMode,
   }) =>
       RenderParams(
         unit: unit ?? this.unit,
         xOffset: xOffset ?? this.xOffset,
+        padding: padding ?? this.padding,
         xOffsetReserveMode: this.xOffsetReserveMode,
       );
 
@@ -31,12 +35,14 @@ class RenderParams {
       other is RenderParams &&
           unit == other.unit &&
           xOffset == other.xOffset &&
+          padding == other.padding &&
           xOffsetReserveMode == other.xOffsetReserveMode;
 
   @override
   int get hashCode => hashValues(
         unit,
         xOffset,
+        padding,
         xOffsetReserveMode,
       );
 
@@ -44,6 +50,7 @@ class RenderParams {
     return RenderParams(
       unit: lerpDouble(a.unit, b.unit, t)!,
       xOffset: lerpDouble(a.xOffset, b.xOffset, t)!,
+      padding: EdgeInsets.lerp(a.padding, b.padding, t)!,
       xOffsetReserveMode: b.xOffsetReserveMode,
     );
   }

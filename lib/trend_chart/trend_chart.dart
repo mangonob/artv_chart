@@ -23,6 +23,7 @@ class TrendChart extends StatefulWidget {
   final LayoutManager layoutManager;
   final List<Grid> grids;
   final ReserveMode xOffsetReserveMode;
+  final EdgeInsets padding;
 
   /// Builder optional header for every grid
   /// [ ------ Header? ------ ]
@@ -40,6 +41,7 @@ class TrendChart extends StatefulWidget {
     required this.layoutManager,
     this.grids = const [],
     this.xOffsetReserveMode = ReserveMode.none,
+    this.padding = const EdgeInsets.symmetric(horizontal: 0),
     this.headerBuilder,
     this.footerBuilder,
   }) : super(key: key);
@@ -73,6 +75,7 @@ class TrendChartState extends State<TrendChart> {
     _renderParams = RenderParams(
       unit: widget.controller.initialUnit,
       xOffset: widget.controller.initialXOffset,
+      padding: widget.padding,
       xOffsetReserveMode: widget.xOffsetReserveMode,
     );
 

@@ -78,7 +78,7 @@ class Grid {
     }
   }
 
-  Range _yRange() {
+  Range _yRange({RenderParams? params, Size? size}) {
     if (series.isEmpty) {
       return const Range.empty();
     } else {
@@ -86,8 +86,11 @@ class Grid {
     }
   }
 
-  Range yRange() {
-    return boundaries.fold(_yRange(), (r, boundary) => boundary.createRange(r));
+  Range yRange({RenderParams? params, Size? size}) {
+    return boundaries.fold(
+      _yRange(params: params, size: size),
+      (r, boundary) => boundary.createRange(r),
+    );
   }
 
   List<double> xValues() {
