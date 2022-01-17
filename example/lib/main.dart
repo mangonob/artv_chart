@@ -65,6 +65,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
       body: Container(
         color: Colors.white,
         child: ListView(
+          physics: const NeverScrollableScrollPhysics(),
           children: [
             TrendChart(
               controller: _controller,
