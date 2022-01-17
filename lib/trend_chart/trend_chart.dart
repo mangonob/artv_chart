@@ -15,6 +15,7 @@ enum ReserveMode {
   none,
   ceil,
   floor,
+  round,
 }
 
 class TrendChart extends StatefulWidget {
