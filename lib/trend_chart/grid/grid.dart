@@ -65,11 +65,16 @@ class Grid {
         renderParams: renderParams,
       );
 
-  Range xRange() {
+  Range xRange({RenderParams? params, Size? size}) {
     if (series.isEmpty) {
       return const Range.empty();
     } else {
-      return series.map((e) => e.xRange()).reduce((l, r) => l.union(r));
+      final total = series.map((e) => e.xRange()).reduce((l, r) => l.union(r));
+      if (params == null) {
+        return total;
+      } else {
+        return total;
+      }
     }
   }
 

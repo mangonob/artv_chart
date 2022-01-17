@@ -20,11 +20,13 @@ class BatchSeriesPaint extends StatelessWidget {
     } else {
       final head = series.first;
       final tail = series.skip(1).toList();
-      return CustomPaint(
-        painter: head.createPainter(RenderParams.of(context)),
-        child: BatchSeriesPaint(
-          series: tail,
-          child: child,
+      return ClipRect(
+        child: CustomPaint(
+          painter: head.createPainter(RenderParams.of(context)),
+          child: BatchSeriesPaint(
+            series: tail,
+            child: child,
+          ),
         ),
       );
     }

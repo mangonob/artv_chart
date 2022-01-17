@@ -11,12 +11,16 @@ class Range {
     this.upper,
   );
 
+  /// The range contain all value greater then given value.
   const Range.lowest(double lower) : this(lower, double.infinity);
 
+  /// The range contain all value less than given value.
   const Range.highest(double upper) : this(double.negativeInfinity, upper);
 
+  /// The range that does not contain any values.
   const Range.empty() : this(double.infinity, double.negativeInfinity);
 
+  /// The range that contain all values.
   const Range.unbounded() : this(double.negativeInfinity, double.infinity);
 
   bool get isEmpty => lower > upper;
@@ -24,15 +28,36 @@ class Range {
 
   double get length => upper - lower;
 
+  /// Intersection set
   Range intersection(Range other) => Range(
         max(lower, other.lower),
         min(upper, other.upper),
       );
 
+  /// Whether two range is intersected.
+  bool intersected(Range other) => intersection(other).isNotEmpty;
+
+  /// Union set
   Range union(Range other) => Range(
         min(lower, other.lower),
         max(upper, other.upper),
       );
+
+  /// Extend range to include the given value.
+  /// ```dart
+  /// Range(1, 3).extend(2); // Range(1, 3)
+  ///
+  /// Range.empty().extend(4); // Range(4, 4)
+  ///
+  /// Range(1, 3).extend(4); // Range(1, 4)
+  /// ```
+  Range extend(double value) => Range(
+        min(lower, value),
+        max(upper, value),
+      );
+
+  /// Whether the value is in the range.
+  bool contains(double value) => lower <= value && value <= upper;
 
   @override
   operator ==(Object other) =>
@@ -50,6 +75,7 @@ class Range {
     return 'Range($lower, $upper)';
   }
 
+  /// Split range into [count] parts.
   List<double> split(int count) {
     if (isEmpty) {
       return [];

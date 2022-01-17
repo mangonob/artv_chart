@@ -16,11 +16,13 @@ class GridPaint extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CustomPaint(
-      painter: grid.createPainter(RenderParams.of(context)),
-      child: BatchSeriesPaint(
-        series: grid.series,
-        child: child,
+    return ClipRect(
+      child: CustomPaint(
+        painter: grid.createPainter(RenderParams.of(context)),
+        child: BatchSeriesPaint(
+          series: grid.series,
+          child: child,
+        ),
       ),
     );
   }
