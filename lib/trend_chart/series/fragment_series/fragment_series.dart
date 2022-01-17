@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../common/render_params.dart';
 import '../../series/series.dart';
 
 class FragmentSeries extends Series<dynamic> {
@@ -8,7 +9,7 @@ class FragmentSeries extends Series<dynamic> {
   FragmentSeries(this.series) : super(datas: []);
 
   @override
-  CustomPainter createPainter() {
+  CustomPainter createPainter(RenderParams renderParams) {
     // TODO: implement createPainter
     throw UnimplementedError();
   }

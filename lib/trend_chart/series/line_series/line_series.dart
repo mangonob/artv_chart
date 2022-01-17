@@ -1,7 +1,8 @@
-import 'package:artv_chart/trend_chart/series/line_series/line_series_painter.dart';
 import 'package:flutter/material.dart';
 
+import '../../common/render_params.dart';
 import '../series.dart';
+import 'line_series_painter.dart';
 
 class LineSeries extends Series<Offset> {
   LineSeries(
@@ -17,7 +18,8 @@ class LineSeries extends Series<Offset> {
         );
 
   @override
-  CustomPainter createPainter() => LineSeriesPainter(
+  CustomPainter createPainter(RenderParams renderParams) => LineSeriesPainter(
         series: this,
+        renderParams: renderParams,
       );
 }

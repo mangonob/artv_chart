@@ -1,3 +1,4 @@
+import '../common/render_params.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:quiver/iterables.dart';
@@ -22,7 +23,7 @@ abstract class Series<D> {
   });
 
   /// Factory method to generate a new painter.
-  CustomPainter createPainter();
+  CustomPainter createPainter(RenderParams renderParams);
 
   List<double> xValues() {
     if (xValue == null) {

@@ -116,7 +116,7 @@ class GridPainter extends CustomPainter {
 
     final labels = _xValues.map((e) => grid.xLabel?.call(e));
     final offsets = _xValues.map(
-      (e) => Offset(renderParams.unit * (e + 0.5), size.height),
+      (e) => Offset(renderParams.unit * e, size.height),
     );
 
     assert(labels.length == offsets.length);

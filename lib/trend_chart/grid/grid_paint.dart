@@ -1,4 +1,5 @@
 import 'package:artv_chart/trend_chart/common/render_params.dart';
+import 'package:artv_chart/trend_chart/series/batch_series_paint.dart';
 import 'package:flutter/material.dart';
 
 import 'grid.dart';
@@ -17,7 +18,10 @@ class GridPaint extends StatelessWidget {
   Widget build(BuildContext context) {
     return CustomPaint(
       painter: grid.createPainter(RenderParams.of(context)),
-      child: child,
+      child: BatchSeriesPaint(
+        series: grid.series,
+        child: child,
+      ),
     );
   }
 }

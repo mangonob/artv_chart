@@ -1,16 +1,20 @@
-import 'package:artv_chart/trend_chart/series/line_series/line_series.dart';
 import 'package:flutter/material.dart';
+
+import '../../common/render_params.dart';
+import 'line_series.dart';
 
 class LineSeriesPainter extends CustomPainter {
   final LineSeries series;
+  final RenderParams renderParams;
 
   LineSeriesPainter({
     required this.series,
+    required this.renderParams,
   });
 
   @override
   void paint(Canvas canvas, Size size) {
-    // TODO: implement paint
+    // TODO: Draw line code
   }
 
   @override
@@ -19,8 +23,13 @@ class LineSeriesPainter extends CustomPainter {
 
   @override
   operator ==(Object other) =>
-      other is LineSeriesPainter && series == other.series;
+      other is LineSeriesPainter &&
+      series == other.series &&
+      renderParams == other.renderParams;
 
   @override
-  int get hashCode => series.hashCode;
+  int get hashCode => hashValues(
+        series,
+        renderParams,
+      );
 }
