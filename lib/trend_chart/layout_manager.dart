@@ -25,27 +25,6 @@ class LayoutManager extends ChangeNotifier {
     return scope!.layoutManager;
   }
 
-  Rect rectForGrid(Grid grid, BoxConstraints constraints) {
-    _ensureConstraints(constraints);
-    double currentHeight = 0;
-
-    for (final curr in _state!.widget.grids) {
-      final height = heightForGrid(grid, constraints);
-      if (grid == curr) {
-        return Rect.fromLTWH(0, currentHeight, constraints.maxWidth, height);
-      } else {
-        currentHeight += height;
-      }
-    }
-
-    return Rect.fromLTWH(
-      0,
-      currentHeight,
-      constraints.maxWidth,
-      heightForGrid(grid, constraints),
-    );
-  }
-
   void _ensureConstraints(BoxConstraints constraints) {
     assert(constraints.hasBoundedWidth);
   }
