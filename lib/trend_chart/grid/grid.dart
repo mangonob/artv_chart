@@ -1,16 +1,17 @@
-import 'package:artv_chart/trend_chart/common/enum.dart';
-import 'package:artv_chart/trend_chart/common/render_params.dart';
-import 'package:artv_chart/trend_chart/grid/label/chart_label.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
+import '../common/enum.dart';
+import '../common/painter/cache_manager.dart';
 import '../common/range.dart';
+import '../common/render_params.dart';
 import '../common/style.dart';
 import '../grid/grid_style.dart';
 import '../series/series.dart';
 import 'boundary.dart';
 import 'custom_line.dart';
 import 'grid_painter.dart';
+import 'label/chart_label.dart';
 
 typedef ValueFormatter = ChartLabel? Function(double);
 
@@ -100,26 +101,34 @@ class Grid {
     }
   }
 
-  Range _yRange({RenderParams? params, Size? size}) {
-    if (series.isEmpty) {
-      return const Range.empty();
-    } else {
-      return series.map((e) => e.yRange()).reduce((l, r) => l.union(r));
-    }
-  }
+  Range yRange({
+    required RenderParams params,
+    required Size size,
+    Cache? cache,
+  }) {
+    final xRange = cache?.xRange ?? this.xRange(params: params, size: size);
+    final range = series.fold<Range>(
+      const Range.empty(),
+      (range, s) => range.union(s.yRange(xRange)),
+    );
 
-  Range yRange({RenderParams? params, Size? size}) {
     return boundaries.fold(
-      _yRange(params: params, size: size),
+      range,
       (r, boundary) => boundary.createRange(r),
     );
   }
 
-  List<double> xValues() {
+  List<double> xValues({
+    required RenderParams params,
+    required Size size,
+    Cache? cache,
+  }) {
     if (series.isEmpty) {
       return [];
     } else {
-      return series.map((e) => e.xValues()).reduce((l, r) => l + r);
+      final total = series.map((e) => e.xValues()).reduce((l, r) => l + r);
+      final xRange = cache?.xRange ?? this.xRange(params: params, size: size);
+      return total.where((g) => xRange.contains(g)).toList();
     }
   }
 

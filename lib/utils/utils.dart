@@ -30,6 +30,6 @@ void ignoreUnused<T>(T any) {}
 
 /// Unsafed value for any type.
 /// Your code should never access this value, or it will cause some error.
-D undefined<D, S>(S obj) {
-  return null as D;
+U undefined<U>() {
+  return null as U;
 }

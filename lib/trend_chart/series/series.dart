@@ -1,3 +1,4 @@
+import 'package:artv_chart/utils/utils.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:quiver/iterables.dart';
@@ -35,11 +36,29 @@ abstract class Series<D> {
     }
   }
 
-  List<double> yValues() {
-    if (xValue == null) {
+  List<double> yValues(Range xRange) {
+    if (xValue == null || yValue == null) {
       return [];
     } else {
-      return datas.mapIndexed((index, d) => yValue!(d, index, this)).toList();
+      final rangedDatas = datas
+          .whereIndexed((index, d) => xRange.contains(xValue!(d, index, this)));
+      return rangedDatas
+          .mapIndexed((index, d) => yValue!(d, index, this))
+          .toList();
+    }
+  }
+
+  Range yRange(Range xRange) {
+    if (xValue == null || yValue == null) {
+      return const Range.empty();
+    } else {
+      final rangedDatas = datas
+          .whereIndexed((index, d) => xRange.contains(xValue!(d, index, this)));
+
+      return rangedDatas.foldIndexed(
+        const Range.empty(),
+        (index, range, d) => range.extend(yValue!(d, index, this)),
+      );
     }
   }
 
@@ -49,15 +68,6 @@ abstract class Series<D> {
       return const Range.empty();
     } else {
       return Range(min(xs)!, max(xs)!);
-    }
-  }
-
-  Range yRange() {
-    final ys = yValues();
-    if (ys.isEmpty) {
-      return const Range.empty();
-    } else {
-      return Range(min(ys)!, max(ys)!);
     }
   }
 }

@@ -49,7 +49,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
     _controller = TrendChartController(vsync: this);
     _layoutManager = LayoutManager();
     _offsets = List.generate(1000, (idx) {
-      final value = Random.secure().nextDouble() * 100 - 30;
+      final value = Random.secure().nextDouble() * 10 * idx + 100;
       return Offset(idx.toDouble(), value.toDouble());
     });
   }
@@ -84,12 +84,13 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                 xRange: const Range(0, 1000),
                 grids: [
                   Grid(
-                    ySplitCount: 10,
+                    ySplitCount: 7,
                     style: GridStyle(
                       ratio: 0.8,
                       margin: const EdgeInsets.all(10).copyWith(bottom: 20),
+                      labelStyle: const TextStyle(color: Colors.blue),
                     ),
-                    boundaries: [AlignBoundary(10 * 0.05)],
+                    boundaries: [AlignBoundary(7 * 0.05)],
                     series: [
                       LineSeries(
                         _offsets,

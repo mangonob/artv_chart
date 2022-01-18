@@ -1,12 +1,13 @@
-import 'package:artv_chart/trend_chart/common/painter/line_painter.dart';
-import 'package:artv_chart/trend_chart/common/render_params.dart';
-import 'package:artv_chart/trend_chart/grid/label/text_label.dart';
 import 'package:artv_chart/utils/utils.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
+import '../common/painter/cache_manager.dart';
+import '../common/painter/line_painter.dart';
 import '../common/range.dart';
+import '../common/render_params.dart';
 import 'grid.dart';
+import 'label/text_label.dart';
 
 class GridPainter extends CustomPainter {
   final Grid grid;
@@ -28,9 +29,11 @@ class GridPainter extends CustomPainter {
   late List<double> _xValues;
 
   void _prepareForSize(Size size) {
-    _xRange = grid.xRange(params: renderParams, size: size);
-    _yRange = grid.yRange();
-    _xValues = grid.xValues();
+    final cache = Cache(
+      xRange: _xRange = grid.xRange(params: renderParams, size: size),
+    );
+    _yRange = grid.yRange(params: renderParams, size: size, cache: cache);
+    _xValues = grid.xValues(params: renderParams, size: size, cache: cache);
   }
 
   @override
@@ -110,14 +113,10 @@ class GridPainter extends CustomPainter {
 
   void _paintXValues(Canvas canvas, Size size) {
     final unit = renderParams.unit;
-    final drawableValues = _xValues.where(
-      (x) => renderParams.xRange.contains(x) && _xRange.contains(x),
-    );
+    if (size.isEmpty || _xValues.isEmpty) return;
 
-    if (size.isEmpty || drawableValues.isEmpty) return;
-
-    final labels = drawableValues.map((e) => grid.xLabel?.call(e));
-    final offsets = drawableValues.map(
+    final labels = _xValues.map((e) => grid.xLabel?.call(e));
+    final offsets = _xValues.map(
       (e) => Offset((e - _xRange.lower) * unit, size.height),
     );
 

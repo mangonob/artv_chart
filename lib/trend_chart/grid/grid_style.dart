@@ -23,9 +23,9 @@ class GridStyle {
     TextStyle? labelStyle,
     LineStyle? lineStyle,
   })  : assert(color == null || decoration == null),
-        _lineStyle = lineStyle ?? LineStyle(color: Colors.grey[200]),
+        _lineStyle = LineStyle(color: Colors.grey[200]).merge(lineStyle),
         _labelStyle =
-            labelStyle ?? TextStyle(fontSize: 10, color: Colors.grey[500]);
+            TextStyle(fontSize: 10, color: Colors.grey[500]).merge(labelStyle);
 
   GridStyle copyWith({
     EdgeInsets? margin,

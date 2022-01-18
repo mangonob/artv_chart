@@ -114,10 +114,12 @@ class TrendChartState extends State<TrendChart> {
           controller: widget.controller,
           layoutManager: widget.layoutManager,
           child: GestureDetector(
-            onPanUpdate: (d) {
-              widget.controller.jumpTo(
-                _renderParams.xOffset - d.delta.dx,
-              );
+            onScaleUpdate: (d) {
+              if (d.pointerCount == 1) {
+                widget.controller.jumpTo(
+                  _renderParams.xOffset - d.focalPointDelta.dx,
+                );
+              }
             },
             child: RepaintBoundary(
               child: Builder(builder: (ctx) {
