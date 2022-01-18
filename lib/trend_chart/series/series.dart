@@ -1,9 +1,9 @@
-import '../common/render_params.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:quiver/iterables.dart';
 
 import '../common/range.dart';
+import '../common/render_params.dart';
 
 typedef ValueConvertor<T> = double Function(T, int, Series<T>);
 

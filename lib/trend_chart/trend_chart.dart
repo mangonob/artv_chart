@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../utils/utils.dart';
 import 'common/enum.dart';
+import 'common/range.dart';
 import 'common/render_params.dart';
 import 'grid/grid.dart';
 import 'layout_manager.dart';
@@ -15,8 +16,10 @@ typedef GridWidgetBuilder = Widget? Function(
 class TrendChart extends StatefulWidget {
   final TrendChartController controller;
   final LayoutManager layoutManager;
+  final Range xRange;
   final List<Grid> grids;
   final ReserveMode xOffsetReserveMode;
+  final bool isIgnoredUnitVolume;
   final EdgeInsets padding;
 
   /// Builder optional header for every grid
@@ -33,8 +36,10 @@ class TrendChart extends StatefulWidget {
     Key? key,
     required this.controller,
     required this.layoutManager,
+    required this.xRange,
     this.grids = const [],
     this.xOffsetReserveMode = ReserveMode.none,
+    this.isIgnoredUnitVolume = true,
     this.padding = const EdgeInsets.symmetric(horizontal: 0),
     this.headerBuilder,
     this.footerBuilder,
@@ -47,13 +52,13 @@ class TrendChart extends StatefulWidget {
 class TrendChartState extends State<TrendChart> {
   late RenderParams _renderParams;
 
-  updateRenderParams(RenderParams renderParams) {
+  void updateRenderParams(RenderParams renderParams) {
     setState(() {
       _renderParams = renderParams;
     });
   }
 
-  mutateRenderParams(Mutator<RenderParams> mutator) {
+  void mutateRenderParams(Mutator<RenderParams> mutator) {
     final newValue = mutator(_renderParams);
     if (newValue != _renderParams) {
       updateRenderParams(newValue);
@@ -71,6 +76,8 @@ class TrendChartState extends State<TrendChart> {
       xOffset: widget.controller.initialXOffset,
       padding: widget.padding,
       xOffsetReserveMode: widget.xOffsetReserveMode,
+      isIgnoredUnitVolume: widget.isIgnoredUnitVolume,
+      xRange: widget.xRange,
     );
 
     widget.controller.bindState(this);
@@ -107,6 +114,11 @@ class TrendChartState extends State<TrendChart> {
           controller: widget.controller,
           layoutManager: widget.layoutManager,
           child: GestureDetector(
+            onPanUpdate: (d) {
+              widget.controller.jumpTo(
+                _renderParams.xOffset - d.delta.dx,
+              );
+            },
             child: RepaintBoundary(
               child: Builder(builder: (ctx) {
                 return _buildGrids(ctx, constraints);

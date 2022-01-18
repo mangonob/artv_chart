@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
@@ -22,6 +23,14 @@ class Range {
 
   /// The range that contain all values.
   const Range.unbounded() : this(double.negativeInfinity, double.infinity);
+
+  operator +(double value) => Range(lower + value, upper + value);
+
+  operator -(double value) => Range(lower - value, upper - value);
+
+  operator *(double value) => Range(lower * value, upper * value);
+
+  operator /(double value) => Range(lower / value, upper / value);
 
   bool get isEmpty => lower > upper;
   bool get isNotEmpty => lower <= upper;
@@ -58,6 +67,11 @@ class Range {
 
   /// Whether the value is in the range.
   bool contains(double value) => lower <= value && value <= upper;
+
+  static Range lerp(Range a, Range b, double t) => Range(
+        lerpDouble(a.lower, b.lower, t)!,
+        lerpDouble(a.upper, b.upper, t)!,
+      );
 
   @override
   operator ==(Object other) =>

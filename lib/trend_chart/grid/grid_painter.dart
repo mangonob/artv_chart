@@ -28,19 +28,18 @@ class GridPainter extends CustomPainter {
   late List<double> _xValues;
 
   void _prepareForSize(Size size) {
-    _xRange = grid.xRange();
+    _xRange = grid.xRange(params: renderParams, size: size);
     _yRange = grid.yRange();
     _xValues = grid.xValues();
   }
 
   @override
   void paint(Canvas canvas, Size size) {
-    _prepareForSize(size);
-
     final margin = grid.style.margin ?? EdgeInsets.zero;
     canvas.translate(margin.left, margin.top);
     final gridSize =
         Size(size.width - margin.horizontal, size.height - margin.vertical);
+    _prepareForSize(gridSize);
 
     _paintGrid(canvas, gridSize);
     _paintYValues(canvas, gridSize);
@@ -67,9 +66,7 @@ class GridPainter extends CustomPainter {
         );
     final offsets = Range(0, size.height)
         .split(grid.ySplitCount)
-        .map(
-          (y) => Offset(0, y),
-        )
+        .map((y) => Offset(0, y))
         .toList()
         .reversed;
 
@@ -112,11 +109,16 @@ class GridPainter extends CustomPainter {
   }
 
   void _paintXValues(Canvas canvas, Size size) {
-    if (size.isEmpty || _xValues.isEmpty) return;
+    final unit = renderParams.unit;
+    final drawableValues = _xValues.where(
+      (x) => renderParams.xRange.contains(x) && _xRange.contains(x),
+    );
 
-    final labels = _xValues.map((e) => grid.xLabel?.call(e));
-    final offsets = _xValues.map(
-      (e) => Offset(renderParams.unit * e, size.height),
+    if (size.isEmpty || drawableValues.isEmpty) return;
+
+    final labels = drawableValues.map((e) => grid.xLabel?.call(e));
+    final offsets = drawableValues.map(
+      (e) => Offset((e - _xRange.lower) * unit, size.height),
     );
 
     assert(labels.length == offsets.length);

@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:artv_chart/trend_chart/common/range.dart';
 import 'package:artv_chart/trend_chart/grid/boundary.dart';
 import 'package:artv_chart/trend_chart/grid/grid.dart';
 import 'package:artv_chart/trend_chart/grid/grid_style.dart';
@@ -39,6 +40,7 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   late TrendChartController _controller;
   late LayoutManager _layoutManager;
+  late List<Offset> _offsets;
 
   @override
   void initState() {
@@ -46,6 +48,10 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
 
     _controller = TrendChartController(vsync: this);
     _layoutManager = LayoutManager();
+    _offsets = List.generate(1000, (idx) {
+      final value = Random.secure().nextDouble() * 100 - 30;
+      return Offset(idx.toDouble(), value.toDouble());
+    });
   }
 
   @override
@@ -67,40 +73,44 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
         child: ListView(
           physics: const NeverScrollableScrollPhysics(),
           children: [
-            TrendChart(
-              controller: _controller,
-              layoutManager: _layoutManager,
-              grids: [
-                Grid(
-                  ySplitCount: 10,
-                  style: GridStyle(
-                    ratio: 0.8,
-                    margin: const EdgeInsets.all(10).copyWith(bottom: 20),
-                  ),
-                  boundaries: [AlignBoundary(10 * 0.05)],
-                  series: [
-                    LineSeries(
-                      List.generate(100, (idx) {
-                        final value = Random.secure().nextDouble() * 100 - 30;
-                        return Offset(idx.toDouble(), value.toDouble());
-                      }),
-                      xValue: xValue,
-                      yValue: yValue,
+            GestureDetector(
+              onDoubleTap: () {
+                _controller.jumpTo(0, animated: true);
+              },
+              child: TrendChart(
+                controller: _controller,
+                layoutManager: _layoutManager,
+                isIgnoredUnitVolume: false,
+                xRange: const Range(0, 1000),
+                grids: [
+                  Grid(
+                    ySplitCount: 10,
+                    style: GridStyle(
+                      ratio: 0.8,
+                      margin: const EdgeInsets.all(10).copyWith(bottom: 20),
                     ),
-                  ],
-                  xLabel: xLabel,
-                  yLabel: yLabel,
-                ),
-                Grid(
-                  style: GridStyle(
-                    height: 100,
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                          color: Colors.grey[200] ?? Colors.grey, width: 1),
-                    ),
+                    boundaries: [AlignBoundary(10 * 0.05)],
+                    series: [
+                      LineSeries(
+                        _offsets,
+                        xValue: xValue,
+                        yValue: yValue,
+                      ),
+                    ],
+                    xLabel: xLabel,
+                    yLabel: yLabel,
                   ),
-                ),
-              ],
+                  // Grid(
+                  //   style: GridStyle(
+                  //     height: 100,
+                  //     decoration: BoxDecoration(
+                  //       border: Border.all(
+                  //           color: Colors.grey[200] ?? Colors.grey, width: 1),
+                  //     ),
+                  //   ),
+                  // ),
+                ],
+              ),
             ),
           ],
         ),
@@ -118,13 +128,6 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
 
   ChartLabel? xLabel(double value) {
     return TextLabel(value.toStringAsFixed(0));
-    // return DecorationLabel(
-    //   size: const Size(8, 8),
-    //   decoration: const BoxDecoration(
-    //     color: Colors.green,
-    //     shape: BoxShape.circle,
-    //   ),
-    // );
   }
 
   ChartLabel? yLabel(double value) {

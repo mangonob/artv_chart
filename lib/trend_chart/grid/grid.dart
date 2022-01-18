@@ -1,3 +1,4 @@
+import 'package:artv_chart/trend_chart/common/enum.dart';
 import 'package:artv_chart/trend_chart/common/render_params.dart';
 import 'package:artv_chart/trend_chart/grid/label/chart_label.dart';
 import 'package:flutter/foundation.dart';
@@ -74,15 +75,27 @@ class Grid {
         renderParams: renderParams,
       );
 
-  Range xRange({RenderParams? params, Size? size}) {
+  Range xRange({
+    required RenderParams params,
+    required Size size,
+  }) {
     if (series.isEmpty) {
       return const Range.empty();
     } else {
-      final total = series.map((e) => e.xRange()).reduce((l, r) => l.union(r));
-      if (params == null) {
+      final total = params.xRange;
+      if (params.unit == 0) {
         return total;
       } else {
-        return total;
+        final unit = params.unit;
+        assert(params.unit > 0);
+        final xOffset = params.xOffset;
+        final isIgnoredUnitVolume = params.isIgnoredUnitVolume;
+        final padding = params.padding;
+        final modelOffset = xOffset - padding.left;
+        final start = (total.lower + modelOffset / unit)
+            .reserve(params.xOffsetReserveMode);
+        return Range(start, start + size.width / unit) -
+            (isIgnoredUnitVolume ? 0 : 0.5);
       }
     }
   }

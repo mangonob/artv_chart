@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 
 import 'enum.dart';
+import 'range.dart';
 
 class RenderParams {
   final double unit;
@@ -10,6 +11,7 @@ class RenderParams {
   final EdgeInsets padding;
   final bool isIgnoredUnitVolume;
   final ReserveMode xOffsetReserveMode;
+  final Range xRange;
 
   const RenderParams({
     required this.unit,
@@ -17,6 +19,7 @@ class RenderParams {
     required this.padding,
     this.isIgnoredUnitVolume = true,
     required this.xOffsetReserveMode,
+    required this.xRange,
   });
 
   RenderParams copyWith({
@@ -25,6 +28,7 @@ class RenderParams {
     EdgeInsets? padding,
     bool? isIgnoredUnitVolume,
     ReserveMode? xOffsetReserveMode,
+    Range? xRange,
   }) =>
       RenderParams(
         unit: unit ?? this.unit,
@@ -32,6 +36,7 @@ class RenderParams {
         padding: padding ?? this.padding,
         isIgnoredUnitVolume: isIgnoredUnitVolume ?? this.isIgnoredUnitVolume,
         xOffsetReserveMode: this.xOffsetReserveMode,
+        xRange: this.xRange,
       );
 
   @override
@@ -42,7 +47,8 @@ class RenderParams {
           xOffset == other.xOffset &&
           padding == other.padding &&
           isIgnoredUnitVolume == other.isIgnoredUnitVolume &&
-          xOffsetReserveMode == other.xOffsetReserveMode;
+          xOffsetReserveMode == other.xOffsetReserveMode &&
+          xRange == other.xRange;
 
   @override
   int get hashCode => hashValues(
@@ -51,6 +57,7 @@ class RenderParams {
         padding,
         isIgnoredUnitVolume,
         xOffsetReserveMode,
+        xRange,
       );
 
   static RenderParams lerp(RenderParams a, RenderParams b, double t) {
@@ -60,6 +67,7 @@ class RenderParams {
       padding: EdgeInsets.lerp(a.padding, b.padding, t)!,
       isIgnoredUnitVolume: b.isIgnoredUnitVolume,
       xOffsetReserveMode: b.xOffsetReserveMode,
+      xRange: Range.lerp(a.xRange, b.xRange, t),
     );
   }
 
