@@ -122,4 +122,28 @@ class Grid {
       return series.map((e) => e.xValues()).reduce((l, r) => l + r);
     }
   }
+
+  static Grid of(BuildContext context) {
+    final scope = context.dependOnInheritedWidgetOfExactType<GridScope>();
+    assert(scope != null, "$GridScope scope not found");
+    return scope!.grid;
+  }
+}
+
+class GridScope extends InheritedWidget {
+  final Grid grid;
+
+  const GridScope({
+    Key? key,
+    required this.grid,
+    required Widget child,
+  }) : super(
+          key: key,
+          child: child,
+        );
+
+  @override
+  bool updateShouldNotify(covariant GridScope oldWidget) {
+    return oldWidget.grid != grid;
+  }
 }

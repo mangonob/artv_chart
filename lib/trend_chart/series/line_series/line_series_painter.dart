@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
 
 import '../../common/render_params.dart';
+import '../../grid/grid.dart';
 import 'line_series.dart';
 
 class LineSeriesPainter extends CustomPainter {
   final LineSeries series;
   final RenderParams renderParams;
+  final Grid grid;
 
   LineSeriesPainter({
     required this.series,
     required this.renderParams,
+    required this.grid,
   });
 
   @override
