@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../common/style.dart';
 
 class GridStyle {
-  final EdgeInsets? margin;
+  final EdgeInsets? _margin;
   final double? height;
   final double? ratio;
   final Color? color;
@@ -13,9 +13,10 @@ class GridStyle {
 
   LineStyle? get lineStyle => _lineStyle;
   TextStyle? get labelStyle => _labelStyle;
+  EdgeInsets? get margin => _margin?.copyWith(left: 0, right: 0);
 
   GridStyle({
-    this.margin = EdgeInsets.zero,
+    EdgeInsets? margin,
     this.height,
     this.ratio = 0.8,
     this.color,
@@ -23,6 +24,7 @@ class GridStyle {
     TextStyle? labelStyle,
     LineStyle? lineStyle,
   })  : assert(color == null || decoration == null),
+        _margin = margin ?? EdgeInsets.zero,
         _lineStyle = LineStyle(color: Colors.grey[200]).merge(lineStyle),
         _labelStyle =
             TextStyle(fontSize: 10, color: Colors.grey[500]).merge(labelStyle);

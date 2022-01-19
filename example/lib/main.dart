@@ -37,7 +37,7 @@ class Home extends StatefulWidget {
   State<Home> createState() => _HomeState();
 }
 
-class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
+class _HomeState extends State<Home> with TickerProviderStateMixin {
   late TrendChartController _controller;
   late LayoutManager _layoutManager;
   late List<Offset> _offsets;
@@ -73,45 +73,41 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
         child: ListView(
           physics: const NeverScrollableScrollPhysics(),
           children: [
-            GestureDetector(
-              onDoubleTap: () {
-                _controller.jumpTo(0, animated: true);
-              },
-              child: TrendChart(
-                controller: _controller,
-                layoutManager: _layoutManager,
-                isIgnoredUnitVolume: false,
-                xRange: const Range(0, 1000),
-                grids: [
-                  Grid(
-                    ySplitCount: 7,
-                    style: GridStyle(
-                      ratio: 0.8,
-                      margin: const EdgeInsets.all(10).copyWith(bottom: 20),
-                      labelStyle: const TextStyle(color: Colors.blue),
-                    ),
-                    boundaries: [AlignBoundary(7 * 0.05)],
-                    series: [
-                      LineSeries(
-                        _offsets,
-                        xValue: xValue,
-                        yValue: yValue,
-                      ),
-                    ],
-                    xLabel: xLabel,
-                    yLabel: yLabel,
+            TrendChart(
+              controller: _controller,
+              layoutManager: _layoutManager,
+              isIgnoredUnitVolume: false,
+              xRange: const Range(0, 200),
+              onDoubleTap: () => _controller.jumpTo(0, animated: true),
+              grids: [
+                Grid(
+                  ySplitCount: 7,
+                  style: GridStyle(
+                    ratio: 0.8,
+                    margin: const EdgeInsets.all(10).copyWith(bottom: 20),
+                    labelStyle: const TextStyle(color: Colors.blue),
                   ),
-                  // Grid(
-                  //   style: GridStyle(
-                  //     height: 100,
-                  //     decoration: BoxDecoration(
-                  //       border: Border.all(
-                  //           color: Colors.grey[200] ?? Colors.grey, width: 1),
-                  //     ),
-                  //   ),
-                  // ),
-                ],
-              ),
+                  boundaries: [AlignBoundary(7 * 0.05)],
+                  series: [
+                    LineSeries(
+                      _offsets,
+                      xValue: xValue,
+                      yValue: yValue,
+                    ),
+                  ],
+                  xLabel: xLabel,
+                  yLabel: yLabel,
+                ),
+                // Grid(
+                //   style: GridStyle(
+                //     height: 100,
+                //     decoration: BoxDecoration(
+                //       border: Border.all(
+                //           color: Colors.grey[200] ?? Colors.grey, width: 1),
+                //     ),
+                //   ),
+                // ),
+              ],
             ),
           ],
         ),

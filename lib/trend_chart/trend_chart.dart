@@ -1,4 +1,3 @@
-import 'package:artv_chart/trend_chart/grid/grid_paint.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
@@ -7,6 +6,7 @@ import 'common/enum.dart';
 import 'common/range.dart';
 import 'common/render_params.dart';
 import 'grid/grid.dart';
+import 'grid/grid_paint.dart';
 import 'layout_manager.dart';
 import 'trend_chart_controller.dart';
 
@@ -20,7 +20,10 @@ class TrendChart extends StatefulWidget {
   final List<Grid> grids;
   final ReserveMode xOffsetReserveMode;
   final bool isIgnoredUnitVolume;
+  final EdgeInsets xPadding;
   final EdgeInsets padding;
+  final ScrollPhysics physic;
+  final GestureTapCallback? onDoubleTap;
 
   /// Builder optional header for every grid
   /// [ ------ Header? ------ ]
@@ -40,9 +43,12 @@ class TrendChart extends StatefulWidget {
     this.grids = const [],
     this.xOffsetReserveMode = ReserveMode.none,
     this.isIgnoredUnitVolume = true,
-    this.padding = const EdgeInsets.symmetric(horizontal: 0),
+    this.xPadding = EdgeInsets.zero,
+    this.padding = EdgeInsets.zero,
     this.headerBuilder,
     this.footerBuilder,
+    this.physic = const BouncingScrollPhysics(),
+    this.onDoubleTap,
   }) : super(key: key);
 
   @override
@@ -74,16 +80,25 @@ class TrendChartState extends State<TrendChart> {
     _renderParams = RenderParams(
       unit: widget.controller.initialUnit,
       xOffset: widget.controller.initialXOffset,
-      padding: widget.padding,
+      padding: widget.xPadding,
       xOffsetReserveMode: widget.xOffsetReserveMode,
       isIgnoredUnitVolume: widget.isIgnoredUnitVolume,
       xRange: widget.xRange,
+      chartWidth: 0,
     );
 
     widget.controller.bindState(this);
     widget.layoutManager.bindState(this);
     widget.controller.addListener(_controllerListener);
     widget.layoutManager.addListener(_managerListener);
+
+    WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
+      final box = context.findRenderObject() as RenderBox?;
+      if (box != null) {
+        mutateRenderParams(
+            (params) => params.copyWith(chartWidth: box.size.width));
+      }
+    });
   }
 
   _managerListener() {}
@@ -91,45 +106,39 @@ class TrendChartState extends State<TrendChart> {
   _controllerListener() {}
 
   @override
-  void didUpdateWidget(covariant TrendChart oldWidget) {
-    super.didUpdateWidget(oldWidget);
-
-    assert(
-      widget.controller == oldWidget.controller,
-      "can not chagne controller",
-    );
-
-    assert(
-      widget.layoutManager == oldWidget.layoutManager,
-      "con not change layoutManager",
-    );
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(builder: (ctx, constraints) {
-      return RenderParamsScope(
-        renderParams: _renderParams,
-        child: TrendChartScope(
-          controller: widget.controller,
-          layoutManager: widget.layoutManager,
-          child: GestureDetector(
-            onScaleUpdate: (d) {
-              if (d.pointerCount == 1) {
-                widget.controller.jumpTo(
-                  _renderParams.xOffset - d.focalPointDelta.dx,
-                );
-              }
-            },
-            child: RepaintBoundary(
-              child: Builder(builder: (ctx) {
-                return _buildGrids(ctx, constraints);
-              }),
+    return Padding(
+      padding: widget.padding,
+      child: LayoutBuilder(builder: (ctx, constraints) {
+        return RenderParamsScope(
+          renderParams:
+              _renderParams.copyWith(chartWidth: constraints.maxWidth),
+          child: TrendChartScope(
+            controller: widget.controller,
+            layoutManager: widget.layoutManager,
+            child: GestureDetector(
+              onScaleUpdate: (d) {
+                if (d.pointerCount == 1) {
+                  widget.controller.applyOffset(d.focalPointDelta.dx);
+                }
+              },
+              onScaleEnd: (d) {
+                if (d.pointerCount == 0) {
+                  widget.controller.decelerate(d.velocity);
+                }
+              },
+              onTapDown: (_) => widget.controller.stopAnimation(),
+              onDoubleTap: widget.onDoubleTap,
+              child: RepaintBoundary(
+                child: Builder(builder: (ctx) {
+                  return _buildGrids(ctx, constraints);
+                }),
+              ),
             ),
           ),
-        ),
-      );
-    });
+        );
+      }),
+    );
   }
 
   Widget _buildGrids(BuildContext context, BoxConstraints constraints) {
@@ -170,9 +179,7 @@ class TrendChartScope extends InheritedWidget {
           child: child,
         );
 
-  _changed<T>(T a, T b) {
-    return a != b;
-  }
+  _changed<T>(T a, T b) => a != b;
 
   @override
   bool updateShouldNotify(covariant TrendChartScope oldWidget) {

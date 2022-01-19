@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:artv_chart/trend_chart/constant.dart';
 import 'package:flutter/material.dart';
 
 import 'enum.dart';
@@ -12,6 +13,7 @@ class RenderParams {
   final bool isIgnoredUnitVolume;
   final ReserveMode xOffsetReserveMode;
   final Range xRange;
+  final double chartWidth;
 
   const RenderParams({
     required this.unit,
@@ -20,6 +22,7 @@ class RenderParams {
     this.isIgnoredUnitVolume = true,
     required this.xOffsetReserveMode,
     required this.xRange,
+    required this.chartWidth,
   });
 
   RenderParams copyWith({
@@ -29,14 +32,16 @@ class RenderParams {
     bool? isIgnoredUnitVolume,
     ReserveMode? xOffsetReserveMode,
     Range? xRange,
+    double? chartWidth,
   }) =>
       RenderParams(
         unit: unit ?? this.unit,
         xOffset: xOffset ?? this.xOffset,
         padding: padding ?? this.padding,
         isIgnoredUnitVolume: isIgnoredUnitVolume ?? this.isIgnoredUnitVolume,
-        xOffsetReserveMode: this.xOffsetReserveMode,
-        xRange: this.xRange,
+        xOffsetReserveMode: xOffsetReserveMode ?? this.xOffsetReserveMode,
+        xRange: xRange ?? this.xRange,
+        chartWidth: chartWidth ?? this.chartWidth,
       );
 
   @override
@@ -48,7 +53,8 @@ class RenderParams {
           padding == other.padding &&
           isIgnoredUnitVolume == other.isIgnoredUnitVolume &&
           xOffsetReserveMode == other.xOffsetReserveMode &&
-          xRange == other.xRange;
+          xRange == other.xRange &&
+          chartWidth == other.chartWidth;
 
   @override
   int get hashCode => hashValues(
@@ -58,7 +64,20 @@ class RenderParams {
         isIgnoredUnitVolume,
         xOffsetReserveMode,
         xRange,
+        chartWidth,
       );
+
+  double get minExtend => padding.left;
+
+  double get maxExtend {
+    if (unit == kScaleToFitGridUnit) {
+      return padding.right;
+    } else {
+      final expandedLength =
+          isIgnoredUnitVolume ? xRange.length : xRange.length + 1;
+      return expandedLength * unit + padding.right - chartWidth;
+    }
+  }
 
   static RenderParams lerp(RenderParams a, RenderParams b, double t) {
     return RenderParams(
@@ -68,6 +87,7 @@ class RenderParams {
       isIgnoredUnitVolume: b.isIgnoredUnitVolume,
       xOffsetReserveMode: b.xOffsetReserveMode,
       xRange: Range.lerp(a.xRange, b.xRange, t),
+      chartWidth: lerpDouble(a.chartWidth, b.chartWidth, t)!,
     );
   }
 

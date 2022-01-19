@@ -10,15 +10,18 @@ class TrendChartController extends ChangeNotifier {
   final double initialUnit;
   final double initialXOffset;
   late AnimationController _animationController;
+  bool _isSimulating = false;
 
   Animation<RenderParams>? _paramsAnimation;
+
+  RenderParams get _renderParams => _state!.renderParams;
 
   TrendChartController({
     required TickerProvider vsync,
     this.initialUnit = 20,
     this.initialXOffset = 0,
   }) {
-    _animationController = AnimationController(vsync: vsync);
+    _animationController = AnimationController.unbounded(vsync: vsync);
     _animationController.addListener(_animationListener);
   }
 
@@ -30,14 +33,19 @@ class TrendChartController extends ChangeNotifier {
 
   @override
   void dispose() {
-    super.dispose();
+    _animationController.dispose();
     _state = null;
+    super.dispose();
   }
 
   static TrendChartController of(BuildContext context) {
     final scope = context.dependOnInheritedWidgetOfExactType<TrendChartScope>();
     assert(scope != null, "$TrendChartScope not found.");
     return scope!.controller;
+  }
+
+  stopAnimation() {
+    if (_animationController.isAnimating) _animationController.stop();
   }
 
   /// Change xOffset animated if needed.
@@ -48,18 +56,23 @@ class TrendChartController extends ChangeNotifier {
     Curve curve = Curves.easeOut,
     Duration duration = const Duration(milliseconds: 250),
   }) {
+    stopAnimation();
     if (!animated) {
       _paramsAnimation = null;
       _state?.mutateRenderParams((p) => p.copyWith(xOffset: xOffset));
     } else {
       _state?.renderParams.flatMap((oldValue) {
         _paramsAnimation = RenderParamsTween(
-                begin: oldValue, end: oldValue.copyWith(xOffset: xOffset))
-            .animate(
-                CurvedAnimation(parent: _animationController, curve: curve));
+          begin: oldValue,
+          end: oldValue.copyWith(xOffset: xOffset),
+        ).animate(_animationController);
       });
-      _animationController.duration = duration;
-      _animationController.forward(from: 0);
+      _animationController.value = 0;
+      _animationController
+          .animateTo(1, curve: curve, duration: duration)
+          .whenCompleteOrCancel(() {
+        _paramsAnimation = null;
+      });
     }
   }
 
@@ -71,26 +84,78 @@ class TrendChartController extends ChangeNotifier {
     Curve curve = Curves.easeOut,
     Duration duration = const Duration(milliseconds: 250),
   }) {
+    stopAnimation();
     if (!animated) {
       _paramsAnimation = null;
       _state?.mutateRenderParams((p) => p.copyWith(unit: unit));
     } else {
-      _state?.renderParams.flatMap((oldValue) {
-        _paramsAnimation = RenderParamsTween(
-                begin: oldValue, end: oldValue.copyWith(unit: unit))
-            .animate(
-          CurvedAnimation(parent: _animationController, curve: curve),
-        );
+      _paramsAnimation = RenderParamsTween(
+        begin: _renderParams,
+        end: _renderParams.copyWith(unit: unit),
+      ).animate(_animationController);
+
+      _animationController.value = 0;
+      _animationController
+          .animateTo(1, curve: curve, duration: duration)
+          .whenCompleteOrCancel(() {
+        _paramsAnimation = null;
       });
-      _animationController.duration = duration;
-      _animationController.forward(from: 0);
     }
+  }
+
+  ScrollMetrics createPosition() {
+    return FixedScrollMetrics(
+      minScrollExtent: _renderParams.minExtend,
+      maxScrollExtent: _renderParams.maxExtend,
+      pixels: _renderParams.xOffset,
+      viewportDimension: _renderParams.chartWidth,
+      axisDirection: AxisDirection.right,
+    );
+  }
+
+  void applyOffset(double delta) {
+    if (delta != 0) {
+      stopAnimation();
+      final viewDelta = _state!.widget.physic.applyPhysicsToUserOffset(
+        createPosition(),
+        -delta,
+      );
+
+      _state?.mutateRenderParams((params) {
+        return params.copyWith(xOffset: params.xOffset + viewDelta);
+      });
+    }
+  }
+
+  /// Declearing animation when user swap gesture end.
+  /// Initial velocity of declerating [velocity]
+  /// Animation will not perform when horizontal velocity (pixel/s) less then [threshold]
+  void decelerate(
+    Velocity velocity,
+  ) {
+    final simulation = _state!.widget.physic.createBallisticSimulation(
+      createPosition(),
+      -velocity.pixelsPerSecond.dx,
+    );
+
+    simulation.flatMap((simu) {
+      stopAnimation();
+      _isSimulating = true;
+      _animationController.animateWith(simu).whenCompleteOrCancel(() {
+        _isSimulating = false;
+      });
+    });
   }
 
   _animationListener() {
     final animatingParams = _paramsAnimation?.value;
+
     if (animatingParams != null) {
       _state?.updateRenderParams(animatingParams);
+    } else if (_isSimulating) {
+      _state?.mutateRenderParams(
+        (p) => p.copyWith(xOffset: _animationController.value),
+      );
     }
   }
 }

@@ -128,7 +128,9 @@ class Grid {
     } else {
       final total = series.map((e) => e.xValues()).reduce((l, r) => l + r);
       final xRange = cache?.xRange ?? this.xRange(params: params, size: size);
-      return total.where((g) => xRange.contains(g)).toList();
+      return total
+          .where((x) => xRange.contains(x) && params.xRange.contains(x))
+          .toList();
     }
   }
 
