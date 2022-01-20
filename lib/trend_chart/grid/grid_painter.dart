@@ -111,10 +111,11 @@ class GridPainter extends CustomPainter {
 
   void _paintXValues(Canvas canvas, Size size) {
     final unit = renderParams.unit;
-    if (size.isEmpty || _xRange.isEmpty) return;
+    final drawRange = _xRange.intersection(renderParams.xRange);
+    if (size.isEmpty || drawRange.isEmpty) return;
 
-    final labels = _xRange.toIterable().map((x) => grid.xLabel?.call(x));
-    final offsets = _xRange.toIterable().map(
+    final labels = drawRange.toIterable().map((x) => grid.xLabel?.call(x));
+    final offsets = drawRange.toIterable().map(
           (x) => Offset((x - _xRange.lower) * unit, size.height),
         );
 
