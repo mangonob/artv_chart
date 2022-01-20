@@ -9,11 +9,9 @@ class LineSeries extends Series<Offset> {
   LineSeries(
     List<Offset> datas, {
     int gridIndex = 0,
-    required ValueConvertor<Offset> xValue,
     required ValueConvertor<Offset> yValue,
   }) : super(
           datas: datas,
-          xValue: xValue,
           yValue: yValue,
         );
 

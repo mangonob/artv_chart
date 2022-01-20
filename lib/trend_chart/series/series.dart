@@ -1,3 +1,5 @@
+import 'dart:math' as Math;
+
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:quiver/iterables.dart';
@@ -11,13 +13,11 @@ typedef ValueConvertor<T> = double Function(T, int, Series<T>);
 abstract class Series<D> {
   final List<D> datas;
   final int priority;
-  final ValueConvertor<D>? xValue;
   final ValueConvertor<D>? yValue;
 
   Series({
     required this.datas,
     this.priority = 0,
-    this.xValue,
     this.yValue,
   });
 
@@ -27,46 +27,40 @@ abstract class Series<D> {
     required Grid grid,
   });
 
-  List<double> xValues() {
-    if (xValue == null) {
-      return [];
-    } else {
-      return datas.mapIndexed((index, d) => xValue!(d, index, this)).toList();
-    }
-  }
-
   List<double> yValues(Range xRange) {
-    if (xValue == null || yValue == null) {
+    if (yValue == null) {
       return [];
     } else {
-      final rangedDatas = datas
-          .whereIndexed((index, d) => xRange.contains(xValue!(d, index, this)));
-      return rangedDatas
-          .mapIndexed((index, d) => yValue!(d, index, this))
-          .toList();
+      final start = Math.min(
+        Math.max(xRange.lower.ceil(), 0),
+        datas.length + 1,
+      );
+      final end = Math.min(Math.max(xRange.upper.ceil(), 0), datas.length + 1);
+      if (end > start) {
+        return datas
+            .getRange(start, end)
+            .mapIndexed((index, d) => yValue!(d, index + start, this))
+            .toList();
+      } else {
+        return [];
+      }
     }
   }
 
   Range yRange(Range xRange) {
-    if (xValue == null || yValue == null) {
+    if (yValue == null) {
       return const Range.empty();
     } else {
-      final rangedDatas = datas
-          .whereIndexed((index, d) => xRange.contains(xValue!(d, index, this)));
+      final yValues = this.yValues(xRange);
 
-      return rangedDatas.foldIndexed(
+      return yValues.foldIndexed(
         const Range.empty(),
-        (index, range, d) => range.extend(yValue!(d, index, this)),
+        (index, range, value) => range.extend(value),
       );
     }
   }
 
   Range xRange() {
-    final xs = xValues();
-    if (xs.isEmpty) {
-      return const Range.empty();
-    } else {
-      return Range(min(xs)!, max(xs)!);
-    }
+    return Range(0, datas.length - 1);
   }
 }

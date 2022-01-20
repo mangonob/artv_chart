@@ -13,7 +13,7 @@ import 'custom_line.dart';
 import 'grid_painter.dart';
 import 'label/chart_label.dart';
 
-typedef ValueFormatter = ChartLabel? Function(double);
+typedef ValueFormatter<T> = ChartLabel? Function(T);
 
 class Grid {
   final String? identifier;
@@ -22,8 +22,8 @@ class Grid {
   final GridStyle _style;
   final List<Series> series;
   final List<Boundary> boundaries;
-  final ValueFormatter? xLabel;
-  final ValueFormatter? yLabel;
+  final ValueFormatter<int>? xLabel;
+  final ValueFormatter<double>? yLabel;
   final List<CustomLine>? xCustomLines;
   final List<CustomLine>? yCustomLines;
 
@@ -116,22 +116,6 @@ class Grid {
       range,
       (r, boundary) => boundary.createRange(r),
     );
-  }
-
-  List<double> xValues({
-    required RenderParams params,
-    required Size size,
-    Cache? cache,
-  }) {
-    if (series.isEmpty) {
-      return [];
-    } else {
-      final total = series.map((e) => e.xValues()).reduce((l, r) => l + r);
-      final xRange = cache?.xRange ?? this.xRange(params: params, size: size);
-      return total
-          .where((x) => xRange.contains(x) && params.xRange.contains(x))
-          .toList();
-    }
   }
 
   static Grid of(BuildContext context) {

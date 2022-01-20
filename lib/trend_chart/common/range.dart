@@ -1,8 +1,6 @@
 import 'dart:math';
 import 'dart:ui';
 
-import 'package:flutter/material.dart';
-
 class Range {
   final double lower;
   final double upper;
@@ -23,6 +21,11 @@ class Range {
 
   /// The range that contain all values.
   const Range.unbounded() : this(double.negativeInfinity, double.infinity);
+
+  /// The range contain single value
+  factory Range.only(double value) => Range(value, value);
+
+  factory Range.length(double value) => Range(0, value);
 
   operator +(double value) => Range(lower + value, upper + value);
 
@@ -65,6 +68,8 @@ class Range {
         max(upper, value),
       );
 
+  Range expand(double left, double right) => Range(lower - left, upper + left);
+
   /// Whether the value is in the range.
   bool contains(double value) => lower <= value && value <= upper;
 
@@ -97,5 +102,33 @@ class Range {
       final step = length / count;
       return List.generate(count + 1, (index) => lower + step * index);
     }
+  }
+
+  Iterable<int> toIterable() => _IterableRange(this);
+}
+
+class _IterableRange extends Iterable<int> {
+  final Range range;
+
+  _IterableRange(this.range);
+
+  @override
+  Iterator<int> get iterator => _RangeIterator(range);
+}
+
+class _RangeIterator extends Iterator<int> {
+  Range range;
+
+  int _index;
+
+  _RangeIterator(this.range) : _index = 0;
+
+  @override
+  int get current => range.lower.ceil() + _index;
+
+  @override
+  bool moveNext() {
+    _index += 1;
+    return range.lower.ceil() + _index <= range.upper.floor();
   }
 }

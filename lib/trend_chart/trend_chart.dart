@@ -21,7 +21,6 @@ class TrendChart extends StatefulWidget {
   final ReserveMode xOffsetReserveMode;
   final bool isIgnoredUnitVolume;
   final EdgeInsets xPadding;
-  final EdgeInsets padding;
   final ScrollPhysics physic;
   final GestureTapCallback? onDoubleTap;
 
@@ -44,7 +43,6 @@ class TrendChart extends StatefulWidget {
     this.xOffsetReserveMode = ReserveMode.none,
     this.isIgnoredUnitVolume = true,
     this.xPadding = EdgeInsets.zero,
-    this.padding = EdgeInsets.zero,
     this.headerBuilder,
     this.footerBuilder,
     this.physic = const BouncingScrollPhysics(),
@@ -107,38 +105,34 @@ class TrendChartState extends State<TrendChart> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: widget.padding,
-      child: LayoutBuilder(builder: (ctx, constraints) {
-        return RenderParamsScope(
-          renderParams:
-              _renderParams.copyWith(chartWidth: constraints.maxWidth),
-          child: TrendChartScope(
-            controller: widget.controller,
-            layoutManager: widget.layoutManager,
-            child: GestureDetector(
-              onScaleUpdate: (d) {
-                if (d.pointerCount == 1) {
-                  widget.controller.applyOffset(d.focalPointDelta.dx);
-                }
-              },
-              onScaleEnd: (d) {
-                if (d.pointerCount == 0) {
-                  widget.controller.decelerate(d.velocity);
-                }
-              },
-              onTapDown: (_) => widget.controller.stopAnimation(),
-              onDoubleTap: widget.onDoubleTap,
-              child: RepaintBoundary(
-                child: Builder(builder: (ctx) {
-                  return _buildGrids(ctx, constraints);
-                }),
-              ),
+    return LayoutBuilder(builder: (ctx, constraints) {
+      return RenderParamsScope(
+        renderParams: _renderParams,
+        child: TrendChartScope(
+          controller: widget.controller,
+          layoutManager: widget.layoutManager,
+          child: GestureDetector(
+            onScaleUpdate: (d) {
+              if (d.pointerCount == 1) {
+                widget.controller.applyOffset(d.focalPointDelta.dx);
+              }
+            },
+            onScaleEnd: (d) {
+              if (d.pointerCount == 0) {
+                widget.controller.decelerate(d.velocity);
+              }
+            },
+            onTapDown: (_) => widget.controller.stopAnimation(),
+            onDoubleTap: widget.onDoubleTap,
+            child: RepaintBoundary(
+              child: Builder(builder: (ctx) {
+                return _buildGrids(ctx, constraints);
+              }),
             ),
           ),
-        );
-      }),
-    );
+        ),
+      );
+    });
   }
 
   Widget _buildGrids(BuildContext context, BoxConstraints constraints) {

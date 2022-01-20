@@ -26,14 +26,12 @@ class GridPainter extends CustomPainter {
   /// Cache computed values
   late Range _xRange;
   late Range _yRange;
-  late List<double> _xValues;
 
   void _prepareForSize(Size size) {
     final cache = Cache(
       xRange: _xRange = grid.xRange(params: renderParams, size: size),
     );
     _yRange = grid.yRange(params: renderParams, size: size, cache: cache);
-    _xValues = grid.xValues(params: renderParams, size: size, cache: cache);
   }
 
   @override
@@ -113,12 +111,12 @@ class GridPainter extends CustomPainter {
 
   void _paintXValues(Canvas canvas, Size size) {
     final unit = renderParams.unit;
-    if (size.isEmpty || _xValues.isEmpty) return;
+    if (size.isEmpty || _xRange.isEmpty) return;
 
-    final labels = _xValues.map((e) => grid.xLabel?.call(e));
-    final offsets = _xValues.map(
-      (e) => Offset((e - _xRange.lower) * unit, size.height),
-    );
+    final labels = _xRange.toIterable().map((x) => grid.xLabel?.call(x));
+    final offsets = _xRange.toIterable().map(
+          (x) => Offset((x - _xRange.lower) * unit, size.height),
+        );
 
     assert(labels.length == offsets.length);
 
