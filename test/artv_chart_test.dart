@@ -25,7 +25,7 @@ void main() {
     final a1 = AlignBoundary(1);
     final a20 = AlignBoundary(20);
 
-    expect(aHalf.createRange(const Range(0.1, 2.3)), const Range(0.5, 2.5));
+    expect(aHalf.createRange(const Range(0.1, 2.3)), const Range(0, 2.5));
     expect(aHalf.createRange(const Range(-0.4, 100)), const Range(-0.5, 100));
     expect(a1.createRange(const Range(-0.4, 37.4)), const Range(-1, 38));
     expect(a20.createRange(const Range(0, 2)), const Range(0, 20));
@@ -36,6 +36,7 @@ void main() {
     expect(a20.createRange(const Range(-20, 21)), const Range(-20, 40));
     expect(a20.createRange(const Range(-21, 21)), const Range(-40, 40));
     expect(a20.createRange(const Range(-37, 101)), const Range(-40, 120));
+    expect(a20.createRange(const Range(101, 181)), const Range(100, 200));
     expect(
       a20.createRange(const Range(0, double.infinity)),
       const Range(0, double.infinity),

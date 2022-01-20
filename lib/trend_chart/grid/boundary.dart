@@ -22,10 +22,14 @@ class AlignBoundary extends Boundary {
     this.align,
   ) : assert(align.isFinite && align > 0);
 
-  double _align(double value) {
-    final factor = value.abs() / align;
-    if (factor.isFinite && !factor.isNaN) {
-      return value.sign * align * factor.ceil();
+  double _align(double value, {bool isUpper = true}) {
+    if (value.isFinite && !value.isNaN) {
+      final aligned = (value ~/ align) * align;
+      if (isUpper) {
+        return aligned >= value ? aligned : aligned + align;
+      } else {
+        return aligned <= value ? aligned : aligned - align;
+      }
     } else {
       return value;
     }
@@ -34,8 +38,8 @@ class AlignBoundary extends Boundary {
   @override
   Range createRange(Range range) {
     return Range(
-      _align(range.lower),
-      _align(range.upper),
+      _align(range.lower, isUpper: false),
+      _align(range.upper, isUpper: true),
     );
   }
 }
