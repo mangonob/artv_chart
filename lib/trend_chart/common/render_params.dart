@@ -1,8 +1,8 @@
 import 'dart:ui';
 
-import 'package:artv_chart/trend_chart/constant.dart';
 import 'package:flutter/material.dart';
 
+import '../constant.dart';
 import 'enum.dart';
 import 'range.dart';
 

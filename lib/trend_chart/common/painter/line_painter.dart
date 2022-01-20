@@ -1,6 +1,6 @@
-import 'package:artv_chart/trend_chart/common/enum.dart';
 import 'package:flutter/material.dart';
 
+import '../enum.dart';
 import '../style.dart';
 
 class LinePainter {

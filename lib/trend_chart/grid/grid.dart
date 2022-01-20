@@ -76,6 +76,9 @@ class Grid {
         renderParams: renderParams,
       );
 
+  /// Logical x range of current visible grid area, it's boundary can be floating point number.
+  /// [params] the render params.
+  /// [size] grid size.
   Range xRange({
     required RenderParams params,
     required Size size,

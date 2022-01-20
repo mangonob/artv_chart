@@ -1,6 +1,6 @@
-import 'package:artv_chart/trend_chart/common/render_params.dart';
 import 'package:flutter/widgets.dart';
 
+import 'common/render_params.dart';
 import 'grid/grid.dart';
 import 'layout_details.dart';
 import 'trend_chart.dart';

@@ -121,7 +121,7 @@ class _RangeIterator extends Iterator<int> {
 
   int _index;
 
-  _RangeIterator(this.range) : _index = 0;
+  _RangeIterator(this.range) : _index = -1;
 
   @override
   int get current => range.lower.ceil() + _index;
