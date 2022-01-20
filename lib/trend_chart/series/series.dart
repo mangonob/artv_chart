@@ -33,9 +33,9 @@ abstract class Series<D> {
     } else {
       final start = Math.min(
         Math.max(xRange.lower.ceil(), 0),
-        datas.length + 1,
+        datas.length,
       );
-      final end = Math.min(Math.max(xRange.upper.ceil(), 0), datas.length + 1);
+      final end = Math.min(Math.max(xRange.upper.ceil(), 0), datas.length);
       if (end > start) {
         return datas
             .getRange(start, end)
