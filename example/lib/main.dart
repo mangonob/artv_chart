@@ -41,6 +41,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   late TrendChartController _controller;
   late LayoutManager _layoutManager;
   late List<Offset> _offsets;
+  final int _itemCount = 100000;
 
   @override
   void initState() {
@@ -48,7 +49,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
 
     _controller = TrendChartController(vsync: this);
     _layoutManager = LayoutManager();
-    _offsets = List.generate(1000, (idx) {
+    _offsets = List.generate(_itemCount, (idx) {
       final value = Random.secure().nextDouble() * 10 * idx + 100;
       return Offset(idx.toDouble(), value.toDouble());
     });
@@ -77,21 +78,20 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
               controller: _controller,
               layoutManager: _layoutManager,
               isIgnoredUnitVolume: false,
-              xRange: const Range(0, 200),
+              xRange: Range.length(_itemCount.toDouble()),
               onDoubleTap: () => _controller.jumpTo(0, animated: true),
               grids: [
                 Grid(
-                  ySplitCount: 7,
+                  ySplitCount: 5,
                   style: GridStyle(
                     ratio: 0.8,
                     margin: const EdgeInsets.all(10).copyWith(bottom: 20),
                     labelStyle: const TextStyle(color: Colors.blue),
                   ),
-                  boundaries: [AlignBoundary(7 * 0.05)],
+                  boundaries: [AlignBoundary(5 * 10)],
                   series: [
                     LineSeries(
                       _offsets,
-                      xValue: xValue,
                       yValue: yValue,
                     ),
                   ],
@@ -123,8 +123,10 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
     return offset.dy;
   }
 
-  ChartLabel? xLabel(double value) {
-    return TextLabel(value.toStringAsFixed(0));
+  ChartLabel? xLabel(int index) {
+    if (index % 5 == 0) {
+      return TextLabel(index.toStringAsFixed(0));
+    }
   }
 
   ChartLabel? yLabel(double value) {
