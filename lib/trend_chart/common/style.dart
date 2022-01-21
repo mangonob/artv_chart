@@ -8,6 +8,7 @@ class LineStyle {
   final Color? color;
   final double? size;
   final LineType? type;
+  final double? singlePointSize;
 
   /// Pattern when line type is [LineType.dash] or [LineType.dot]
   /// Eg: pattern [2, 1] of [LineType.dash] will draw "-- -- --"
@@ -18,6 +19,7 @@ class LineStyle {
     this.color = Colors.grey,
     this.size = 1,
     this.type = LineType.solid,
+    this.singlePointSize = 5,
     this.pattern = const [2, 2],
   });
 
