@@ -11,6 +11,8 @@ import 'package:artv_chart/trend_chart/series/line_series/line_series.dart';
 import 'package:artv_chart/trend_chart/series/series.dart';
 import 'package:artv_chart/trend_chart/trend_chart.dart';
 import 'package:artv_chart/trend_chart/trend_chart_controller.dart';
+import 'package:example/pages/kline_demo.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -37,28 +39,43 @@ class Home extends StatefulWidget {
   State<Home> createState() => _HomeState();
 }
 
+enum KLineType {
+  timeSharing,
+  kLine,
+}
+
+extension KLineTypeDescriptionExtension on KLineType {
+  String description() {
+    switch (this) {
+      case KLineType.timeSharing:
+        return "分时";
+      case KLineType.kLine:
+        return "K线";
+    }
+  }
+}
+
 class _HomeState extends State<Home> with TickerProviderStateMixin {
-  late TrendChartController _controller;
-  late LayoutManager _layoutManager;
-  late List<Offset> _offsets;
-  final int _itemCount = 100000;
+  int _currentIndex = 0;
+  late TabController _tabController;
 
   @override
   void initState() {
     super.initState();
 
-    _controller = TrendChartController(vsync: this);
-    _layoutManager = LayoutManager();
-    _offsets = List.generate(_itemCount, (idx) {
-      final value = Random.secure().nextDouble() * 10 * idx + 100;
-      return Offset(idx.toDouble(), value.toDouble());
+    _tabController = TabController(length: 2, vsync: this);
+    _tabController.addListener(_tabListener);
+  }
+
+  void _tabListener() {
+    setState(() {
+      _currentIndex = _tabController.index;
     });
   }
 
   @override
   void dispose() {
-    _controller.dispose();
-    _layoutManager.dispose();
+    _tabController.dispose();
     super.dispose();
   }
 
@@ -67,69 +84,34 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
     return Scaffold(
       appBar: AppBar(
         toolbarHeight: 44,
-        title: const Text("Chart Demo"),
-      ),
-      body: Container(
-        color: Colors.white,
-        child: ListView(
-          physics: const NeverScrollableScrollPhysics(),
-          children: [
-            TrendChart(
-              controller: _controller,
-              layoutManager: _layoutManager,
-              isIgnoredUnitVolume: false,
-              xRange: Range.length(_itemCount.toDouble()),
-              onDoubleTap: () => _controller.jumpTo(0, animated: true),
-              grids: [
-                Grid(
-                  ySplitCount: 5,
-                  style: GridStyle(
-                    ratio: 0.8,
-                    margin: const EdgeInsets.all(10).copyWith(bottom: 20),
-                    labelStyle: const TextStyle(color: Colors.blue),
-                  ),
-                  boundaries: [AlignBoundary(5 * 10)],
-                  series: [
-                    LineSeries(
-                      _offsets,
-                      yValue: yValue,
-                    ),
-                  ],
-                  xLabel: xLabel,
-                  yLabel: yLabel,
-                ),
-                // Grid(
-                //   style: GridStyle(
-                //     height: 100,
-                //     decoration: BoxDecoration(
-                //       border: Border.all(
-                //           color: Colors.grey[200] ?? Colors.grey, width: 1),
-                //     ),
-                //   ),
-                // ),
-              ],
-            ),
-          ],
+        title: CupertinoSegmentedControl<int>(
+          selectedColor: Colors.white,
+          unselectedColor: Colors.blue,
+          borderColor: Colors.white,
+          groupValue: _currentIndex,
+          children: {
+            for (var v in KLineType.values)
+              v.index: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Text(v.description()),
+              ),
+          },
+          onValueChanged: (v) {
+            setState(() {
+              _currentIndex = v;
+            });
+            _tabController.index = v;
+          },
         ),
       ),
+      body: TabBarView(
+        physics: const NeverScrollableScrollPhysics(),
+        controller: _tabController,
+        children: const [
+          KLineDemo(),
+          KLineDemo(),
+        ],
+      ),
     );
-  }
-
-  double xValue(Offset offset, int index, Series<Offset> series) {
-    return offset.dx;
-  }
-
-  double yValue(Offset offset, int index, Series<Offset> series) {
-    return offset.dy;
-  }
-
-  ChartLabel? xLabel(int index) {
-    if (index % 5 == 0) {
-      return TextLabel(index.toStringAsFixed(0));
-    }
-  }
-
-  ChartLabel? yLabel(double value) {
-    return TextLabel(value.toStringAsFixed(2));
   }
 }

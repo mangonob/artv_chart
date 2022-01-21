@@ -117,6 +117,9 @@ class TrendChartState extends State<TrendChart> {
                 widget.controller.applyOffset(d.focalPointDelta.dx);
               }
             },
+            onLongPressMoveUpdate: (d) {
+              // TODO: Update cross line active point
+            },
             onScaleEnd: (d) {
               if (d.pointerCount == 0) {
                 widget.controller.decelerate(d.velocity);
