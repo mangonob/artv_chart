@@ -1,16 +1,3 @@
-import 'dart:math';
-
-import 'package:artv_chart/trend_chart/common/range.dart';
-import 'package:artv_chart/trend_chart/grid/boundary.dart';
-import 'package:artv_chart/trend_chart/grid/grid.dart';
-import 'package:artv_chart/trend_chart/grid/grid_style.dart';
-import 'package:artv_chart/trend_chart/grid/label/chart_label.dart';
-import 'package:artv_chart/trend_chart/grid/label/text_label.dart';
-import 'package:artv_chart/trend_chart/layout_manager.dart';
-import 'package:artv_chart/trend_chart/series/line_series/line_series.dart';
-import 'package:artv_chart/trend_chart/series/series.dart';
-import 'package:artv_chart/trend_chart/trend_chart.dart';
-import 'package:artv_chart/trend_chart/trend_chart_controller.dart';
 import 'package:example/pages/kline_demo.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';

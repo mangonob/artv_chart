@@ -23,6 +23,8 @@ class TrendChart extends StatefulWidget {
   final EdgeInsets xPadding;
   final ScrollPhysics physic;
   final GestureTapCallback? onDoubleTap;
+  final double minUnit;
+  final double maxUnit;
 
   /// Builder optional header for every grid
   /// [ ------ Header? ------ ]
@@ -47,7 +49,10 @@ class TrendChart extends StatefulWidget {
     this.footerBuilder,
     this.physic = const BouncingScrollPhysics(),
     this.onDoubleTap,
-  }) : super(key: key);
+    this.minUnit = 0,
+    this.maxUnit = 30,
+  })  : assert(minUnit <= maxUnit),
+        super(key: key);
 
   @override
   State<TrendChart> createState() => TrendChartState();
@@ -76,7 +81,7 @@ class TrendChartState extends State<TrendChart> {
     super.initState();
 
     _renderParams = RenderParams(
-      unit: widget.controller.initialUnit,
+      unit: widget.controller.initialUnit.clamp(widget.minUnit, widget.maxUnit),
       xOffset: widget.controller.initialXOffset,
       padding: widget.xPadding,
       xOffsetReserveMode: widget.xOffsetReserveMode,
@@ -112,13 +117,25 @@ class TrendChartState extends State<TrendChart> {
           controller: widget.controller,
           layoutManager: widget.layoutManager,
           child: GestureDetector(
+            onLongPressMoveUpdate: (d) {
+              // TODO: Update cross line active point
+            },
+            onHorizontalDragUpdate: (d) {
+              widget.controller.applyOffset(d.delta.dx);
+            },
+            onHorizontalDragEnd: (d) {
+              widget.controller.decelerate(d.velocity);
+            },
             onScaleUpdate: (d) {
               if (d.pointerCount == 1) {
                 widget.controller.applyOffset(d.focalPointDelta.dx);
+              } else {
+                widget.controller.interactive(
+                  d.scale,
+                  d.localFocalPoint.dx,
+                  d.focalPointDelta.dx,
+                );
               }
-            },
-            onLongPressMoveUpdate: (d) {
-              // TODO: Update cross line active point
             },
             onScaleEnd: (d) {
               if (d.pointerCount == 0) {

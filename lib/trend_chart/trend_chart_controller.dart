@@ -18,7 +18,7 @@ class TrendChartController extends ChangeNotifier {
 
   TrendChartController({
     required TickerProvider vsync,
-    this.initialUnit = 20,
+    this.initialUnit = 8,
     this.initialXOffset = 0,
   }) {
     _animationController = AnimationController.unbounded(vsync: vsync);
@@ -56,17 +56,39 @@ class TrendChartController extends ChangeNotifier {
     Curve curve = Curves.easeOut,
     Duration duration = const Duration(milliseconds: 250),
   }) {
+    setRenderParams(
+      _renderParams.copyWith(
+        xOffset: xOffset
+            .safeClamp(
+              _renderParams.minExtend,
+              _renderParams.maxExtend,
+            )
+            .toDouble(),
+      ),
+      animated: animated,
+      curve: curve,
+      duration: duration,
+    );
+  }
+
+  void setRenderParams(
+    RenderParams renderParams, {
+    bool animated = false,
+    Curve curve = Curves.easeOut,
+    Duration duration = const Duration(milliseconds: 250),
+  }) {
     stopAnimation();
+
+    final clampedRenderParams = _clampRenderParams(renderParams);
+
     if (!animated) {
       _paramsAnimation = null;
-      _state?.mutateRenderParams((p) => p.copyWith(xOffset: xOffset));
+      _state?.mutateRenderParams((p) => clampedRenderParams);
     } else {
-      _state?.renderParams.flatMap((oldValue) {
-        _paramsAnimation = RenderParamsTween(
-          begin: oldValue,
-          end: oldValue.copyWith(xOffset: xOffset),
-        ).animate(_animationController);
-      });
+      _paramsAnimation = RenderParamsTween(
+        begin: _renderParams,
+        end: _clampRenderParams(clampedRenderParams),
+      ).animate(_animationController);
       _animationController.value = 0;
       _animationController
           .animateTo(1, curve: curve, duration: duration)
@@ -74,6 +96,40 @@ class TrendChartController extends ChangeNotifier {
         _paramsAnimation = null;
       });
     }
+  }
+
+  /// Reset unit and xOffset to initial config (animated if needed).
+  void resetInitialValue({
+    bool animated = false,
+    Curve curve = Curves.easeOut,
+    Duration duration = const Duration(milliseconds: 250),
+  }) {
+    setRenderParams(
+      _renderParams.copyWith(
+        unit: initialUnit,
+        xOffset: initialXOffset,
+      ),
+      animated: animated,
+      curve: curve,
+      duration: duration,
+    );
+  }
+
+  /// Create correct [RenderParams] clamps to bounds.
+  RenderParams _clampRenderParams(RenderParams renderParams) {
+    final minUnit = _state!.widget.minUnit;
+    final maxUnit = _state!.widget.maxUnit;
+
+    final clampUnit = renderParams.copyWith(
+      unit: renderParams.unit.safeClamp(minUnit, maxUnit).toDouble(),
+    );
+
+    final minExtend = clampUnit.minExtend;
+    final maxExtend = clampUnit.maxExtend;
+
+    return clampUnit.copyWith(
+      xOffset: clampUnit.xOffset.safeClamp(minExtend, maxExtend).toDouble(),
+    );
   }
 
   /// Change unit animated if needed.
@@ -84,23 +140,19 @@ class TrendChartController extends ChangeNotifier {
     Curve curve = Curves.easeOut,
     Duration duration = const Duration(milliseconds: 250),
   }) {
-    stopAnimation();
-    if (!animated) {
-      _paramsAnimation = null;
-      _state?.mutateRenderParams((p) => p.copyWith(unit: unit));
-    } else {
-      _paramsAnimation = RenderParamsTween(
-        begin: _renderParams,
-        end: _renderParams.copyWith(unit: unit),
-      ).animate(_animationController);
-
-      _animationController.value = 0;
-      _animationController
-          .animateTo(1, curve: curve, duration: duration)
-          .whenCompleteOrCancel(() {
-        _paramsAnimation = null;
-      });
-    }
+    setRenderParams(
+      _renderParams.copyWith(
+        unit: unit
+            .safeClamp(
+              _state!.widget.minUnit,
+              _state!.widget.maxUnit,
+            )
+            .toDouble(),
+      ),
+      animated: animated,
+      curve: curve,
+      duration: duration,
+    );
   }
 
   ScrollMetrics createPosition() {
@@ -147,6 +199,41 @@ class TrendChartController extends ChangeNotifier {
     });
   }
 
+  void interactive(
+    double scale,
+    double anchorX,
+    double deltaX, {
+    bool animated = false,
+    Curve curve = Curves.easeOut,
+    Duration duration = const Duration(milliseconds: 250),
+  }) {
+    if (!(_renderParams.unit > 0)) return;
+    var oldValue = _renderParams;
+    final minUnit = _state!.widget.minUnit;
+    final maxUnit = _state!.widget.maxUnit;
+
+    final newUnit =
+        (scale * oldValue.unit).safeClamp(minUnit, maxUnit).toDouble();
+    final clampedScale = newUnit / oldValue.unit;
+    if (clampedScale.isInfinite || clampedScale.isNaN) return;
+
+    final origin = oldValue.xOffset;
+    final x = anchorX - deltaX;
+    final newOffset = clampedScale * (origin + x) - x - deltaX;
+
+    oldValue = oldValue.copyWith(
+      unit: newUnit,
+      xOffset: newOffset,
+    );
+
+    setRenderParams(
+      oldValue,
+      animated: animated,
+      curve: curve,
+      duration: duration,
+    );
+  }
+
   _animationListener() {
     final animatingParams = _paramsAnimation?.value;
 
@@ -157,5 +244,11 @@ class TrendChartController extends ChangeNotifier {
         (p) => p.copyWith(xOffset: _animationController.value),
       );
     }
+  }
+}
+
+extension _SafeCalmpingExtension on num {
+  num safeClamp(num lowerLimit, num upperLimit) {
+    return lowerLimit < upperLimit ? clamp(lowerLimit, upperLimit) : lowerLimit;
   }
 }

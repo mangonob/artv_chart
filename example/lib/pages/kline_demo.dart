@@ -67,8 +67,10 @@ class _KLineDemoState extends State<KLineDemo>
             controller: _controller,
             layoutManager: _layoutManager,
             isIgnoredUnitVolume: false,
+            minUnit: 2,
+            maxUnit: 40,
             xRange: Range.length(_itemCount.toDouble()),
-            onDoubleTap: () => _controller.jumpTo(0, animated: true),
+            onDoubleTap: () => _controller.resetInitialValue(animated: true),
             grids: [
               Grid(
                 ySplitCount: 5,

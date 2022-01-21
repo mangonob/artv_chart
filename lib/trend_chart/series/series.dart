@@ -1,8 +1,7 @@
-import 'dart:math' as Math;
+import 'dart:math';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:quiver/iterables.dart';
 
 import '../common/range.dart';
 import '../common/render_params.dart';
@@ -31,11 +30,11 @@ abstract class Series<D> {
     if (yValue == null) {
       return [];
     } else {
-      final start = Math.min(
-        Math.max(xRange.lower.ceil(), 0),
+      final start = min(
+        max(xRange.lower.ceil(), 0),
         datas.length,
       );
-      final end = Math.min(Math.max(xRange.upper.ceil(), 0), datas.length);
+      final end = min(max(xRange.upper.ceil(), 0), datas.length);
       if (end > start) {
         return datas
             .getRange(start, end)
