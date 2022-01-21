@@ -33,7 +33,7 @@ class CandleSeriesPainter extends CustomPainter
   void paint(Canvas canvas, Size size) {
     PaddingPainter().paint(canvas, size,
         padding: grid.style.margin?.copyWith(left: 0, right: 0),
-        clip: true, routine: (Canvas canvas, Size size) {
+        routine: (Canvas canvas, Size size) {
       coordinator = createCoordinator(size);
       switch (series.style.style ?? CandleStyle.fill) {
         case CandleStyle.fill:

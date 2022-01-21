@@ -39,6 +39,7 @@ class GridPainter extends CustomPainter with CoordinatorProvider {
       canvas,
       size,
       padding: grid.style.margin?.copyWith(left: 0, right: 0),
+      clip: false,
       routine: (Canvas canvas, Size size) {
         _coordinator = createCoordinator(size);
 

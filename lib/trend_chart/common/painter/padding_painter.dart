@@ -8,7 +8,7 @@ class PaddingPainter {
     Size size, {
     EdgeInsets? padding,
     PainterRoutine? routine,
-    bool clip = false,
+    bool clip = true,
   }) {
     canvas.save();
 
