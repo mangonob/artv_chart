@@ -1,11 +1,12 @@
-import 'package:artv_chart/trend_chart/chart_coordinator.dart';
-import 'package:artv_chart/trend_chart/common/painter/padding_painter.dart';
-import 'package:artv_chart/trend_chart/common/render_params.dart';
-import 'package:artv_chart/trend_chart/grid/grid.dart';
-import 'package:artv_chart/trend_chart/series/candle_series/candle_entry.dart';
-import 'package:artv_chart/trend_chart/series/candle_series/candle_series.dart';
-import 'package:artv_chart/trend_chart/series/candle_series/candle_series_style.dart';
 import 'package:flutter/material.dart';
+
+import '../../chart_coordinator.dart';
+import '../../common/painter/padding_painter.dart';
+import '../../common/render_params.dart';
+import '../../grid/grid.dart';
+import 'candle_entry.dart';
+import 'candle_series.dart';
+import 'candle_series_style.dart';
 
 class CandleSeriesPainter extends CustomPainter
     with HasCoordinator, CoordinatorProvider {
@@ -35,14 +36,14 @@ class CandleSeriesPainter extends CustomPainter
         padding: grid.style.margin?.copyWith(left: 0, right: 0),
         routine: (Canvas canvas, Size size) {
       coordinator = createCoordinator(size);
-      switch (series.style.style ?? CandleStyle.fill) {
-        case CandleStyle.fill:
+      switch (series.style.type ?? CandleType.fill) {
+        case CandleType.fill:
           _paintFillCandles(canvas, size);
           break;
-        case CandleStyle.outlet:
+        case CandleType.outlet:
           _paintOutletCandles(canvas, size);
           break;
-        case CandleStyle.ohlc:
+        case CandleType.ohlc:
           _paintOHLC(canvas, size);
           break;
       }
@@ -54,7 +55,7 @@ class CandleSeriesPainter extends CustomPainter
     final valueRange = coordinator.xRange.intersection(renderParams.xRange);
     valueRange
         .toIterable()
-        .where((idx) => idx > 0 && idx < series.datas.length)
+        .where((idx) => idx >= 0 && idx < series.datas.length)
         .forEach((index) {
       final candle = series.datas[index];
 

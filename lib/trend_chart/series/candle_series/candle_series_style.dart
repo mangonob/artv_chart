@@ -1,7 +1,8 @@
-import 'package:artv_chart/trend_chart/common/distance.dart';
 import 'package:flutter/material.dart';
 
-enum CandleStyle {
+import '../../common/value_distance.dart';
+
+enum CandleType {
   /// 实心蜡烛
   fill,
 
@@ -13,26 +14,28 @@ enum CandleStyle {
 }
 
 class CandleSeriesStyle {
-  final CandleStyle? style;
+  final CandleType? type;
   final Color? riseColor;
   final Color? fallColor;
-  final Distance? distance;
+  final Distance? _distance;
 
-  const CandleSeriesStyle({
-    this.style,
+  Distance? get distance => _distance;
+
+  CandleSeriesStyle({
+    this.type,
     this.riseColor,
     this.fallColor,
-    this.distance = const Distance.absolute(2),
-  });
+    Distance? distance,
+  }) : _distance = distance ?? ValueDistance.absolute(2);
 
   CandleSeriesStyle copyWith({
-    CandleStyle? style = CandleStyle.fill,
+    CandleType? type = CandleType.fill,
     Color? riseColor = Colors.red,
     Color? fallColor = Colors.green,
     Distance? distance,
   }) =>
       CandleSeriesStyle(
-        style: style ?? this.style,
+        type: type ?? this.type,
         riseColor: riseColor ?? this.riseColor,
         fallColor: fallColor ?? this.fallColor,
         distance: distance ?? this.distance,
@@ -42,7 +45,7 @@ class CandleSeriesStyle {
     if (other == null) return this;
 
     return copyWith(
-      style: other.style,
+      type: other.type,
       riseColor: other.riseColor,
       fallColor: other.fallColor,
       distance: other.distance,
@@ -52,14 +55,14 @@ class CandleSeriesStyle {
   @override
   operator ==(Object other) =>
       other is CandleSeriesStyle &&
-      style == other.style &&
+      type == other.type &&
       riseColor == other.riseColor &&
       fallColor == other.fallColor &&
       distance == other.distance;
 
   @override
   int get hashCode => hashValues(
-        style,
+        type,
         riseColor,
         fallColor,
         distance,

@@ -1,20 +1,23 @@
-import 'package:artv_chart/trend_chart/series/candle_series/candle_series_painter.dart';
-import 'package:artv_chart/trend_chart/series/candle_series/candle_series_style.dart';
 import 'package:flutter/material.dart';
 
 import '../../common/render_params.dart';
 import '../../grid/grid.dart';
 import '../series.dart';
 import 'candle_entry.dart';
+import 'candle_series_painter.dart';
+import 'candle_series_style.dart';
 
 class CandleSeries extends Series<CandleEntry> {
-  final CandleSeriesStyle style;
+  final CandleSeriesStyle _style;
+
+  CandleSeriesStyle get style => _style;
 
   CandleSeries({
     required List<CandleEntry> candles,
     ValueConvertor<CandleEntry>? yValue,
-    this.style = const CandleSeriesStyle(),
-  }) : super(
+    CandleSeriesStyle? style,
+  })  : _style = style ?? CandleSeriesStyle(),
+        super(
           datas: candles,
           yValue: yValue ?? _DefaultCandleSeriesConvertor._defaultCandleYValue,
         );
@@ -33,12 +36,12 @@ class CandleSeries extends Series<CandleEntry> {
   @override
   operator ==(Object other) =>
       identical(this, other) ||
-      other is CandleSeries && style == other.style && super == other;
+      other is CandleSeries && _style == other._style && super == other;
 
   @override
   int get hashCode => hashValues(
         super.hashCode,
-        style,
+        _style,
       );
 }
 

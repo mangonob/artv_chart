@@ -1,4 +1,3 @@
-import 'package:artv_chart/trend_chart/common/style.dart';
 import 'package:flutter/material.dart';
 
 import '../../common/render_params.dart';

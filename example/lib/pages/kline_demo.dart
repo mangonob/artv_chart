@@ -172,12 +172,18 @@ void _generateTestData(Tuple2<SendPort, int> portAndCount) {
 
   final candels = List.generate(count, (idx) {
     final value = random.nextDouble() * 10 * idx + 100;
-    const double range = 100;
+    double range = 100;
+    final values =
+        List.generate(4, (_) => value + random.nextDouble() * range - range / 2)
+          ..sort();
+    var openClose = values.getRange(1, 3).toList();
+    if (random.nextBool()) openClose = openClose.reversed.toList();
+
     return CandleEntry(
-      open: value + random.nextDouble() * range - range / 2,
-      high: value + random.nextDouble() * range - range / 2,
-      lower: value + random.nextDouble() * range - range / 2,
-      close: value + random.nextDouble() * range - range / 2,
+      open: openClose[0],
+      high: values.last,
+      lower: values.first,
+      close: openClose[1],
     );
   });
 

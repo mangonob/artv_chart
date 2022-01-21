@@ -1,9 +1,9 @@
 import 'dart:math' as math;
 import 'dart:ui';
 
-import 'package:artv_chart/trend_chart/common/range.dart';
 import 'package:flutter/material.dart';
 
+import '../../common/range.dart';
 import '../../common/render_params.dart';
 import '../../grid/grid.dart';
 import 'line_series.dart';
