@@ -8,7 +8,7 @@ import 'package:artv_chart/trend_chart/series/candle_series/candle_series_style.
 import 'package:flutter/material.dart';
 
 class CandleSeriesPainter extends CustomPainter
-    with HasCoordiantor, CoordinatorProvider {
+    with HasCoordinator, CoordinatorProvider {
   final Grid grid;
   final CandleSeries series;
   final RenderParams renderParams;

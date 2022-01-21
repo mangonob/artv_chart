@@ -12,7 +12,7 @@ mixin CoordinatorProvider {
   ChartCoordinator createCoordinator(Size size);
 }
 
-mixin HasCoordiantor {
+mixin HasCoordinator {
   late ChartCoordinator coordinator;
 
   /// Convert point from grid to screen coordinate.
