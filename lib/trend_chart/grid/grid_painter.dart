@@ -1,17 +1,20 @@
+import 'package:artv_chart/trend_chart/common/painter/padding_painter.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
 import '../../utils/utils.dart';
-import '../common/painter/cache_manager.dart';
+import '../chart_coordinator.dart';
 import '../common/painter/line_painter.dart';
 import '../common/range.dart';
 import '../common/render_params.dart';
 import 'grid.dart';
 import 'label/text_label.dart';
 
-class GridPainter extends CustomPainter {
+class GridPainter extends CustomPainter with CoordinatorProvider {
   final Grid grid;
   final RenderParams renderParams;
+
+  late ChartCoordinator _coordinator;
 
   GridPainter({
     required this.grid,
@@ -23,28 +26,27 @@ class GridPainter extends CustomPainter {
     return oldDelegate.grid != grid;
   }
 
-  /// Cache computed values
-  late Range _xRange;
-  late Range _yRange;
-
-  void _prepareForSize(Size size) {
-    final cache = Cache(
-      xRange: _xRange = grid.xRange(params: renderParams, size: size),
-    );
-    _yRange = grid.yRange(params: renderParams, size: size, cache: cache);
-  }
+  @override
+  ChartCoordinator createCoordinator(Size size) => ChartCoordinator(
+        grid: grid,
+        size: size,
+        renderParams: renderParams,
+      );
 
   @override
   void paint(Canvas canvas, Size size) {
-    final margin = grid.style.margin ?? EdgeInsets.zero;
-    canvas.translate(margin.left, margin.top);
-    final gridSize =
-        Size(size.width - margin.horizontal, size.height - margin.vertical);
-    _prepareForSize(gridSize);
+    PaddingPainter().paint(
+      canvas,
+      size,
+      padding: grid.style.margin?.copyWith(left: 0, right: 0),
+      routine: (Canvas canvas, Size size) {
+        _coordinator = createCoordinator(size);
 
-    _paintGrid(canvas, gridSize);
-    _paintYValues(canvas, gridSize);
-    _paintXValues(canvas, gridSize);
+        _paintGrid(canvas, size);
+        _paintYValues(canvas, size);
+        _paintXValues(canvas, size);
+      },
+    );
   }
 
   void _paintGrid(Canvas canvas, Size size) {
@@ -62,7 +64,7 @@ class GridPainter extends CustomPainter {
   void _paintYValues(Canvas canvas, Size size) {
     if (size.isEmpty) return;
 
-    final labels = _yRange.split(grid.ySplitCount).map(
+    final labels = _coordinator.yRange.split(grid.ySplitCount).map(
           (v) => grid.yLabel?.call(v) ?? TextLabel(v.toStringAsFixed(3)),
         );
     final offsets = Range(0, size.height)
@@ -111,12 +113,12 @@ class GridPainter extends CustomPainter {
 
   void _paintXValues(Canvas canvas, Size size) {
     final unit = renderParams.unit;
-    final drawRange = _xRange.intersection(renderParams.xRange);
+    final drawRange = _coordinator.xRange.intersection(renderParams.xRange);
     if (size.isEmpty || drawRange.isEmpty) return;
 
     final labels = drawRange.toIterable().map((x) => grid.xLabel?.call(x));
     final offsets = drawRange.toIterable().map(
-          (x) => Offset((x - _xRange.lower) * unit, size.height),
+          (x) => Offset((x - _coordinator.xRange.lower) * unit, size.height),
         );
 
     assert(labels.length == offsets.length);

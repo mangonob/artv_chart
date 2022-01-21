@@ -62,4 +62,18 @@ abstract class Series<D> {
   Range xRange() {
     return Range(0, datas.length - 1);
   }
+
+  @override
+  operator ==(Object other) =>
+      other is Series<D> &&
+      other.datas == datas &&
+      other.priority == priority &&
+      other.yValue == yValue;
+
+  @override
+  int get hashCode => hashValues(
+        hashList(datas),
+        priority,
+        yValue,
+      );
 }

@@ -1,10 +1,9 @@
 import 'package:flutter/widgets.dart';
 
-import 'common/render_params.dart';
 import 'grid/grid.dart';
-import 'layout_details.dart';
 import 'trend_chart.dart';
 
+/// TODO: Remove this class.
 class LayoutManager extends ChangeNotifier {
   TrendChartState? _state;
 
@@ -36,44 +35,5 @@ class LayoutManager extends ChangeNotifier {
     final contentWidth = constraints.maxWidth - margin.horizontal;
     return (grid.style.height ?? grid.style.ratio! * contentWidth) +
         margin.vertical;
-  }
-
-  Rect convertRectFromGrid(
-    Rect rect,
-    Grid grid, {
-    required RenderParams params,
-  }) {
-    return rect;
-  }
-
-  Rect convertRectToGrid(
-    Rect rect,
-    Grid grid, {
-    required RenderParams params,
-  }) {
-    return rect;
-  }
-
-  Offset convertPointFromGrid(
-    Offset point,
-    Grid grid, {
-    required RenderParams params,
-  }) {
-    return point;
-  }
-
-  Offset convetPointToGrid(
-    Offset point,
-    Grid grid, {
-    required RenderParams params,
-  }) {
-    return point;
-  }
-
-  LayoutDetails createLayoutInfo(Grid grid) {
-    return LayoutDetails(
-      grid: grid,
-      renderParams: _state!.renderParams,
-    );
   }
 }
