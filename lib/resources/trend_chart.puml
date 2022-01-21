@@ -61,10 +61,11 @@ Series <|-- CandleSeries
 Series <|-- BarSeries
 Series <|-- FragmentSeries
 
-LineSeriesPainter --|> CustomPainter 
-CandleSeriesPainter --|> CustomPainter 
-BarSeriesPainter --|> CustomPainter 
-FragmentSeriesPainter --|> CustomPainter 
+LineSeriesPainter --|> SeriesPainter 
+CandleSeriesPainter --|> SeriesPainter 
+BarSeriesPainter --|> SeriesPainter 
+FragmentSeriesPainter --|> SeriesPainter 
+SeriesPainter --|> CustomPainter
 
 LineSeries ..> LineSeriesPainter
 CandleSeries ..> CandleSeriesPainter
