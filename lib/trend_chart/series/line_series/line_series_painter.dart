@@ -22,8 +22,8 @@ class LineSeriesPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    canvas.save();
     if (series.datas.isEmpty) return;
+    canvas.save();
     _calculate(size);
     _paintLineChart(canvas, size);
     canvas.restore();
@@ -48,7 +48,9 @@ class LineSeriesPainter extends CustomPainter {
   final List<Offset> _offsetList = [];
 
   bool get _isDrawLine => _offsetList.length > 1;
+
   late Range _yRange;
+  late double _yPerUnit;
 
   void _paintLineChart(Canvas canvas, Size size) {
     final margin = grid.style.margin ?? EdgeInsets.zero;
@@ -61,15 +63,22 @@ class LineSeriesPainter extends CustomPainter {
         size.height - renderParams.padding.vertical - margin.vertical);
 
     ///计算Y轴每一个点所占的offset.dy
-    double yPerUnit = rectSize.height / (_yRange.upper - _yRange.lower);
-    canvas.translate(
-        _getTranslateX(margin), margin.top + renderParams.padding.top);
+    _yPerUnit = rectSize.height / (_yRange.upper - _yRange.lower);
+
+    _paintLine(canvas, margin, size);
+    // _paintShadow(canvas, margin, rectSize);
+  }
+
+  void _paintLine(Canvas canvas, EdgeInsets margin, Size size) {
+    final margin = grid.style.margin ?? EdgeInsets.zero;
+    canvas.translate(_getTranslateX(margin),
+        size.height - renderParams.padding.bottom - margin.bottom);
     _offsetList.clear();
     for (int i = _startIndex; i <= _stopIndex; i++) {
       ///当数据只有一个的时候，就只添加一个坐标画一个点
       if (series.datas.length == 1) {
         _offsetList.add(Offset(series.datas[_startIndex].dx * renderParams.unit,
-            _getY(_startIndex, yPerUnit)));
+            _getY(_startIndex)));
         continue;
       }
 
@@ -80,15 +89,14 @@ class LineSeriesPainter extends CustomPainter {
         }
         _offsetList.add(Offset(
             series.datas[i == 0 ? 0 : i - 1].dx * renderParams.unit,
-            _getY(i == 0 ? 0 : i - 1, yPerUnit)));
+            _getY(i == 0 ? 0 : i - 1)));
       }
-      _offsetList.add(
-          Offset(series.datas[i].dx * renderParams.unit, _getY(i, yPerUnit)));
+      _offsetList.add(Offset(series.datas[i].dx * renderParams.unit, _getY(i)));
 
       ///当画到屏幕上最后一个点并且没有画到总数据的最大长度的时候，往右边多画一个点
       if (i == _stopIndex && i < series.datas.length - 1) {
-        _offsetList.add(Offset(series.datas[i + 1].dx * renderParams.unit,
-            _getY(i + 1, yPerUnit)));
+        _offsetList.add(
+            Offset(series.datas[i + 1].dx * renderParams.unit, _getY(i + 1)));
       }
     }
     canvas.drawPoints(
@@ -101,6 +109,72 @@ class LineSeriesPainter extends CustomPainter {
           ..strokeWidth =
               _isDrawLine ? series.style.size! : series.style.singlePointSize!);
   }
+
+  // _paintShadow(Canvas canvas, EdgeInsets margin, Size size) {
+  //   canvas.translate(
+  //       _getTranslateX(margin), margin.top + renderParams.padding.top);
+  //   // for (int i = _startIndex; i < _stopIndex; i++) {
+  //   //   if (i == series.datas.length - 1) break;
+  //   //   Offset currentOffset =
+  //   //       Offset(series.datas[i].dx * renderParams.unit, _getY(i, yPerUnit));
+  //   //   Offset nextOffset = Offset(
+  //   //       series.datas[i + 1].dx * renderParams.unit, _getY(i + 1, yPerUnit));
+  //   //   Offset lastOffset = Offset(
+  //   //       series.datas[i == 0 ? 0 : i-1].dx * renderParams.unit,
+  //   //       _getY(i == 0 ? 0 : i-1, yPerUnit));
+  //   //   print(
+  //   //       "i:$i,,currentOffset:${Offset(series.datas[i].dx * renderParams.unit, series.datas[i].dy)}.,,,nextOffset:${Offset(series.datas[i + 1].dx * renderParams.unit, series.datas[i + 1].dy)},,}");
+  //   //   canvas.drawLine(
+  //   //       lastOffset,
+  //   //       currentOffset,
+  //   //       Paint()
+  //   //         ..style = PaintingStyle.stroke
+  //   //         ..color = Colors.red
+  //   //         ..strokeWidth = 1);
+  //   //   canvas.drawLine(
+  //   //       currentOffset,
+  //   //       nextOffset,
+  //   //       Paint()
+  //   //         ..style = PaintingStyle.stroke
+  //   //         ..color = Colors.red
+  //   //         ..strokeWidth = 1);
+  //   // }
+  //
+  //   Path linePath = Path();
+  //   for (int i = _startIndex; i < _stopIndex; i++) {
+  //     Offset currentOffset =
+  //         Offset(series.datas[i].dx * renderParams.unit, _getY(i));
+  //     Offset nextOffset = Offset(
+  //         series.datas[i == series.datas.length - 1 ? i : i + 1].dx *
+  //             renderParams.unit,
+  //         _getY(i == series.datas.length - 1 ? i : i + 1));
+  //     Offset lastOffset = Offset(
+  //         series.datas[i == 0 ? 0 : i - 1].dx * renderParams.unit,
+  //         _getY(i == 0 ? 0 : i - 1));
+  //     if (i == 0) {
+  //       linePath.moveTo(currentOffset.dx, currentOffset.dy);
+  //     } else if (i == series.datas.length - 1) {
+  //       linePath.lineTo(lastOffset.dx, lastOffset.dy);
+  //       linePath.lineTo(currentOffset.dx, currentOffset.dy);
+  //     } else {
+  //       linePath.lineTo(lastOffset.dx, lastOffset.dy);
+  //       if (i == _startIndex) {
+  //         linePath.lineTo(currentOffset.dx, currentOffset.dy);
+  //       }
+  //       if (i == _stopIndex - 1) {
+  //         linePath.lineTo(currentOffset.dx, currentOffset.dy);
+  //         linePath.lineTo(nextOffset.dx, nextOffset.dy);
+  //       }
+  //     }
+  //   }
+  //   canvas.drawPath(
+  //       linePath,
+  //       Paint()
+  //         ..isAntiAlias = true
+  //         ..filterQuality = FilterQuality.high
+  //         ..strokeWidth = 1.0
+  //         ..color = Colors.red);
+  // }
 
   void _calculate(Size size) {
     _yRange = grid.yRange(params: renderParams, size: size);
@@ -140,6 +214,6 @@ class LineSeriesPainter extends CustomPainter {
     return result;
   }
 
-  double _getY(int dataIndex, double yPerUnit) =>
-      (_yRange.upper - series.datas[dataIndex].dy) * yPerUnit;
+  double _getY(int dataIndex) =>
+      -(_yRange.lower - series.datas[dataIndex].dy).abs() * _yPerUnit;
 }

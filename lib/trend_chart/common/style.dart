@@ -28,12 +28,14 @@ class LineStyle {
     double? size,
     LineType? type,
     LinePattern? pattern,
+    double? singlePointSize,
   }) {
     return LineStyle(
       color: color ?? this.color,
       size: size ?? this.size,
       type: type ?? this.type,
       pattern: pattern ?? this.pattern,
+      singlePointSize: singlePointSize ?? this.singlePointSize,
     );
   }
 
@@ -45,6 +47,7 @@ class LineStyle {
       size: other.size,
       type: other.type,
       pattern: other.pattern,
+      singlePointSize: other.singlePointSize,
     );
   }
 
@@ -55,6 +58,7 @@ class LineStyle {
             color == other.color &&
             size == other.size &&
             type == other.type &&
+            singlePointSize == other.singlePointSize &&
             pattern == other.pattern;
   }
 
@@ -63,6 +67,7 @@ class LineStyle {
         color,
         size,
         type,
+        singlePointSize,
         hashList(pattern),
       );
 }
