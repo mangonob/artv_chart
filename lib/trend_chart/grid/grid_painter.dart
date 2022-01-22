@@ -1,3 +1,4 @@
+import 'package:artv_chart/trend_chart/grid/grid_cache.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
@@ -13,17 +14,22 @@ import 'label/text_label.dart';
 class GridPainter extends CustomPainter with CoordinatorProvider {
   final Grid grid;
   final RenderParams renderParams;
+  final GridCache? gridCache;
 
   late ChartCoordinator _coordinator;
 
   GridPainter({
     required this.grid,
     required this.renderParams,
+    this.gridCache,
   });
 
   @override
   bool shouldRepaint(covariant GridPainter oldDelegate) {
-    return oldDelegate.grid != grid;
+    final shouldRepaint =
+        oldDelegate.grid != grid || oldDelegate.renderParams != renderParams;
+    if (shouldRepaint) gridCache?.invlidate();
+    return shouldRepaint;
   }
 
   @override

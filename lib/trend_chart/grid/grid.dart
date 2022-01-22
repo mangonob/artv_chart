@@ -1,8 +1,8 @@
+import 'package:artv_chart/trend_chart/grid/grid_cache.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../common/enum.dart';
-import '../common/painter/cache_manager.dart';
 import '../common/range.dart';
 import '../common/render_params.dart';
 import '../common/style.dart';
@@ -29,6 +29,8 @@ class Grid {
 
   GridStyle get style => _style;
 
+  final GridCache _cache;
+
   Grid({
     this.identifier,
     this.xLineStyleFn,
@@ -40,7 +42,8 @@ class Grid {
     this.yLabel,
     this.xCustomLines,
     this.yCustomLines,
-  }) : _style = style ?? GridStyle();
+  })  : _style = style ?? GridStyle(),
+        _cache = GridCache();
 
   @override
   operator ==(Object other) =>
@@ -74,12 +77,23 @@ class Grid {
   CustomPainter createPainter(RenderParams renderParams) => GridPainter(
         grid: this,
         renderParams: renderParams,
+        gridCache: _cache,
       );
 
   /// Logical x range of current visible grid area, it's boundary can be floating point number.
   /// [params] the render params.
   /// [size] grid size.
   Range xRange({
+    required RenderParams params,
+    required Size size,
+  }) {
+    if (_cache.xRange != null) return _cache.xRange!;
+    final xRange = _xRange(params: params, size: size);
+    _cache.write(xRange: xRange);
+    return xRange;
+  }
+
+  Range _xRange({
     required RenderParams params,
     required Size size,
   }) {
@@ -107,9 +121,18 @@ class Grid {
   Range yRange({
     required RenderParams params,
     required Size size,
-    Cache? cache,
   }) {
-    final xRange = cache?.xRange ?? this.xRange(params: params, size: size);
+    if (_cache.yRange != null) return _cache.yRange!;
+    final yRange = _yRange(params: params, size: size);
+    _cache.write(yRange: yRange);
+    return yRange;
+  }
+
+  Range _yRange({
+    required RenderParams params,
+    required Size size,
+  }) {
+    final xRange = this.xRange(params: params, size: size);
     final range = series.fold<Range>(
       const Range.empty(),
       (range, s) => range.union(s.yRange(xRange)),

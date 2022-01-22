@@ -106,7 +106,7 @@ class _KLineDemoState extends State<KLineDemo>
                   LineSeries(_offsets),
                   CandleSeries(candles: _candles),
                 ],
-                xLabel: xLabel,
+                // xLabel: xLabel,
                 yLabel: yLabel,
               ),
               // Grid(

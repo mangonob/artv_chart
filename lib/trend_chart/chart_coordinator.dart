@@ -2,7 +2,6 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
-import 'common/painter/cache_manager.dart';
 import 'common/range.dart';
 import 'common/render_params.dart';
 import 'grid/grid.dart';
@@ -53,11 +52,7 @@ class ChartCoordinator {
     required this.renderParams,
   }) {
     xRange = grid.xRange(params: renderParams, size: size);
-    yRange = grid.yRange(
-      params: renderParams,
-      size: size,
-      cache: Cache(xRange: xRange),
-    );
+    yRange = grid.yRange(params: renderParams, size: size);
   }
 
   /// Convert point from grid to screen coordinate.
