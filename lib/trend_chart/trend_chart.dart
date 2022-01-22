@@ -26,6 +26,9 @@ class TrendChart extends StatefulWidget {
   final double minUnit;
   final double maxUnit;
 
+  /// Whether the cross line should been auto hidden after user interacte end;
+  final bool isAutoBlur;
+
   /// Use [GestureDetector.onHorizontalDragUpdate] detecte multi fingers drag,
   /// that maybe cause scale action get no sensitive.
   final bool isAllowHorizontalDrag;
@@ -40,23 +43,24 @@ class TrendChart extends StatefulWidget {
   /// Builder optional footer for every grid
   final GridWidgetBuilder? footerBuilder;
 
-  const TrendChart(
-      {Key? key,
-      required this.controller,
-      required this.layoutManager,
-      required this.xRange,
-      this.grids = const [],
-      this.xOffsetReserveMode = ReserveMode.none,
-      this.isIgnoredUnitVolume = true,
-      this.xPadding = EdgeInsets.zero,
-      this.headerBuilder,
-      this.footerBuilder,
-      this.physic = const BouncingScrollPhysics(),
-      this.onDoubleTap,
-      this.minUnit = 0,
-      this.maxUnit = 30,
-      this.isAllowHorizontalDrag = false})
-      : assert(minUnit <= maxUnit),
+  const TrendChart({
+    Key? key,
+    required this.controller,
+    required this.layoutManager,
+    required this.xRange,
+    this.grids = const [],
+    this.xOffsetReserveMode = ReserveMode.none,
+    this.isIgnoredUnitVolume = true,
+    this.xPadding = EdgeInsets.zero,
+    this.headerBuilder,
+    this.footerBuilder,
+    this.physic = const BouncingScrollPhysics(),
+    this.onDoubleTap,
+    this.minUnit = 0,
+    this.maxUnit = 30,
+    this.isAllowHorizontalDrag = true,
+    this.isAutoBlur = false,
+  })  : assert(minUnit <= maxUnit),
         super(key: key);
 
   @override
@@ -136,7 +140,7 @@ class TrendChartState extends State<TrendChart> {
                 widget.controller.applyOffset(d.focalPointDelta.dx);
               } else {
                 widget.controller.interactive(
-                  d.scale,
+                  d.horizontalScale,
                   d.localFocalPoint.dx,
                   d.focalPointDelta.dx,
                 );

@@ -1,4 +1,3 @@
-import 'package:artv_chart/trend_chart/grid/grid_cache.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
@@ -9,6 +8,7 @@ import '../common/painter/padding_painter.dart';
 import '../common/range.dart';
 import '../common/render_params.dart';
 import 'grid.dart';
+import 'grid_cache.dart';
 import 'label/text_label.dart';
 
 class GridPainter extends CustomPainter with CoordinatorProvider {

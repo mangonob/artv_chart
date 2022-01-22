@@ -1,4 +1,3 @@
-import 'package:artv_chart/trend_chart/grid/grid_cache.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
@@ -10,6 +9,7 @@ import '../grid/grid_style.dart';
 import '../series/series.dart';
 import 'boundary.dart';
 import 'custom_line.dart';
+import 'grid_cache.dart';
 import 'grid_painter.dart';
 import 'label/chart_label.dart';
 

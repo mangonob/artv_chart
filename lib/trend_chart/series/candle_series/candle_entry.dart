@@ -1,7 +1,6 @@
-import 'package:artv_chart/utils/utils.dart';
+import 'package:flutter/material.dart';
 
 import '../../common/range.dart';
-import 'package:flutter/material.dart';
 
 enum CandleDirection {
   fall,

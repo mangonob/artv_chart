@@ -15,14 +15,18 @@ class RenderParams {
   final Range xRange;
   final double chartWidth;
 
+  /// Current point focus on
+  final double? focusPosition;
+
   const RenderParams({
     required this.unit,
     required this.xOffset,
     required this.padding,
-    this.isIgnoredUnitVolume = true,
     required this.xOffsetReserveMode,
     required this.xRange,
     required this.chartWidth,
+    this.isIgnoredUnitVolume = true,
+    this.focusPosition,
   });
 
   RenderParams copyWith({
@@ -33,6 +37,7 @@ class RenderParams {
     ReserveMode? xOffsetReserveMode,
     Range? xRange,
     double? chartWidth,
+    double? focusPosition,
   }) =>
       RenderParams(
         unit: unit ?? this.unit,
@@ -42,6 +47,7 @@ class RenderParams {
         xOffsetReserveMode: xOffsetReserveMode ?? this.xOffsetReserveMode,
         xRange: xRange ?? this.xRange,
         chartWidth: chartWidth ?? this.chartWidth,
+        focusPosition: focusPosition ?? this.focusPosition,
       );
 
   @override
@@ -54,7 +60,8 @@ class RenderParams {
           isIgnoredUnitVolume == other.isIgnoredUnitVolume &&
           xOffsetReserveMode == other.xOffsetReserveMode &&
           xRange == other.xRange &&
-          chartWidth == other.chartWidth;
+          chartWidth == other.chartWidth &&
+          focusPosition == other.focusPosition;
 
   @override
   int get hashCode => hashValues(
@@ -65,6 +72,7 @@ class RenderParams {
         xOffsetReserveMode,
         xRange,
         chartWidth,
+        focusPosition,
       );
 
   double get minExtend => padding.left;
@@ -88,6 +96,7 @@ class RenderParams {
       xOffsetReserveMode: b.xOffsetReserveMode,
       xRange: Range.lerp(a.xRange, b.xRange, t),
       chartWidth: lerpDouble(a.chartWidth, b.chartWidth, t)!,
+      focusPosition: b.focusPosition,
     );
   }
 

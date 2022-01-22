@@ -15,6 +15,7 @@ import 'package:artv_chart/trend_chart/series/candle_series/candle_series_style.
 import 'package:artv_chart/trend_chart/series/series.dart';
 import 'package:artv_chart/trend_chart/trend_chart.dart';
 import 'package:artv_chart/trend_chart/trend_chart_controller.dart';
+import 'package:example/widgets/color_tile.dart';
 import 'package:example/widgets/options.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -39,8 +40,11 @@ class _KLineDemoState extends State<KLineDemo>
   final int _itemCount = 10000;
   late StreamSubscription _portSubscription;
 
+  /// 自定义样式
   bool _isAutoHiddenCrossLine = false;
   CandleType _candleType = CandleType.fill;
+  Color _riseColor = Colors.red;
+  Color _fallColor = Colors.green;
 
   @override
   bool get wantKeepAlive => true;
@@ -107,7 +111,11 @@ class _KLineDemoState extends State<KLineDemo>
                 series: [
                   CandleSeries(
                     candles: _candles,
-                    style: CandleSeriesStyle(type: _candleType),
+                    style: CandleSeriesStyle(
+                      type: _candleType,
+                      riseColor: _riseColor,
+                      fallColor: _fallColor,
+                    ),
                   ),
                 ],
                 // xLabel: xLabel,
@@ -150,6 +158,24 @@ class _KLineDemoState extends State<KLineDemo>
                 });
               },
             ),
+          ),
+          ColorTile(
+            title: "上涨",
+            value: _riseColor,
+            onChanged: (v) {
+              setState(() {
+                _riseColor = v;
+              });
+            },
+          ),
+          ColorTile(
+            title: "下跌",
+            value: _fallColor,
+            onChanged: (v) {
+              setState(() {
+                _fallColor = v;
+              });
+            },
           ),
         ],
       ),

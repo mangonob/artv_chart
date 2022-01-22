@@ -65,7 +65,6 @@ LineSeriesPainter --|> SeriesPainter
 CandleSeriesPainter --|> SeriesPainter 
 BarSeriesPainter --|> SeriesPainter 
 FragmentSeriesPainter --|> SeriesPainter 
-SeriesPainter --|> CustomPainter
 
 LineSeries ..> LineSeriesPainter
 CandleSeries ..> CandleSeriesPainter
