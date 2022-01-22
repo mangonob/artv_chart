@@ -15,11 +15,12 @@ import 'package:artv_chart/trend_chart/series/candle_series/candle_series_style.
 import 'package:artv_chart/trend_chart/series/series.dart';
 import 'package:artv_chart/trend_chart/trend_chart.dart';
 import 'package:artv_chart/trend_chart/trend_chart_controller.dart';
+import 'package:example/data_generator.dart';
 import 'package:example/widgets/color_tile.dart';
 import 'package:example/widgets/options.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:tuple/tuple.dart';
 
 class KLineDemo extends StatefulWidget {
   const KLineDemo({
@@ -36,9 +37,7 @@ class _KLineDemoState extends State<KLineDemo>
   late LayoutManager _layoutManager;
   late List<Offset> _offsets;
   late List<CandleEntry> _candles;
-  late ReceivePort _dataPort;
   final int _itemCount = 10000;
-  late StreamSubscription _portSubscription;
 
   /// 自定义样式
   bool _isAutoHiddenCrossLine = false;
@@ -58,25 +57,56 @@ class _KLineDemoState extends State<KLineDemo>
     _offsets = [];
     _candles = [];
 
-    _dataPort = ReceivePort();
-    Isolate.spawn(
-      _generateTestData,
-      Tuple2<SendPort, int>(_dataPort.sendPort, _itemCount),
-    );
+    // compute(
+    //   _generateOffsets,
+    //   _itemCount,
+    // ).then((v) {
+    //   setState(() {
+    //     _offsets = v;
+    //   });
+    // });
 
-    _portSubscription = _dataPort.listen((message) {
-      if (message is Tuple2<List<Offset>, List<CandleEntry>>) {
-        setState(() {
-          _offsets = message.item1;
-          _candles = message.item2;
-        });
-      }
+    compute(
+      _generateCandles,
+      _itemCount,
+    ).then((v) {
+      setState(() {
+        _candles = v;
+      });
+    });
+  }
+
+  static List<Offset> _generateOffsets(int count) {
+    final generator = DataGenerator.sinable();
+    return List.generate(
+      count,
+      (index) => Offset(
+        index.toDouble(),
+        generator.generate(index).first.toDouble(),
+      ),
+    );
+  }
+
+  static List<CandleEntry> _generateCandles(int count) {
+    final generator = DataGenerator.sinable();
+    final random = Random.secure();
+    return List.generate(count, (index) {
+      final values = generator.generate(index, count: 4)..sort();
+
+      var openClose = values.getRange(1, 3).toList();
+      if (random.nextBool()) openClose = openClose.reversed.toList();
+
+      return CandleEntry(
+        open: openClose[0].toDouble(),
+        high: values.last.toDouble(),
+        lower: values.first.toDouble(),
+        close: openClose[1].toDouble(),
+      );
     });
   }
 
   @override
   void dispose() {
-    _portSubscription.cancel();
     _controller.dispose();
     _layoutManager.dispose();
     super.dispose();
@@ -199,38 +229,6 @@ class _KLineDemoState extends State<KLineDemo>
   ChartLabel? yLabel(double value) {
     return TextLabel(value.toStringAsFixed(2));
   }
-}
-
-void _generateTestData(Tuple2<SendPort, int> portAndCount) {
-  final count = portAndCount.item2;
-  final port = portAndCount.item1;
-
-  /// Generate test data;
-  final random = Random.secure();
-
-  final offsets = List.generate(count, (idx) {
-    final value = random.nextDouble() * 10 * idx + 100;
-    return Offset(idx.toDouble(), value.toDouble());
-  });
-
-  final candels = List.generate(count, (idx) {
-    final value = random.nextDouble() * 10 * idx + 100;
-    double range = 100;
-    final values =
-        List.generate(4, (_) => value + random.nextDouble() * range - range / 2)
-          ..sort();
-    var openClose = values.getRange(1, 3).toList();
-    if (random.nextBool()) openClose = openClose.reversed.toList();
-
-    return CandleEntry(
-      open: openClose[0],
-      high: values.last,
-      lower: values.first,
-      close: openClose[1],
-    );
-  });
-
-  port.send(Tuple2<List<Offset>, List<CandleEntry>>(offsets, candels));
 }
 
 extension _CanldeTypeDescription on CandleType {
