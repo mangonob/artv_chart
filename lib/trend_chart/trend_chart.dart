@@ -26,6 +26,10 @@ class TrendChart extends StatefulWidget {
   final double minUnit;
   final double maxUnit;
 
+  /// Use [GestureDetector.onHorizontalDragUpdate] detecte multi fingers drag,
+  /// that maybe cause scale action get no sensitive.
+  final bool isAllowHorizontalDrag;
+
   /// Builder optional header for every grid
   /// [ ------ Header? ------ ]
   /// [ ------  Grid   ------ ]
@@ -36,22 +40,23 @@ class TrendChart extends StatefulWidget {
   /// Builder optional footer for every grid
   final GridWidgetBuilder? footerBuilder;
 
-  const TrendChart({
-    Key? key,
-    required this.controller,
-    required this.layoutManager,
-    required this.xRange,
-    this.grids = const [],
-    this.xOffsetReserveMode = ReserveMode.none,
-    this.isIgnoredUnitVolume = true,
-    this.xPadding = EdgeInsets.zero,
-    this.headerBuilder,
-    this.footerBuilder,
-    this.physic = const BouncingScrollPhysics(),
-    this.onDoubleTap,
-    this.minUnit = 0,
-    this.maxUnit = 30,
-  })  : assert(minUnit <= maxUnit),
+  const TrendChart(
+      {Key? key,
+      required this.controller,
+      required this.layoutManager,
+      required this.xRange,
+      this.grids = const [],
+      this.xOffsetReserveMode = ReserveMode.none,
+      this.isIgnoredUnitVolume = true,
+      this.xPadding = EdgeInsets.zero,
+      this.headerBuilder,
+      this.footerBuilder,
+      this.physic = const BouncingScrollPhysics(),
+      this.onDoubleTap,
+      this.minUnit = 0,
+      this.maxUnit = 30,
+      this.isAllowHorizontalDrag = false})
+      : assert(minUnit <= maxUnit),
         super(key: key);
 
   @override
@@ -120,12 +125,12 @@ class TrendChartState extends State<TrendChart> {
             onLongPressMoveUpdate: (d) {
               // TODO: Update cross line active point
             },
-            onHorizontalDragUpdate: (d) {
+            onHorizontalDragUpdate: when(widget.isAllowHorizontalDrag, (d) {
               widget.controller.applyOffset(d.delta.dx);
-            },
-            onHorizontalDragEnd: (d) {
+            }),
+            onHorizontalDragEnd: when(widget.isAllowHorizontalDrag, (d) {
               widget.controller.decelerate(d.velocity);
-            },
+            }),
             onScaleUpdate: (d) {
               if (d.pointerCount == 1) {
                 widget.controller.applyOffset(d.focalPointDelta.dx);

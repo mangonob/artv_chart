@@ -1,3 +1,6 @@
+import 'package:artv_chart/utils/utils.dart';
+
+import '../../common/range.dart';
 import 'package:flutter/material.dart';
 
 enum CandleDirection {
@@ -36,6 +39,17 @@ class CandleEntry {
     this.open,
     this.close,
   });
+
+  factory CandleEntry.emtpy() => CandleEntry();
+
+  Range get range {
+    Range r = const Range.empty();
+    if (open != null) r = r.extend(open!);
+    if (high != null) r = r.extend(high!);
+    if (lower != null) r = r.extend(lower!);
+    if (close != null) r = r.extend(close!);
+    return r;
+  }
 
   CandleEntry copyWith({
     double? high,

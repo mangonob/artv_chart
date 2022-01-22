@@ -1,3 +1,5 @@
+import 'package:artv_chart/trend_chart/common/painter/line_painter.dart';
+import 'package:artv_chart/trend_chart/common/style.dart';
 import 'package:flutter/material.dart';
 
 import '../../chart_coordinator.dart';
@@ -40,7 +42,7 @@ class CandleSeriesPainter extends CustomPainter
         case CandleType.fill:
           _paintFillCandles(canvas, size);
           break;
-        case CandleType.outlet:
+        case CandleType.outline:
           _paintOutletCandles(canvas, size);
           break;
         case CandleType.ohlc:
@@ -53,30 +55,123 @@ class CandleSeriesPainter extends CustomPainter
   /// 实心K线
   _paintFillCandles(Canvas canvas, Size size) {
     final valueRange = coordinator.xRange.intersection(renderParams.xRange);
+    final lineStyle = series.style.lineStyle;
+    final distance = series.style.distance;
+
     valueRange
         .toIterable()
         .where((idx) => idx >= 0 && idx < series.datas.length)
         .forEach((index) {
       final candle = series.datas[index];
 
+      /// Swap default value
       final high = candle.high ?? candle.lower;
       final lower = candle.lower ?? candle.high;
       final open = candle.open ?? candle.close;
       final close = candle.close ?? candle.open;
 
-      if (high != null) {
-        /// 最高价，最低价至少有一个才绘制烛体
-        final body = Rect.fromLTWH(index - 0.5, high, 1, high - lower!);
-        canvas.drawRect(
-          convertRectFromGrid(body),
-          Paint()..color = _colorForCandle(candle),
+      /// 最高价，最低价至少一个有值才绘制烛体
+      if (open != null && close != null) {
+        final gridBody = Rect.fromLTRB(index - 0.5, open, index + 0.5, close);
+        var body = convertRectFromGrid(gridBody);
+        if (distance != null) {
+          final delta = distance.apply(body.width) / 2;
+          body = Rect.fromLTRB(
+            body.left + delta,
+            body.top,
+            body.right - delta,
+            body.bottom,
+          );
+        }
+
+        /// 蜡体宽度低于线宽时，跳过绘制
+        if (body.width >= (lineStyle?.size ?? 1)) {
+          canvas.drawRect(
+            body,
+            Paint()..color = _colorForCandle(candle),
+          );
+        }
+      }
+
+      if (high != null && lower != null) {
+        final line = Rect.fromPoints(
+          Offset(index.toDouble(), high),
+          Offset(index.toDouble(), lower),
+        );
+
+        LinePainter().paint(
+          canvas,
+          start: convertPointFromGrid(line.topLeft),
+          end: convertPointFromGrid(line.bottomLeft),
+          style: const LineStyle(
+            size: 1,
+          ).merge(lineStyle).copyWith(color: _colorForCandle(candle)),
         );
       }
     });
   }
 
   /// 空心K线
-  _paintOutletCandles(Canvas canvas, Size size) {}
+  _paintOutletCandles(Canvas canvas, Size size) {
+    final valueRange = coordinator.xRange.intersection(renderParams.xRange);
+    final lineStyle = const LineStyle(size: 1).merge(series.style.lineStyle);
+    final distance = series.style.distance;
+
+    valueRange
+        .toIterable()
+        .where((idx) => idx >= 0 && idx < series.datas.length)
+        .forEach((index) {
+      final candle = series.datas[index];
+
+      /// Swap default value
+      final high = candle.high ?? candle.lower;
+      final lower = candle.lower ?? candle.high;
+      final open = candle.open ?? candle.close;
+      final close = candle.close ?? candle.open;
+
+      /// 最高价，最低价至少一个有值才绘制烛体
+      if (open != null && close != null) {
+        final gridBody = Rect.fromLTRB(index - 0.5, open, index + 0.5, close);
+        var body = convertRectFromGrid(gridBody);
+        if (distance != null) {
+          final delta = distance.apply(body.width) / 2;
+          body = Rect.fromLTRB(
+            body.left + delta,
+            body.top,
+            body.right - delta,
+            body.bottom,
+          );
+        }
+
+        /// 蜡体宽度低于线宽时，跳过绘制
+        if (body.width >= (lineStyle.size ?? 1)) {
+          canvas.drawRect(
+            body.deflate((lineStyle.size ?? 1) / 2),
+            Paint()
+              ..style = PaintingStyle.stroke
+              ..strokeWidth = lineStyle.size ?? 1
+              ..color = _colorForCandle(candle),
+          );
+        }
+      }
+
+      if (high != null && lower != null) {
+        final line = Rect.fromPoints(
+          Offset(index.toDouble(), high),
+          Offset(index.toDouble(), lower),
+        );
+
+        LinePainter().paint(
+          canvas,
+          start: convertPointFromGrid(line.topLeft),
+          end: convertPointFromGrid(line.bottomLeft),
+          style: const LineStyle(
+            size: 1,
+          ).merge(lineStyle).copyWith(color: _colorForCandle(candle)),
+        );
+      }
+    });
+  }
 
   /// 美国线
   _paintOHLC(Canvas canvas, Size size) {}

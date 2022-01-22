@@ -1,4 +1,5 @@
 import 'package:example/pages/kline_demo.dart';
+import 'package:example/pages/time_sharing_demo.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -27,17 +28,17 @@ class Home extends StatefulWidget {
 }
 
 enum KLineType {
-  timeSharing,
   kLine,
+  timeSharing,
 }
 
 extension KLineTypeDescriptionExtension on KLineType {
   String description() {
     switch (this) {
-      case KLineType.timeSharing:
-        return "分时";
       case KLineType.kLine:
         return "K线";
+      case KLineType.timeSharing:
+        return "分时";
     }
   }
 }
@@ -96,7 +97,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
         controller: _tabController,
         children: const [
           KLineDemo(),
-          KLineDemo(),
+          TimeSharingDemo(),
         ],
       ),
     );

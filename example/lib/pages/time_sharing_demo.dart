@@ -10,37 +10,33 @@ import 'package:artv_chart/trend_chart/grid/label/chart_label.dart';
 import 'package:artv_chart/trend_chart/grid/label/text_label.dart';
 import 'package:artv_chart/trend_chart/layout_manager.dart';
 import 'package:artv_chart/trend_chart/series/candle_series/candle_entry.dart';
-import 'package:artv_chart/trend_chart/series/candle_series/candle_series.dart';
-import 'package:artv_chart/trend_chart/series/candle_series/candle_series_style.dart';
+import 'package:artv_chart/trend_chart/series/line_series/line_series.dart';
 import 'package:artv_chart/trend_chart/series/series.dart';
 import 'package:artv_chart/trend_chart/trend_chart.dart';
 import 'package:artv_chart/trend_chart/trend_chart_controller.dart';
-import 'package:example/widgets/options.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:tuple/tuple.dart';
 
-class KLineDemo extends StatefulWidget {
-  const KLineDemo({
+class TimeSharingDemo extends StatefulWidget {
+  const TimeSharingDemo({
     Key? key,
   }) : super(key: key);
 
   @override
-  State<KLineDemo> createState() => _KLineDemoState();
+  State<TimeSharingDemo> createState() => _TimeSharingDemoState();
 }
 
-class _KLineDemoState extends State<KLineDemo>
+class _TimeSharingDemoState extends State<TimeSharingDemo>
     with SingleTickerProviderStateMixin, AutomaticKeepAliveClientMixin {
   late TrendChartController _controller;
   late LayoutManager _layoutManager;
   late List<Offset> _offsets;
-  late List<CandleEntry> _candles;
   late ReceivePort _dataPort;
   final int _itemCount = 10000;
   late StreamSubscription _portSubscription;
 
   bool _isAutoHiddenCrossLine = false;
-  CandleType _candleType = CandleType.fill;
 
   @override
   bool get wantKeepAlive => true;
@@ -52,7 +48,6 @@ class _KLineDemoState extends State<KLineDemo>
     _controller = TrendChartController(vsync: this);
     _layoutManager = LayoutManager();
     _offsets = [];
-    _candles = [];
 
     _dataPort = ReceivePort();
     Isolate.spawn(
@@ -64,7 +59,6 @@ class _KLineDemoState extends State<KLineDemo>
       if (message is Tuple2<List<Offset>, List<CandleEntry>>) {
         setState(() {
           _offsets = message.item1;
-          _candles = message.item2;
         });
       }
     });
@@ -105,10 +99,7 @@ class _KLineDemoState extends State<KLineDemo>
                 ),
                 boundaries: [AlignBoundary(5 * 10)],
                 series: [
-                  CandleSeries(
-                    candles: _candles,
-                    style: CandleSeriesStyle(type: _candleType),
-                  ),
+                  LineSeries(_offsets),
                 ],
                 // xLabel: xLabel,
                 yLabel: yLabel,
@@ -137,19 +128,6 @@ class _KLineDemoState extends State<KLineDemo>
                     _isAutoHiddenCrossLine = v;
                   });
                 }),
-          ),
-          ListTile(
-            title: const Text("线型"),
-            trailing: Options<CandleType>(
-              value: _candleType,
-              values: CandleType.values,
-              formatter: (v) => v.description(),
-              onValueChagned: (v) {
-                setState(() {
-                  _candleType = v;
-                });
-              },
-            ),
           ),
         ],
       ),
@@ -205,17 +183,4 @@ void _generateTestData(Tuple2<SendPort, int> portAndCount) {
   });
 
   port.send(Tuple2<List<Offset>, List<CandleEntry>>(offsets, candels));
-}
-
-extension _CanldeTypeDescription on CandleType {
-  String description() {
-    switch (this) {
-      case CandleType.fill:
-        return "实心";
-      case CandleType.outline:
-        return "空心";
-      case CandleType.ohlc:
-        return "美国线";
-    }
-  }
 }

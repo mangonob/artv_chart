@@ -33,3 +33,9 @@ void ignoreUnused<T>(T any) {}
 U undefined<U>() {
   return null as U;
 }
+
+T? when<T>(bool? predicate, T value) {
+  if (predicate == true) {
+    return value;
+  }
+}

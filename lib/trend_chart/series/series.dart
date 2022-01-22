@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:tuple/tuple.dart';
 
 import '../common/range.dart';
 import '../common/render_params.dart';
@@ -26,23 +27,29 @@ abstract class Series<D> {
     required Grid grid,
   });
 
-  List<double> yValues(Range xRange) {
+  Tuple2<Iterable<D>, int> datasInXRange(Range xRange) {
+    final start = min(
+      max(xRange.lower.ceil(), 0),
+      datas.length,
+    );
+    final end = min(max(xRange.upper.ceil(), 0), datas.length);
+    if (end > start) {
+      return Tuple2(datas.getRange(start, end), start);
+    } else {
+      return const Tuple2([], -1);
+    }
+  }
+
+  Iterable<double> yValues(Range xRange) {
     if (yValue == null) {
       return [];
     } else {
-      final start = min(
-        max(xRange.lower.ceil(), 0),
-        datas.length,
+      final t = datasInXRange(xRange);
+      final datas = t.item1;
+      final start = t.item2;
+      return datas.mapIndexed(
+        (index, d) => yValue!(d, index + start, this),
       );
-      final end = min(max(xRange.upper.ceil(), 0), datas.length);
-      if (end > start) {
-        return datas
-            .getRange(start, end)
-            .mapIndexed((index, d) => yValue!(d, index + start, this))
-            .toList();
-      } else {
-        return [];
-      }
     }
   }
 

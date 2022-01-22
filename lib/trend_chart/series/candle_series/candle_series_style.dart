@@ -1,3 +1,4 @@
+import 'package:artv_chart/trend_chart/common/style.dart';
 import 'package:flutter/material.dart';
 
 import '../../common/value_distance.dart';
@@ -7,7 +8,7 @@ enum CandleType {
   fill,
 
   /// 空心蜡烛
-  outlet,
+  outline,
 
   /// 美国线
   ohlc,
@@ -17,16 +18,26 @@ class CandleSeriesStyle {
   final CandleType? type;
   final Color? riseColor;
   final Color? fallColor;
+  final LineStyle? _lineStyle;
   final Distance? _distance;
 
   Distance? get distance => _distance;
+  LineStyle? get lineStyle => _lineStyle;
 
   CandleSeriesStyle({
     this.type,
     this.riseColor,
     this.fallColor,
+    LineStyle? lineStyle,
     Distance? distance,
-  }) : _distance = distance ?? ValueDistance.absolute(2);
+  })  : _lineStyle = const LineStyle(size: 1).merge(lineStyle),
+        _distance = distance ??
+            CombineDistance(
+              distances: [
+                ValueDistance.absolute(1),
+                ValueDistance.relative(0.1),
+              ],
+            );
 
   CandleSeriesStyle copyWith({
     CandleType? type = CandleType.fill,

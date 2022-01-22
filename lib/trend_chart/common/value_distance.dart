@@ -64,7 +64,7 @@ class CombineDistance extends Distance {
 
   CombineDistance({
     required this.distances,
-    this.useMax = false,
+    this.useMax = true,
   }) : assert(distances.isNotEmpty);
 
   @override

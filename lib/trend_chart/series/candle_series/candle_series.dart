@@ -1,3 +1,4 @@
+import '../../common/range.dart';
 import 'package:flutter/material.dart';
 
 import '../../common/render_params.dart';
@@ -16,7 +17,7 @@ class CandleSeries extends Series<CandleEntry> {
     required List<CandleEntry> candles,
     ValueConvertor<CandleEntry>? yValue,
     CandleSeriesStyle? style,
-  })  : _style = style ?? CandleSeriesStyle(),
+  })  : _style = CandleSeriesStyle().merge(style),
         super(
           datas: candles,
           yValue: yValue ?? _DefaultCandleSeriesConvertor._defaultCandleYValue,
@@ -32,6 +33,15 @@ class CandleSeries extends Series<CandleEntry> {
         grid: grid,
         renderParams: renderParams,
       );
+
+  @override
+  Range yRange(Range xRange) {
+    final datas = datasInXRange(xRange);
+    return datas.item1.fold(
+      const Range.empty(),
+      (range, candle) => range.union(candle.range),
+    );
+  }
 
   @override
   operator ==(Object other) =>
