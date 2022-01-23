@@ -1,5 +1,3 @@
-import 'dart:async';
-import 'dart:isolate';
 import 'dart:math';
 
 import 'package:artv_chart/trend_chart/common/range.dart';
@@ -137,7 +135,10 @@ class _KLineDemoState extends State<KLineDemo>
                   margin: const EdgeInsets.all(10).copyWith(bottom: 20),
                   labelStyle: const TextStyle(color: Colors.blue),
                 ),
-                boundaries: [AlignBoundary(5 * 10)],
+                boundaries: [
+                  FractionalPaddingBoundary(0.1),
+                  AlignBoundary(5 * 10)
+                ],
                 series: [
                   CandleSeries(
                     candles: _candles,

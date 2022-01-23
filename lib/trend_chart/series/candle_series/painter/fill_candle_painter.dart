@@ -21,10 +21,23 @@ class FillCandlePainter extends CandlePainter {
     required Rect rect,
     required Color color,
   }) {
-    canvas.drawRect(
-      rect,
-      Paint()..color = color,
-    );
+    final lineStyle = const LineStyle(
+      size: 1,
+    ).merge(style.lineStyle).copyWith(color: color);
+
+    if (rect.height < lineStyle.size!) {
+      LinePainter().paint(
+        canvas,
+        start: rect.centerLeft,
+        end: rect.centerRight,
+        style: lineStyle,
+      );
+    } else {
+      canvas.drawRect(
+        rect,
+        Paint()..color = color,
+      );
+    }
   }
 
   @override

@@ -22,15 +22,25 @@ class OutlineCandlePainter extends CandlePainter {
     required Rect rect,
     required Color color,
   }) {
-    final lineStyle = const LineStyle(size: 1).merge(style.lineStyle);
+    final lineStyle = const LineStyle(
+      size: 1,
+    ).merge(style.lineStyle).copyWith(color: color);
 
-    canvas.drawRect(
-      rect.deflate((lineStyle.size ?? 1) / 2),
-      Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = lineStyle.size ?? 1
-        ..color = color,
-    );
+    if (rect.height < lineStyle.size!) {
+      FillCandlePainter(style: style, coordinator: coordinator).paintBody(
+        canvas,
+        rect: rect,
+        color: color,
+      );
+    } else {
+      canvas.drawRect(
+        rect.deflate((lineStyle.size ?? 1) / 2),
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = lineStyle.size ?? 1
+          ..color = color,
+      );
+    }
   }
 
   @override
@@ -40,17 +50,11 @@ class OutlineCandlePainter extends CandlePainter {
     Rect? body,
     required Color color,
   }) {
-    if (body == null) {
-      FillCandlePainter(style: style, coordinator: coordinator).paintWick(
-        canvas,
-        line: line,
-        color: color,
-      );
-    } else {
-      final lineStyle = const LineStyle(
-        size: 1,
-      ).merge(style.lineStyle).copyWith(color: color);
+    final lineStyle = const LineStyle(
+      size: 1,
+    ).merge(style.lineStyle).copyWith(color: color);
 
+    if (body != null && body.height > lineStyle.size!) {
       LinePainter().paint(
         canvas,
         start: line.topLeft,
@@ -63,6 +67,12 @@ class OutlineCandlePainter extends CandlePainter {
         start: Offset(line.bottomLeft.dx, body.bottom),
         end: line.bottomLeft,
         style: lineStyle,
+      );
+    } else {
+      FillCandlePainter(style: style, coordinator: coordinator).paintWick(
+        canvas,
+        line: line,
+        color: color,
       );
     }
   }

@@ -43,3 +43,19 @@ class AlignBoundary extends Boundary {
     );
   }
 }
+
+class FractionalPaddingBoundary extends Boundary {
+  final double fractionalPadding;
+
+  FractionalPaddingBoundary(this.fractionalPadding);
+
+  @override
+  Range createRange(Range range) {
+    if (range.isEmpty) {
+      return range;
+    } else {
+      final padding = range.length * fractionalPadding;
+      return range.expand(padding, padding);
+    }
+  }
+}
