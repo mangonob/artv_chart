@@ -69,6 +69,7 @@ class TrendChart extends StatefulWidget {
 
 class TrendChartState extends State<TrendChart> {
   late RenderParams _renderParams;
+  double? _scaleStartUnit;
 
   void updateRenderParams(RenderParams renderParams) {
     setState(() {
@@ -135,18 +136,24 @@ class TrendChartState extends State<TrendChart> {
             onHorizontalDragEnd: when(widget.isAllowHorizontalDrag, (d) {
               widget.controller.decelerate(d.velocity);
             }),
+            onScaleStart: (_) {
+              _scaleStartUnit = _renderParams.unit;
+            },
             onScaleUpdate: (d) {
               if (d.pointerCount == 1) {
                 widget.controller.applyOffset(d.focalPointDelta.dx);
               } else {
-                widget.controller.interactive(
-                  d.horizontalScale,
-                  d.localFocalPoint.dx,
-                  d.focalPointDelta.dx,
-                );
+                if (_scaleStartUnit != null) {
+                  widget.controller.interactive(
+                    destUnit: d.horizontalScale * _scaleStartUnit!,
+                    anchorX: d.localFocalPoint.dx,
+                    deltaX: d.focalPointDelta.dx,
+                  );
+                }
               }
             },
             onScaleEnd: (d) {
+              _scaleStartUnit = null;
               if (d.pointerCount == 0) {
                 widget.controller.decelerate(d.velocity);
               }

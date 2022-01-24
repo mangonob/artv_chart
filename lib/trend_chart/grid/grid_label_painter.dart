@@ -1,15 +1,13 @@
-import 'package:artv_chart/trend_chart/chart_coordinator.dart';
-import 'package:artv_chart/trend_chart/common/painter/line_painter.dart';
-import 'package:artv_chart/trend_chart/common/painter/padding_painter.dart';
-import 'package:artv_chart/trend_chart/common/range.dart';
-import 'package:artv_chart/trend_chart/grid/label/text_label.dart';
 import 'package:artv_chart/utils/utils.dart';
 import 'package:collection/collection.dart';
-
-import '../common/render_params.dart';
 import 'package:flutter/material.dart';
 
+import '../chart_coordinator.dart';
+import '../common/painter/padding_painter.dart';
+import '../common/range.dart';
+import '../common/render_params.dart';
 import 'grid.dart';
+import 'label/text_label.dart';
 
 class GridLabelPainter extends CustomPainter
     with CoordinatorProvider, HasCoordinator {

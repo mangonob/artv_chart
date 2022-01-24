@@ -199,21 +199,25 @@ class TrendChartController extends ChangeNotifier {
     });
   }
 
-  void interactive(
-    double scale,
-    double anchorX,
-    double deltaX, {
+  void interactive({
+    double? destUnit,
+    double? scale,
+    required double anchorX,
+    required double deltaX,
     bool animated = false,
     Curve curve = Curves.easeOut,
     Duration duration = const Duration(milliseconds: 250),
   }) {
     if (!(_renderParams.unit > 0)) return;
+    assert(destUnit != null || scale != null);
+
     var oldValue = _renderParams;
     final minUnit = _state!.widget.minUnit;
     final maxUnit = _state!.widget.maxUnit;
 
-    final newUnit =
-        (scale * oldValue.unit).safeClamp(minUnit, maxUnit).toDouble();
+    final newUnit = (destUnit ?? scale! * oldValue.unit)
+        .safeClamp(minUnit, maxUnit)
+        .toDouble();
     final clampedScale = newUnit / oldValue.unit;
     if (clampedScale.isInfinite || clampedScale.isNaN) return;
 
