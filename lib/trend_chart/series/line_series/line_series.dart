@@ -1,26 +1,27 @@
 import 'package:flutter/material.dart';
 
 import '../../common/render_params.dart';
-import '../../common/style.dart';
 import '../../grid/grid.dart';
 import '../series.dart';
 import 'line_series_painter.dart';
+import 'line_series_style.dart';
 
 class LineSeries extends Series<Offset> {
-  final LineStyle _style;
+  final LineSeriesStyle _style;
 
   LineSeries(
     List<Offset> datas, {
-    LineStyle? lineStyle,
+    LineSeriesStyle? lineSeriesStyle,
     ValueConvertor<Offset>? yValue,
-  })  : _style = const LineStyle(color: Colors.green).merge(lineStyle),
+  })  : _style =
+            LineSeriesStyle().merge(lineSeriesStyle),
         super(
           datas: datas,
           yValue: yValue ??
               _DefaultLineSeriesYValueConvertor._defaultLineSeriesYValue,
         );
 
-  LineStyle get style => _style;
+  LineSeriesStyle get style => _style;
 
   // @override
   // CustomPainter createPainter(RenderParams renderParams, ) =>
