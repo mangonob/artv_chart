@@ -102,7 +102,7 @@ abstract class CandlePainter {
     required Color color,
   });
 
-  /// Paint wink of candle.
+  /// Paint wick of candle.
   void paintWick(
     Canvas canvas, {
     required Rect line,
