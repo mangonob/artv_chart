@@ -124,18 +124,21 @@ class LineSeriesPainter extends CustomPainter
                   series.datas[valueRange.lower.toInt()].dy))
               .dx,
           size.height);
-      canvas.drawPath(
-          linePath,
-          Paint()
-            ..isAntiAlias = true
-            ..strokeWidth = 1.0
-            ..style = PaintingStyle.fill
-            ..shader = LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              tileMode: TileMode.clamp,
-              colors: series.style.gradientColor!,
-            ).createShader(Offset.zero & size));
+      Paint paint = Paint()
+        ..isAntiAlias = true
+        ..strokeWidth = 1.0
+        ..color = series.style.lineColor!
+        ..style = PaintingStyle.fill;
+
+      if (series.style.gradientColor!.length > 1) {
+        paint.shader = LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          tileMode: TileMode.clamp,
+          colors: series.style.gradientColor!,
+        ).createShader(Offset.zero & size);
+      }
+      canvas.drawPath(linePath, paint);
     });
   }
 

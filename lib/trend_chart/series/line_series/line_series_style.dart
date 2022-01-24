@@ -21,7 +21,7 @@ class LineSeriesStyle {
     this.pattern = const [2, 2],
     this.paintingStyle = PaintingStyle.stroke,
     this.fillColor = Colors.grey,
-    this.gradientColor = const [Colors.red, Colors.transparent],
+    this.gradientColor = const [],
   });
 
   LineSeriesStyle copyWith({
