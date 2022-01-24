@@ -4,8 +4,10 @@ import '../../chart_coordinator.dart';
 import '../../common/painter/padding_painter.dart';
 import '../../common/render_params.dart';
 import '../../grid/grid.dart';
+import '../../grid/label/text_label.dart';
 import 'candle_series.dart';
 import 'painter/candle_painter.dart';
+import 'painter/value_remark_painter.dart';
 
 class CandleSeriesPainter extends CustomPainter
     with HasCoordinator, CoordinatorProvider {
@@ -27,7 +29,12 @@ class CandleSeriesPainter extends CustomPainter
       );
 
   @override
-  bool shouldRepaint(covariant CandleSeriesPainter oldDelegate) => true;
+  bool shouldRepaint(covariant CandleSeriesPainter oldDelegate) {
+    /// TODO Check if we need to repaint
+    return oldDelegate.series != series ||
+        oldDelegate.grid != grid ||
+        oldDelegate.renderParams != renderParams;
+  }
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -42,12 +49,27 @@ class CandleSeriesPainter extends CustomPainter
   _paintCandles(Canvas canvas, Size size) {
     final valueRange = coordinator.xRange.intersection(renderParams.xRange);
 
+    double maxValue = double.negativeInfinity, minValue = double.infinity;
+    int? maxIndex, minIndex;
+
+    /// Draw candle entries
     valueRange
         .toIterable()
         .where((idx) => idx >= 0 && idx < series.datas.length)
         .forEach(
       (index) {
         final candle = series.datas[index];
+        final range = candle.range;
+
+        if (range.upper > maxValue) {
+          maxValue = candle.range.upper;
+          maxIndex = index;
+        }
+
+        if (range.lower < minValue) {
+          minValue = candle.range.lower;
+          minIndex = index;
+        }
 
         CandlePainter.fromType(style: series.style, coordinator: this).paint(
           canvas,
@@ -56,5 +78,32 @@ class CandleSeriesPainter extends CustomPainter
         );
       },
     );
+
+    /// Draw boundary label if needed
+    if (maxIndex != null && grid.yLabel != null) {
+      final label = grid.yLabel!(maxValue);
+      if (label is TextLabel) {
+        ValueRemarkPainter(coordinator: coordinator).paint(
+          canvas,
+          content: label.text,
+          value: maxValue,
+          position: maxIndex!,
+          style: series.style.remarkStyle,
+        );
+      }
+    }
+
+    if (minIndex != null && grid.yLabel != null) {
+      final label = grid.yLabel!(minValue);
+      if (label is TextLabel) {
+        ValueRemarkPainter(coordinator: coordinator).paint(
+          canvas,
+          content: label.text,
+          value: minValue,
+          position: minIndex!,
+          style: series.style.remarkStyle,
+        );
+      }
+    }
   }
 }
