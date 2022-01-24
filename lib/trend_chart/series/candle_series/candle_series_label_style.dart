@@ -14,7 +14,7 @@ class ValueRemarkStyle {
   final DirectionSwitchMode? horizontalDirectionSwitchMode;
   final DirectionSwitchMode? verticalDirectionSwitchMode;
 
-  /// Angle in radian between leading-line and label-line (default: 5/6 * pi).
+  /// Angle in radian between leading-line and label-line (default: 0.9 * pi).
   final double? theta;
   final Offset? leadingDelta;
 
@@ -30,7 +30,7 @@ class ValueRemarkStyle {
     this.alignment = Alignment.centerRight,
     this.horizontalDirectionSwitchMode = DirectionSwitchMode.boundaryEnd,
     this.verticalDirectionSwitchMode = DirectionSwitchMode.inMiddle,
-    this.theta = pi / 6 * 5,
+    this.theta = 0.9 * pi,
     this.leadingDelta = const Offset(0, 1),
   })  : _textStyle =
             const TextStyle(fontSize: 8, color: Colors.grey).merge(textStyle),
