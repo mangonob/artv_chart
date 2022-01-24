@@ -63,28 +63,52 @@ class LineSeriesPainter extends CustomPainter
       coordinator = createCoordinator(size);
       _offsetList.clear();
       final valueRange = coordinator.xRange.intersection(renderParams.xRange);
-      _offsetList.add(convertPointFromGrid(Offset(
-          series.datas[valueRange.lower.toInt()].dx,
-          series.datas[valueRange.lower.toInt()].dy)));
+      if (valueRange.lower.toInt() < 0) return;
       valueRange
           .toIterable()
           .where((idx) => idx >= 0 && idx < series.datas.length)
-          .forEach((index) => _offsetList.add(convertPointFromGrid(
-              Offset(series.datas[index].dx, series.datas[index].dy))));
-      if (valueRange.upper.toInt() < series.datas.length - 1) {
-        _offsetList.add(convertPointFromGrid(Offset(
-            series.datas[valueRange.upper.toInt() + 1].dx,
-            series.datas[valueRange.upper.toInt() + 1].dy)));
-      }
+          .forEach(
+        (index) {
+          _offsetList.add(
+            convertPointFromGrid(
+              Offset(
+                series.datas[max(0, index - 1)].dx,
+                series.datas[max(0, index - 1)].dy,
+              ),
+            ),
+          );
+          if (index == valueRange.upper.toInt() &&
+              index < series.datas.length - 1) {
+            _offsetList.add(
+              convertPointFromGrid(
+                Offset(
+                  series.datas[index].dx,
+                  series.datas[index].dy,
+                ),
+              ),
+            );
+            _offsetList.add(
+              convertPointFromGrid(
+                Offset(
+                  series.datas[index + 1].dx,
+                  series.datas[index + 1].dy,
+                ),
+              ),
+            );
+          }
+        },
+      );
+
       canvas.drawPoints(
-          _isDrawLine ? PointMode.polygon : PointMode.points,
-          _offsetList,
-          Paint()
-            ..strokeCap = _isDrawLine ? StrokeCap.butt : StrokeCap.round
-            ..color = series.style.lineColor!
-            ..strokeWidth = _isDrawLine
-                ? series.style.size!
-                : series.style.singlePointSize!);
+        _isDrawLine ? PointMode.polygon : PointMode.points,
+        _offsetList,
+        Paint()
+          ..strokeCap = _isDrawLine ? StrokeCap.butt : StrokeCap.round
+          ..color = series.style.lineStyle!.color!
+          ..strokeWidth = _isDrawLine
+              ? series.style.lineStyle!.size!
+              : series.style.singlePointSize!,
+      );
     });
   }
 
@@ -96,16 +120,25 @@ class LineSeriesPainter extends CustomPainter
         routine: (Canvas canvas, Size size) {
       coordinator = createCoordinator(size);
       final valueRange = coordinator.xRange.intersection(renderParams.xRange);
-      Offset lowerOffset = convertPointFromGrid(Offset(
+      if (valueRange.lower.toInt() < 0) return;
+      Offset lowerOffset = convertPointFromGrid(
+        Offset(
           series.datas[valueRange.lower.toInt()].dx,
-          series.datas[valueRange.lower.toInt()].dy));
+          series.datas[valueRange.lower.toInt()].dy,
+        ),
+      );
       linePath.moveTo(lowerOffset.dx, lowerOffset.dy);
       valueRange
           .toIterable()
           .where((idx) => idx >= 0 && idx < series.datas.length)
           .forEach((index) {
+        if (index == valueRange.lower.toInt()) {}
         Offset currentOffset = convertPointFromGrid(
-            Offset(series.datas[index].dx, series.datas[index].dy));
+          Offset(
+            series.datas[index].dx,
+            series.datas[index].dy,
+          ),
+        );
         linePath.lineTo(currentOffset.dx, currentOffset.dy);
       });
 
@@ -124,21 +157,19 @@ class LineSeriesPainter extends CustomPainter
                   series.datas[valueRange.lower.toInt()].dy))
               .dx,
           size.height);
-      Paint paint = Paint()
-        ..isAntiAlias = true
-        ..strokeWidth = 1.0
-        ..color = series.style.lineColor!
-        ..style = PaintingStyle.fill;
 
-      if (series.style.gradientColor!.length > 1) {
-        paint.shader = LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          tileMode: TileMode.clamp,
-          colors: series.style.gradientColor!,
-        ).createShader(Offset.zero & size);
-      }
-      canvas.drawPath(linePath, paint);
+      canvas.drawPath(
+          linePath,
+          Paint()
+            ..isAntiAlias = true
+            ..strokeWidth = 1.0
+            ..style = PaintingStyle.fill
+            ..shader = LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              tileMode: TileMode.clamp,
+              colors: series.style.gradientColors!,
+            ).createShader(Offset.zero & size));
     });
   }
 

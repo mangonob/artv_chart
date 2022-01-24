@@ -14,7 +14,7 @@ class LineSeries extends Series<Offset> {
     LineSeriesStyle? lineSeriesStyle,
     ValueConvertor<Offset>? yValue,
   })  : _style =
-            LineSeriesStyle(lineColor: Colors.green).merge(lineSeriesStyle),
+            LineSeriesStyle().merge(lineSeriesStyle),
         super(
           datas: datas,
           yValue: yValue ??

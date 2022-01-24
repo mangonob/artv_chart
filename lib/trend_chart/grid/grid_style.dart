@@ -25,7 +25,7 @@ class GridStyle {
     LineStyle? lineStyle,
   })  : assert(color == null || decoration == null),
         _margin = margin ?? EdgeInsets.zero,
-        _lineStyle = LineStyle(lineColor: Colors.grey[200]).merge(lineStyle),
+        _lineStyle = LineStyle(color: Colors.grey[200]).merge(lineStyle),
         _labelStyle =
             TextStyle(fontSize: 10, color: Colors.grey[500]).merge(labelStyle);
 

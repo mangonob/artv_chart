@@ -5,7 +5,7 @@ import 'enum.dart';
 typedef LinePattern = List<double>;
 
 class LineStyle {
-  final Color? lineColor;
+  final Color? color;
   final double? size;
   final LineType? type;
 
@@ -15,7 +15,7 @@ class LineStyle {
   final LinePattern pattern;
 
   const LineStyle({
-    this.lineColor = Colors.grey,
+    this.color = Colors.grey,
     this.size = 1,
     this.type = LineType.solid,
     this.pattern = const [2, 2],
@@ -30,7 +30,7 @@ class LineStyle {
     PaintingStyle? paintingStyle,
   }) {
     return LineStyle(
-      lineColor: color ?? this.lineColor,
+      color: color ?? this.color,
       size: size ?? this.size,
       type: type ?? this.type,
       pattern: pattern ?? this.pattern,
@@ -41,7 +41,7 @@ class LineStyle {
     if (other == null) return this;
 
     return copyWith(
-      color: other.lineColor,
+      color: other.color,
       size: other.size,
       type: other.type,
       pattern: other.pattern,
@@ -52,7 +52,7 @@ class LineStyle {
   operator ==(Object other) {
     return identical(this, other) ||
         other is LineStyle &&
-            lineColor == other.lineColor &&
+            color == other.color &&
             size == other.size &&
             type == other.type &&
             pattern == other.pattern;
@@ -60,7 +60,7 @@ class LineStyle {
 
   @override
   int get hashCode => hashValues(
-        lineColor,
+        color,
         size,
         type,
         hashList(pattern),
