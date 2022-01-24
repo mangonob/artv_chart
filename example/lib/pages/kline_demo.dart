@@ -133,7 +133,8 @@ class _KLineDemoState extends State<KLineDemo>
                 style: GridStyle(
                   ratio: 0.8,
                   margin: const EdgeInsets.all(10).copyWith(bottom: 20),
-                  labelStyle: const TextStyle(color: Colors.blue),
+                  labelStyle:
+                      const TextStyle(fontSize: 9, color: Colors.blueGrey),
                 ),
                 boundaries: [
                   FractionalPaddingBoundary(0.1),

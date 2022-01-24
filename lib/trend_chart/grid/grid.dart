@@ -10,6 +10,7 @@ import '../series/series.dart';
 import 'boundary.dart';
 import 'custom_line.dart';
 import 'grid_cache.dart';
+import 'grid_label_painter.dart';
 import 'grid_painter.dart';
 import 'label/chart_label.dart';
 
@@ -78,6 +79,12 @@ class Grid {
         grid: this,
         renderParams: renderParams,
         gridCache: _cache,
+      );
+
+  CustomPainter createLabelPainter(RenderParams renderParams) =>
+      GridLabelPainter(
+        grid: this,
+        renderParams: renderParams,
       );
 
   /// Logical x range of current visible grid area, it's boundary can be floating point number.

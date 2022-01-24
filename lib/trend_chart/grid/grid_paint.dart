@@ -16,9 +16,10 @@ class GridPaint extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final renderParams = RenderParams.of(context);
     return ClipRect(
       child: CustomPaint(
-        painter: grid.createPainter(RenderParams.of(context)),
+        painter: grid.createPainter(renderParams),
         child: GridScope(
           grid: grid,
           child: BatchSeriesPaint(
@@ -26,6 +27,7 @@ class GridPaint extends StatelessWidget {
             child: child,
           ),
         ),
+        foregroundPainter: grid.createLabelPainter(renderParams),
       ),
     );
   }

@@ -50,8 +50,8 @@ class GridPainter extends CustomPainter with CoordinatorProvider {
         _coordinator = createCoordinator(size);
 
         _paintGrid(canvas, size);
-        _paintYValues(canvas, size);
-        _paintXValues(canvas, size);
+        _paintYLines(canvas, size);
+        _paintXLines(canvas, size);
       },
     );
   }
@@ -68,7 +68,7 @@ class GridPainter extends CustomPainter with CoordinatorProvider {
     );
   }
 
-  void _paintYValues(Canvas canvas, Size size) {
+  void _paintYLines(Canvas canvas, Size size) {
     if (size.isEmpty) return;
 
     final labels = _coordinator.yRange.split(grid.ySplitCount).map(
@@ -83,15 +83,11 @@ class GridPainter extends CustomPainter with CoordinatorProvider {
     if (labels.isEmpty || offsets.isEmpty) return;
 
     assert(labels.length == offsets.length);
-    final hasMore = labels.length > 1;
-    final count = labels.length;
 
     zip(offsets, labels).forEachIndexed(
       (index, t) {
         final offset = t.item1;
         final label = t.item2;
-        final isFirst = index == 0;
-        final isLast = index == count - 1;
 
         final lineStyle = label.lineStyle ?? grid.style.lineStyle;
 
@@ -103,45 +99,11 @@ class GridPainter extends CustomPainter with CoordinatorProvider {
             style: lineStyle,
           );
         }
-
-        label.createPainter().paint(
-              canvas,
-              offset: offset,
-              alignment: hasMore && isFirst
-                  ? Alignment.topRight
-                  : hasMore && isLast
-                      ? Alignment.bottomRight
-                      : Alignment.centerRight,
-              textStyle: grid.style.labelStyle,
-            );
       },
     );
   }
 
-  void _paintXValues(Canvas canvas, Size size) {
-    final unit = renderParams.unit;
-    final drawRange = _coordinator.xRange.intersection(renderParams.xRange);
-    if (size.isEmpty || drawRange.isEmpty) return;
-
-    final labels = drawRange.toIterable().map((x) => grid.xLabel?.call(x));
-    final offsets = drawRange.toIterable().map(
-          (x) => Offset((x - _coordinator.xRange.lower) * unit, size.height),
-        );
-
-    assert(labels.length == offsets.length);
-
-    zip(offsets, labels).forEach((t) {
-      final offset = t.item1;
-      final label = t.item2;
-
-      if (label != null) {
-        label.createPainter().paint(
-              canvas,
-              offset: offset,
-              alignment: Alignment.bottomCenter,
-              textStyle: grid.style.labelStyle,
-            );
-      }
-    });
+  void _paintXLines(Canvas canvas, Size size) {
+    /// TODO : paint x custom lines
   }
 }

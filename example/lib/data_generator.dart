@@ -10,10 +10,10 @@ class DataGenerator {
     required this.delta,
   }) : random = Random.secure();
 
-  factory DataGenerator.sinable({double period = 100, double max = 5000}) =>
+  factory DataGenerator.sinable({double period = 100, double scale = 200}) =>
       DataGenerator(
-        f: (x) => x * sin(x / period * 2 * pi) * max,
-        delta: (x) => max * x * 0.8,
+        f: (x) => x * sin(x / period * 2 * pi) * scale,
+        delta: (x) => scale * x * 0.8,
       );
 
   List<num> generate(num index, {int count = 1}) {
