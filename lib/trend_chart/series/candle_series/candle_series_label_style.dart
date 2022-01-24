@@ -7,18 +7,41 @@ import '../../common/style.dart';
 class ValueRemarkStyle {
   final TextStyle? _textStyle;
   final LineStyle? _lineStyle;
+
+  /// Padding of text label (default: EdgeInsets.symmetric(horizontal: 2)).
   final EdgeInsets? padding;
+
+  /// Length of leading-line (default: 20).
+  /// Leading-line is a line that start from anchor and end to the start point of label-line.
+  ///
+  ///         _________ (Label)
+  ///        /
+  ///       /
+  ///      /
+  ///   Anchor
+  ///
   final double? leadingLineLength;
+
+  /// Length of label-line (default: 0).
+  /// Label-line is a horizontal line that start from end point of leading line and end to the label.
+  /// SeeAlso: [leadingLineLength]
   final double? labelLineLength;
+
+  /// How to align the text with end point of label-line .
   final Alignment? alignment;
   final DirectionSwitchMode? horizontalDirectionSwitchMode;
   final DirectionSwitchMode? verticalDirectionSwitchMode;
 
   /// Angle in radian between leading-line and label-line (default: 0.9 * pi).
   final double? theta;
+
+  /// Offset between anchor and start point of leading-line (default: Offset(0, 1)).
   final Offset? leadingDelta;
 
+  /// Style of text label.
   TextStyle? get textStyle => _textStyle;
+
+  /// Style of leading-line and label-line.
   LineStyle? get lineStyle => _lineStyle;
 
   ValueRemarkStyle({

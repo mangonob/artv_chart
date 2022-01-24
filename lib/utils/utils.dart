@@ -1,7 +1,9 @@
 import 'package:tuple/tuple.dart';
 
+/// Function type that Transform values into a new form.
 typedef Mutator<T> = T Function(T);
 
+/// Chainable Monad of nullable Object.
 extension NullableMonad<T> on T? {
   U? flatMap<U>(U? Function(T v) f) {
     if (this == null) {
@@ -34,6 +36,8 @@ U undefined<U>() {
   return null as U;
 }
 
+/// Predicate checker.
+/// if [predicate] is passed return [value] otherwise return null.
 T? when<T>(bool? predicate, T? value) {
   if (predicate == true) {
     return value;

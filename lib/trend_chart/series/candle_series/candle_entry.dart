@@ -10,19 +10,19 @@ enum CandleDirection {
 
 /// Model class of candle chart.
 class CandleEntry {
-  /// 开盘价
+  /// Open price
   double? open;
 
-  /// 最高价
+  /// Hightest price
   double? high;
 
-  /// 最低价
+  /// Lowest price
   double? lower;
 
-  /// 收盘价
+  /// Close price
   double? close;
 
-  /// Whether entry has not any value.
+  /// Whether entry contains no value.
   bool get isEmpty =>
       open == null && high == null && lower == null && close == null;
 
@@ -41,6 +41,8 @@ class CandleEntry {
 
   factory CandleEntry.emtpy() => CandleEntry();
 
+  /// Range from highest value to lowest value in [CandleEntry].
+  /// If [CandleEntry] is empty, return [Range.empty].
   Range get range {
     Range r = const Range.empty();
     if (open != null) r = r.extend(open!);
