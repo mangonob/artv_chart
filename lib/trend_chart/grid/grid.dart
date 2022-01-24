@@ -142,7 +142,11 @@ class Grid {
     final xRange = this.xRange(params: params, size: size);
     final range = series.fold<Range>(
       const Range.empty(),
-      (range, s) => range.union(s.yRange(xRange)),
+      (range, s) => range.union(
+        s.yRange(
+          params.isIgnoredUnitVolume ? xRange : xRange.expand(1, 1),
+        ),
+      ),
     );
 
     return boundaries.fold(

@@ -47,7 +47,8 @@ class CandleSeriesPainter extends CustomPainter
   }
 
   _paintCandles(Canvas canvas, Size size) {
-    final valueRange = coordinator.xRange.intersection(renderParams.xRange);
+    final valueRange =
+        coordinator.xRange.expand(1, 1).intersection(renderParams.xRange);
 
     double maxValue = double.negativeInfinity, minValue = double.infinity;
     int? maxIndex, minIndex;
@@ -61,12 +62,14 @@ class CandleSeriesPainter extends CustomPainter
         final candle = series.datas[index];
         final range = candle.range;
 
-        if (range.upper > maxValue) {
+        if (range.upper > maxValue &&
+            coordinator.xRange.contains(index.toDouble())) {
           maxValue = candle.range.upper;
           maxIndex = index;
         }
 
-        if (range.lower < minValue) {
+        if (range.lower < minValue &&
+            coordinator.xRange.contains(index.toDouble())) {
           minValue = candle.range.lower;
           minIndex = index;
         }
