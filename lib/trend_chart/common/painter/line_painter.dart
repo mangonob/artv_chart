@@ -21,7 +21,7 @@ class LinePainter {
           end,
           Paint()
             ..style = PaintingStyle.stroke
-            ..color = style.color ?? Colors.black
+            ..color = style.lineColor ?? Colors.black
             ..strokeWidth = style.size ?? 1,
         );
         break;

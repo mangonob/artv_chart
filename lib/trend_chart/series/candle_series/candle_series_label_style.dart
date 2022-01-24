@@ -35,7 +35,7 @@ class ValueRemarkStyle {
   })  : _textStyle =
             const TextStyle(fontSize: 8, color: Colors.grey).merge(textStyle),
         _lineStyle =
-            const LineStyle(size: 1, color: Colors.grey).merge(lineStyle);
+            const LineStyle(size: 1, lineColor: Colors.grey).merge(lineStyle);
 
   ValueRemarkStyle copyWith({
     TextStyle? textStyle,

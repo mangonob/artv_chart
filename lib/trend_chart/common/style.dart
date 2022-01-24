@@ -5,10 +5,9 @@ import 'enum.dart';
 typedef LinePattern = List<double>;
 
 class LineStyle {
-  final Color? color;
+  final Color? lineColor;
   final double? size;
   final LineType? type;
-  final double? singlePointSize;
 
   /// Pattern when line type is [LineType.dash] or [LineType.dot]
   /// Eg: pattern [2, 1] of [LineType.dash] will draw "-- -- --"
@@ -16,10 +15,9 @@ class LineStyle {
   final LinePattern pattern;
 
   const LineStyle({
-    this.color = Colors.grey,
+    this.lineColor = Colors.grey,
     this.size = 1,
     this.type = LineType.solid,
-    this.singlePointSize = 5,
     this.pattern = const [2, 2],
   });
 
@@ -29,13 +27,13 @@ class LineStyle {
     LineType? type,
     LinePattern? pattern,
     double? singlePointSize,
+    PaintingStyle? paintingStyle,
   }) {
     return LineStyle(
-      color: color ?? this.color,
+      lineColor: color ?? this.lineColor,
       size: size ?? this.size,
       type: type ?? this.type,
       pattern: pattern ?? this.pattern,
-      singlePointSize: singlePointSize ?? this.singlePointSize,
     );
   }
 
@@ -43,11 +41,10 @@ class LineStyle {
     if (other == null) return this;
 
     return copyWith(
-      color: other.color,
+      color: other.lineColor,
       size: other.size,
       type: other.type,
       pattern: other.pattern,
-      singlePointSize: other.singlePointSize,
     );
   }
 
@@ -55,19 +52,17 @@ class LineStyle {
   operator ==(Object other) {
     return identical(this, other) ||
         other is LineStyle &&
-            color == other.color &&
+            lineColor == other.lineColor &&
             size == other.size &&
             type == other.type &&
-            singlePointSize == other.singlePointSize &&
             pattern == other.pattern;
   }
 
   @override
   int get hashCode => hashValues(
-        color,
+        lineColor,
         size,
         type,
-        singlePointSize,
         hashList(pattern),
       );
 }
