@@ -1,7 +1,7 @@
-import 'package:artv_chart/trend_chart/common/painter/line_painter.dart';
-import 'package:artv_chart/trend_chart/common/render_params.dart';
 import 'package:flutter/material.dart';
 
+import 'common/painter/line_painter.dart';
+import 'common/render_params.dart';
 import 'trend_chart.dart';
 
 class TrendChartCrossLinePainter extends CustomPainter {

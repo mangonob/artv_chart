@@ -1,5 +1,3 @@
-import 'package:artv_chart/trend_chart/common/style.dart';
-import 'package:artv_chart/trend_chart/trend_chart_cross_line_painter.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -8,10 +6,12 @@ import '../utils/utils.dart';
 import 'common/enum.dart';
 import 'common/range.dart';
 import 'common/render_params.dart';
+import 'common/style.dart';
 import 'grid/grid.dart';
 import 'grid/grid_paint.dart';
 import 'layout_manager.dart';
 import 'trend_chart_controller.dart';
+import 'trend_chart_cross_line_painter.dart';
 
 typedef GridWidgetBuilder = Widget? Function(
     BuildContext context, Grid grid, int index);
@@ -83,6 +83,13 @@ class TrendChartState extends State<TrendChart> {
   double? _scaleStartUnit;
   Offset? _focusLocation;
 
+  RenderParams get renderParams => _renderParams;
+
+  Offset? get focusLocation => _focusLocation;
+  set focusLocation(Offset? newValue) => setState(() {
+        _focusLocation = newValue;
+      });
+
   void update({
     RenderParams? renderParams,
     Offset? focusLocation,
@@ -97,20 +104,12 @@ class TrendChartState extends State<TrendChart> {
     });
   }
 
-  void unfocus() {
-    setState(() {
-      _focusLocation = null;
-    });
-  }
-
   void mutateRenderParams(Mutator<RenderParams> mutator) {
     final newValue = mutator(_renderParams);
     if (newValue != _renderParams) {
       update(renderParams: newValue);
     }
   }
-
-  RenderParams get renderParams => _renderParams;
 
   @override
   void initState() {
@@ -138,6 +137,15 @@ class TrendChartState extends State<TrendChart> {
             (params) => params.copyWith(chartWidth: box.size.width));
       }
     });
+  }
+
+  @override
+  void didUpdateWidget(covariant TrendChart oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (!oldWidget.isAutoBlur && widget.isAutoBlur) {
+      widget.controller.blur();
+    }
   }
 
   _managerListener() {}

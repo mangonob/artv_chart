@@ -129,6 +129,7 @@ class _KLineDemoState extends State<KLineDemo>
             isIgnoredUnitVolume: false,
             minUnit: 2,
             maxUnit: 40,
+            isAutoBlur: _isAutoHiddenCrossLine,
             xRange: Range.length(_itemCount.toDouble()),
             onDoubleTap: () => _controller.resetInitialValue(animated: true),
             footerBuilder: (ctx, _, idx) {

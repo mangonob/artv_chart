@@ -1,10 +1,10 @@
 import 'dart:math';
 import 'dart:ui';
 
-import 'package:artv_chart/trend_chart/common/painter/padding_painter.dart';
 import 'package:flutter/material.dart';
 
 import '../../chart_coordinator.dart';
+import '../../common/painter/padding_painter.dart';
 import '../../common/render_params.dart';
 import '../../grid/grid.dart';
 import 'line_series.dart';

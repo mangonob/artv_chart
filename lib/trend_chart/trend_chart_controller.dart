@@ -48,6 +48,7 @@ class TrendChartController extends ChangeNotifier {
     return scope!.controller;
   }
 
+  /// Stop current animation performing and keep current [RenderParams] value.
   stopAnimation() {
     if (_animationController.isAnimating) _animationController.stop();
   }
@@ -88,7 +89,7 @@ class TrendChartController extends ChangeNotifier {
 
     if (!animated) {
       _paramsAnimation = null;
-      _state?.mutateRenderParams((p) => clampedRenderParams);
+      _mutate((p) => clampedRenderParams);
     } else {
       _paramsAnimation = RenderParamsTween(
         begin: _renderParams,
@@ -180,9 +181,7 @@ class TrendChartController extends ChangeNotifier {
         -delta,
       );
 
-      _state?.mutateRenderParams((params) {
-        return params.copyWith(xOffset: params.xOffset + viewDelta);
-      });
+      _mutate((p) => p.copyWith(xOffset: p.xOffset + viewDelta));
     }
   }
 
@@ -251,11 +250,9 @@ class TrendChartController extends ChangeNotifier {
     final animatingParams = _paramsAnimation?.value;
 
     if (animatingParams != null) {
-      _state?.update(renderParams: animatingParams);
+      _update(renderParams: animatingParams);
     } else if (_isSimulating) {
-      _state?.mutateRenderParams(
-        (p) => p.copyWith(xOffset: _animationController.value),
-      );
+      _mutate((p) => p.copyWith(xOffset: _animationController.value));
     }
   }
 
@@ -283,10 +280,8 @@ class TrendChartController extends ChangeNotifier {
               .dx,
           position.dy,
         );
-        _state?.mutateRenderParams(
-          (p) => p.copyWith(focusPosition: focusPosition),
-        );
-        _state?.update(focusLocation: focusLocation);
+        _mutate((p) => p.copyWith(focusPosition: focusPosition));
+        _update(focusLocation: focusLocation);
       } else {
         /// User location out of grid
         final coordinator = ChartCoordinator(
@@ -302,40 +297,53 @@ class TrendChartController extends ChangeNotifier {
               .dx,
           double.nan,
         );
-        _state?.mutateRenderParams(
+        _mutate(
           (p) => p.copyWith(focusPosition: focusPosition),
         );
-        _state?.update(focusLocation: focusLocation);
+        _update(focusLocation: focusLocation);
       }
     }
-  }
-
-  void _interactiveStart() {
-    _hideCrossLine();
   }
 
   void blur({
     bool force = false,
   }) {
     if (force) {
-      _hideCrossLine();
+      _blur();
     } else if (_state!.widget.isAutoBlur) {
       Future.delayed(_state!.widget.autoBlurDuration).then((_) {
-        _hideCrossLine();
+        _blur();
       });
     }
   }
 
-  void _hideCrossLine() {
+  void _blur() {
     if (_state != null && _state!.mounted) {
-      _state.flatMap((s) {
-        s.update(
-          renderParams: s.renderParams.copyWith(focusPosition: double.nan),
-        );
-        s.unfocus();
-      });
+      _mutate((p) => p.copyWith(focusPosition: double.nan));
+      _unfocus();
     }
   }
+
+  void _interactiveStart() => _blur();
+
+  void _update({
+    RenderParams? renderParams,
+    Offset? focusLocation,
+  }) =>
+      _state.flatMap((s) {
+        s.update(renderParams: renderParams, focusLocation: focusLocation);
+        notifyListeners();
+      });
+
+  void _mutate(Mutator<RenderParams> mutator) => _state.flatMap((s) {
+        s.mutateRenderParams(mutator);
+        notifyListeners();
+      });
+
+  void _unfocus() => _state.flatMap((s) {
+        s.focusLocation = null;
+        notifyListeners();
+      });
 }
 
 extension _SafeCalmpingExtension on num {

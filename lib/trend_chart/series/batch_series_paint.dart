@@ -1,7 +1,7 @@
-import 'package:artv_chart/trend_chart/series/series_paint.dart';
 import 'package:flutter/material.dart';
 
 import 'series.dart';
+import 'series_paint.dart';
 
 class BatchSeriesPaint extends StatelessWidget {
   final List<Series> series;

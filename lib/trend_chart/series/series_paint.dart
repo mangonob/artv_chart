@@ -1,7 +1,7 @@
-import 'package:artv_chart/trend_chart/grid/grid.dart';
 import 'package:flutter/material.dart';
 
 import '../common/render_params.dart';
+import '../grid/grid.dart';
 import 'series.dart';
 
 class SeriesPaint extends StatelessWidget {
