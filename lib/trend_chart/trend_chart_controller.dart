@@ -310,9 +310,11 @@ class TrendChartController extends ChangeNotifier {
   }) {
     if (force) {
       _blur();
-    } else if (_state!.widget.isAutoBlur) {
+    } else if (_state?.widget.isAutoBlur ?? false) {
       Future.delayed(_state!.widget.autoBlurDuration).then((_) {
-        _blur();
+        _state.flatMap((s) {
+          if (s.widget.isAutoBlur) _blur();
+        });
       });
     }
   }

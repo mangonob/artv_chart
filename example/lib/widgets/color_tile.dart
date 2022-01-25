@@ -16,30 +16,28 @@ class ColorTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
+      onTap: () {
+        ColorPicker(
+          color: value,
+          onColorChanged: (v) {
+            onChanged?.call(v);
+          },
+          pickersEnabled: const {
+            ColorPickerType.wheel: true,
+          },
+        ).showPickerDialog(context);
+      },
       title: Text(title),
-      trailing: GestureDetector(
-        onTap: () {
-          ColorPicker(
-            color: value,
-            onColorChanged: (v) {
-              onChanged?.call(v);
-            },
-            pickersEnabled: const {
-              ColorPickerType.wheel: true,
-            },
-          ).showPickerDialog(context);
-        },
-        child: Container(
-          height: 30,
-          width: 55,
-          decoration: BoxDecoration(
-            color: value,
-            border: Border.all(
-              width: 1,
-              color: Colors.grey[200] ?? Colors.grey,
-            ),
-            borderRadius: BorderRadius.circular(5),
+      trailing: Container(
+        height: 30,
+        width: 55,
+        decoration: BoxDecoration(
+          color: value,
+          border: Border.all(
+            width: 1,
+            color: Colors.grey[200] ?? Colors.grey,
           ),
+          borderRadius: BorderRadius.circular(5),
         ),
       ),
     );

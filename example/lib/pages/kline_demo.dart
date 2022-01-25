@@ -46,6 +46,7 @@ class _KLineDemoState extends State<KLineDemo>
   CandleType _candleType = CandleType.fill;
   Color _riseColor = Colors.red;
   Color _fallColor = Colors.green;
+  Color _crossLineColor = Colors.grey;
 
   @override
   bool get wantKeepAlive => true;
@@ -130,6 +131,7 @@ class _KLineDemoState extends State<KLineDemo>
             minUnit: 2,
             maxUnit: 40,
             isAutoBlur: _isAutoHiddenCrossLine,
+            crossLineStyle: LineStyle(color: _crossLineColor),
             xRange: Range.length(_itemCount.toDouble()),
             onDoubleTap: () => _controller.resetInitialValue(animated: true),
             footerBuilder: (ctx, _, idx) {
@@ -226,6 +228,15 @@ class _KLineDemoState extends State<KLineDemo>
             onChanged: (v) {
               setState(() {
                 _fallColor = v;
+              });
+            },
+          ),
+          ColorTile(
+            title: "十字线",
+            value: _crossLineColor,
+            onChanged: (v) {
+              setState(() {
+                _crossLineColor = v;
               });
             },
           ),
