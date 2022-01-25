@@ -314,7 +314,7 @@ class TrendChartController extends ChangeNotifier {
     _hideCrossLine();
   }
 
-  void hideCrossLine({
+  void blur({
     bool force = false,
   }) {
     if (force) {

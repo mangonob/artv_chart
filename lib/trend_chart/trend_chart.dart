@@ -225,7 +225,10 @@ class TrendChartState extends State<TrendChart> {
           GestureRecognizerFactoryWithHandlers<TapGestureRecognizer>(
         () => TapGestureRecognizer(),
         (tap) {
-          tap.onTapDown = (_) => widget.controller.stopAnimation();
+          tap.onTapDown = (_) {
+            widget.controller.stopAnimation();
+            widget.controller.blur(force: true);
+          };
         },
       ),
       DoubleTapGestureRecognizer:
@@ -273,7 +276,7 @@ class TrendChartState extends State<TrendChart> {
   void _hideCrossLine({
     bool force = false,
   }) =>
-      widget.controller.hideCrossLine(force: force);
+      widget.controller.blur(force: force);
 }
 
 class TrendChartScope extends InheritedWidget {
