@@ -1,5 +1,7 @@
 import 'package:collection/collection.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 
 import '../utils/utils.dart';
 import 'common/enum.dart';
@@ -126,49 +128,86 @@ class TrendChartState extends State<TrendChart> {
         child: TrendChartScope(
           controller: widget.controller,
           layoutManager: widget.layoutManager,
-          child: GestureDetector(
-            onLongPressMoveUpdate: (d) {
-              // TODO: Update cross line active point
-            },
-            onHorizontalDragUpdate: when(widget.isAllowHorizontalDrag, (d) {
-              widget.controller.applyOffset(d.delta.dx);
-            }),
-            onHorizontalDragEnd: when(widget.isAllowHorizontalDrag, (d) {
-              widget.controller.decelerate(d.velocity);
-            }),
-            onScaleStart: (_) {
-              _scaleStartUnit = _renderParams.unit;
-            },
-            onScaleUpdate: (d) {
-              if (d.pointerCount == 1) {
-                widget.controller.applyOffset(d.focalPointDelta.dx);
-              } else {
-                if (_scaleStartUnit != null) {
-                  widget.controller.interactive(
-                    destUnit: d.horizontalScale * _scaleStartUnit!,
-                    anchorX: d.localFocalPoint.dx,
-                    deltaX: d.focalPointDelta.dx,
-                  );
-                }
-              }
-            },
-            onScaleEnd: (d) {
-              _scaleStartUnit = null;
-              if (d.pointerCount == 0) {
-                widget.controller.decelerate(d.velocity);
-              }
-            },
-            onTapDown: (_) => widget.controller.stopAnimation(),
-            onDoubleTap: widget.onDoubleTap,
+          child: RawGestureDetector(
+            gestures: _createGestures(ctx),
             child: RepaintBoundary(
-              child: Builder(builder: (ctx) {
-                return _buildGrids(ctx, constraints);
-              }),
+              child: Builder(builder: (ctx) => _buildGrids(ctx, constraints)),
             ),
           ),
         ),
       );
     });
+  }
+
+  Map<Type, GestureRecognizerFactory> _createGestures(BuildContext context) {
+    return {
+      LongPressGestureRecognizer:
+          GestureRecognizerFactoryWithHandlers<LongPressGestureRecognizer>(
+        () => LongPressGestureRecognizer(),
+        (longPress) {
+          longPress.onLongPressMoveUpdate = (d) {
+            // TODO: Update cross line active point
+          };
+        },
+      ),
+      if (widget.isAllowHorizontalDrag)
+        HorizontalDragGestureRecognizer: GestureRecognizerFactoryWithHandlers<
+            HorizontalDragGestureRecognizer>(
+          () => HorizontalDragGestureRecognizer(),
+          (drag) {
+            drag.onUpdate = (d) {
+              widget.controller.applyOffset(d.delta.dx);
+            };
+            drag.onEnd = (d) {
+              widget.controller.decelerate(d.velocity);
+            };
+          },
+        ),
+      ScaleGestureRecognizer:
+          GestureRecognizerFactoryWithHandlers<ScaleGestureRecognizer>(
+        () => ScaleGestureRecognizer(),
+        (scale) {
+          scale.onStart = (_) {
+            _scaleStartUnit = _renderParams.unit;
+          };
+
+          scale.onUpdate = (d) {
+            if (d.pointerCount == 1) {
+              widget.controller.applyOffset(d.focalPointDelta.dx);
+            } else {
+              if (_scaleStartUnit != null) {
+                widget.controller.interactive(
+                  destUnit: d.horizontalScale * _scaleStartUnit!,
+                  anchorX: d.localFocalPoint.dx,
+                  deltaX: d.focalPointDelta.dx,
+                );
+              }
+            }
+          };
+
+          scale.onEnd = (d) {
+            _scaleStartUnit = null;
+            if (d.pointerCount == 0) {
+              widget.controller.decelerate(d.velocity);
+            }
+          };
+        },
+      ),
+      TapGestureRecognizer:
+          GestureRecognizerFactoryWithHandlers<TapGestureRecognizer>(
+        () => TapGestureRecognizer(),
+        (tap) {
+          tap.onTapDown = (_) => widget.controller.stopAnimation();
+        },
+      ),
+      DoubleTapGestureRecognizer:
+          GestureRecognizerFactoryWithHandlers<DoubleTapGestureRecognizer>(
+        () => DoubleTapGestureRecognizer(),
+        (doubleTap) {
+          doubleTap.onDoubleTap = widget.onDoubleTap;
+        },
+      ),
+    };
   }
 
   Widget _buildGrids(BuildContext context, BoxConstraints constraints) {

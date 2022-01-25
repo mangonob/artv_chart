@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:artv_chart/trend_chart/common/range.dart';
+import 'package:artv_chart/trend_chart/common/style.dart';
 import 'package:artv_chart/trend_chart/grid/boundary.dart';
 import 'package:artv_chart/trend_chart/grid/grid.dart';
 import 'package:artv_chart/trend_chart/grid/grid_style.dart';
@@ -10,6 +11,8 @@ import 'package:artv_chart/trend_chart/layout_manager.dart';
 import 'package:artv_chart/trend_chart/series/candle_series/candle_entry.dart';
 import 'package:artv_chart/trend_chart/series/candle_series/candle_series.dart';
 import 'package:artv_chart/trend_chart/series/candle_series/candle_series_style.dart';
+import 'package:artv_chart/trend_chart/series/line_series/line_series.dart';
+import 'package:artv_chart/trend_chart/series/line_series/line_series_style.dart';
 import 'package:artv_chart/trend_chart/series/series.dart';
 import 'package:artv_chart/trend_chart/trend_chart.dart';
 import 'package:artv_chart/trend_chart/trend_chart_controller.dart';
@@ -55,14 +58,14 @@ class _KLineDemoState extends State<KLineDemo>
     _offsets = [];
     _candles = [];
 
-    // compute(
-    //   _generateOffsets,
-    //   _itemCount,
-    // ).then((v) {
-    //   setState(() {
-    //     _offsets = v;
-    //   });
-    // });
+    compute(
+      _generateOffsets,
+      _itemCount,
+    ).then((v) {
+      setState(() {
+        _offsets = v;
+      });
+    });
 
     compute(
       _generateCandles,
@@ -153,15 +156,24 @@ class _KLineDemoState extends State<KLineDemo>
                 // xLabel: xLabel,
                 yLabel: yLabel,
               ),
-              // Grid(
-              //   style: GridStyle(
-              //     height: 100,
-              //     decoration: BoxDecoration(
-              //       border: Border.all(
-              //           color: Colors.grey[200] ?? Colors.grey, width: 1),
-              //     ),
-              //   ),
-              // ),
+              Grid(
+                identifier: "VOL",
+                ySplitCount: 3,
+                style: GridStyle(
+                  height: 100,
+                  margin: const EdgeInsets.only(top: 4, bottom: 10),
+                ),
+                series: [
+                  LineSeries(
+                    _offsets,
+                    lineSeriesStyle: LineSeriesStyle(
+                      lineStyle: const LineStyle(color: Colors.blue),
+                      paintingStyle: PaintingStyle.fill,
+                      gradientColors: [Colors.blue, Colors.blue.withAlpha(0)],
+                    ),
+                  ),
+                ],
+              ),
             ],
           ),
           Container(
