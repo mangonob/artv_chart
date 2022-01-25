@@ -1,7 +1,11 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 
 import '../utils/utils.dart';
+import 'chart_coordinator.dart';
 import 'common/render_params.dart';
+import 'grid/grid_painter.dart';
 import 'trend_chart.dart';
 
 class TrendChartController extends ChangeNotifier {
@@ -78,6 +82,7 @@ class TrendChartController extends ChangeNotifier {
     Duration duration = const Duration(milliseconds: 250),
   }) {
     stopAnimation();
+    _interactiveStart();
 
     final clampedRenderParams = _clampRenderParams(renderParams);
 
@@ -166,6 +171,8 @@ class TrendChartController extends ChangeNotifier {
   }
 
   void applyOffset(double delta) {
+    _interactiveStart();
+
     if (delta != 0) {
       stopAnimation();
       final viewDelta = _state!.widget.physic.applyPhysicsToUserOffset(
@@ -208,6 +215,8 @@ class TrendChartController extends ChangeNotifier {
     Curve curve = Curves.easeOut,
     Duration duration = const Duration(milliseconds: 250),
   }) {
+    _interactiveStart();
+
     if (!(_renderParams.unit > 0)) return;
     assert(destUnit != null || scale != null);
 
@@ -242,11 +251,89 @@ class TrendChartController extends ChangeNotifier {
     final animatingParams = _paramsAnimation?.value;
 
     if (animatingParams != null) {
-      _state?.updateRenderParams(animatingParams);
+      _state?.update(renderParams: animatingParams);
     } else if (_isSimulating) {
       _state?.mutateRenderParams(
         (p) => p.copyWith(xOffset: _animationController.value),
       );
+    }
+  }
+
+  void updateCrossLine(Offset position) {
+    if (_state == null || !_state!.mounted) return;
+    final context = _state!.context;
+
+    final box = context.findRenderObject() as RenderBox?;
+    if (box != null) {
+      final result = BoxHitTestResult();
+      box.hitTest(result, position: position);
+      final maybePaint = result.path.map((e) => e.target).firstWhereOrNull(
+            (t) => t is RenderCustomPaint && t.painter is GridPainter,
+          ) as RenderCustomPaint?;
+      final gridPainter = maybePaint?.painter as GridPainter?;
+      final activeGrid = gridPainter?.grid;
+
+      /// User location in grid
+      if (gridPainter != null && activeGrid != null) {
+        final focusPosition =
+            gridPainter.convertPointToGrid(Offset(position.dx, 0)).dx;
+        final focusLocation = Offset(
+          gridPainter
+              .convertPointFromGrid(Offset(focusPosition.roundToDouble(), 0))
+              .dx,
+          position.dy,
+        );
+        _state?.mutateRenderParams(
+          (p) => p.copyWith(focusPosition: focusPosition),
+        );
+        _state?.update(focusLocation: focusLocation);
+      } else {
+        /// User location out of grid
+        final coordinator = ChartCoordinator(
+          grid: _state!.widget.grids.first,
+          size: Size(box.size.width, 1),
+          renderParams: _renderParams,
+        );
+        final focusPosition =
+            coordinator.convertPointToGrid(Offset(position.dx, 0)).dx;
+        final focusLocation = Offset(
+          coordinator
+              .convertPointFromGrid(Offset(focusPosition.roundToDouble(), 0))
+              .dx,
+          double.nan,
+        );
+        _state?.mutateRenderParams(
+          (p) => p.copyWith(focusPosition: focusPosition),
+        );
+        _state?.update(focusLocation: focusLocation);
+      }
+    }
+  }
+
+  void _interactiveStart() {
+    _hideCrossLine();
+  }
+
+  void hideCrossLine({
+    bool force = false,
+  }) {
+    if (force) {
+      _hideCrossLine();
+    } else if (_state!.widget.isAutoBlur) {
+      Future.delayed(_state!.widget.autoBlurDuration).then((_) {
+        _hideCrossLine();
+      });
+    }
+  }
+
+  void _hideCrossLine() {
+    if (_state != null && _state!.mounted) {
+      _state.flatMap((s) {
+        s.update(
+          renderParams: s.renderParams.copyWith(focusPosition: double.nan),
+        );
+        s.unfocus();
+      });
     }
   }
 }

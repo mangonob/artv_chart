@@ -39,5 +39,8 @@ class CustomLine {
           style == other.style;
 
   @override
-  int get hashCode => hashValues(position, style);
+  int get hashCode => hashValues(
+        position,
+        style,
+      );
 }

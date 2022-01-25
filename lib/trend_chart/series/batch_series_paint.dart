@@ -1,7 +1,6 @@
+import 'package:artv_chart/trend_chart/series/series_paint.dart';
 import 'package:flutter/material.dart';
 
-import '../common/render_params.dart';
-import '../grid/grid.dart';
 import 'series.dart';
 
 class BatchSeriesPaint extends StatelessWidget {
@@ -21,15 +20,9 @@ class BatchSeriesPaint extends StatelessWidget {
     } else {
       final head = series.first;
       final tail = series.skip(1).toList();
-      return ClipRect(
-        child: CustomPaint(
-          painter: head.createPainter(RenderParams.of(context),
-              grid: Grid.of(context)),
-          child: BatchSeriesPaint(
-            series: tail,
-            child: child,
-          ),
-        ),
+      return SeriesPaint(
+        series: head,
+        child: BatchSeriesPaint(series: tail),
       );
     }
   }

@@ -11,12 +11,11 @@ import 'grid.dart';
 import 'grid_cache.dart';
 import 'label/text_label.dart';
 
-class GridPainter extends CustomPainter with CoordinatorProvider {
+class GridPainter extends CustomPainter
+    with CoordinatorProvider, HasCoordinator {
   final Grid grid;
   final RenderParams renderParams;
   final GridCache? gridCache;
-
-  late ChartCoordinator _coordinator;
 
   GridPainter({
     required this.grid,
@@ -47,7 +46,7 @@ class GridPainter extends CustomPainter with CoordinatorProvider {
       padding: grid.style.margin?.copyWith(left: 0, right: 0),
       clip: false,
       routine: (Canvas canvas, Size size) {
-        _coordinator = createCoordinator(size);
+        coordinator = createCoordinator(size);
 
         _paintGrid(canvas, size);
         _paintYLines(canvas, size);
@@ -71,7 +70,7 @@ class GridPainter extends CustomPainter with CoordinatorProvider {
   void _paintYLines(Canvas canvas, Size size) {
     if (size.isEmpty) return;
 
-    final labels = _coordinator.yRange.split(grid.ySplitCount).map(
+    final labels = coordinator.yRange.split(grid.ySplitCount).map(
           (v) => grid.yLabel?.call(v) ?? TextLabel(v.toStringAsFixed(3)),
         );
     final offsets = Range(0, size.height)

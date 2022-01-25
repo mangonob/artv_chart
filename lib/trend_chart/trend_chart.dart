@@ -1,7 +1,8 @@
+import 'package:artv_chart/trend_chart/common/style.dart';
+import 'package:artv_chart/trend_chart/trend_chart_cross_line_painter.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 
 import '../utils/utils.dart';
 import 'common/enum.dart';
@@ -27,9 +28,11 @@ class TrendChart extends StatefulWidget {
   final GestureTapCallback? onDoubleTap;
   final double minUnit;
   final double maxUnit;
+  final LineStyle _crossLineStyle;
 
   /// Whether the cross line should been auto hidden after user interacte end;
   final bool isAutoBlur;
+  final Duration autoBlurDuration;
 
   /// Use [GestureDetector.onHorizontalDragUpdate] detecte multi fingers drag,
   /// that maybe cause scale action get no sensitive.
@@ -45,7 +48,9 @@ class TrendChart extends StatefulWidget {
   /// Builder optional footer for every grid
   final GridWidgetBuilder? footerBuilder;
 
-  const TrendChart({
+  LineStyle get crossLineStyle => _crossLineStyle;
+
+  TrendChart({
     Key? key,
     required this.controller,
     required this.layoutManager,
@@ -62,7 +67,11 @@ class TrendChart extends StatefulWidget {
     this.maxUnit = 30,
     this.isAllowHorizontalDrag = true,
     this.isAutoBlur = false,
+    this.autoBlurDuration = const Duration(milliseconds: 1000),
+    LineStyle? crossLineStyle,
   })  : assert(minUnit <= maxUnit),
+        _crossLineStyle =
+            const LineStyle(color: Colors.grey, size: 1).merge(crossLineStyle),
         super(key: key);
 
   @override
@@ -72,17 +81,32 @@ class TrendChart extends StatefulWidget {
 class TrendChartState extends State<TrendChart> {
   late RenderParams _renderParams;
   double? _scaleStartUnit;
+  Offset? _focusLocation;
 
-  void updateRenderParams(RenderParams renderParams) {
+  void update({
+    RenderParams? renderParams,
+    Offset? focusLocation,
+  }) {
     setState(() {
-      _renderParams = renderParams;
+      if (renderParams != null) {
+        _renderParams = renderParams;
+      }
+      if (focusLocation != null) {
+        _focusLocation = focusLocation;
+      }
+    });
+  }
+
+  void unfocus() {
+    setState(() {
+      _focusLocation = null;
     });
   }
 
   void mutateRenderParams(Mutator<RenderParams> mutator) {
     final newValue = mutator(_renderParams);
     if (newValue != _renderParams) {
-      updateRenderParams(newValue);
+      update(renderParams: newValue);
     }
   }
 
@@ -145,9 +169,13 @@ class TrendChartState extends State<TrendChart> {
           GestureRecognizerFactoryWithHandlers<LongPressGestureRecognizer>(
         () => LongPressGestureRecognizer(),
         (longPress) {
-          longPress.onLongPressMoveUpdate = (d) {
-            // TODO: Update cross line active point
-          };
+          longPress.onLongPressStart =
+              (d) => widget.controller.updateCrossLine(d.localPosition);
+          longPress.onLongPressMoveUpdate =
+              (d) => widget.controller.updateCrossLine(d.localPosition);
+          longPress.onLongPressEnd = (_) => _hideCrossLine();
+          longPress.onLongPressCancel = () => _hideCrossLine();
+          longPress.onLongPressUp = () => _hideCrossLine();
         },
       ),
       if (widget.isAllowHorizontalDrag)
@@ -214,24 +242,38 @@ class TrendChartState extends State<TrendChart> {
     if (widget.grids.isEmpty) {
       return const SizedBox();
     } else {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: widget.grids.mapIndexed((index, g) {
-          final header = widget.headerBuilder?.call(context, g, index);
-          final footer = widget.footerBuilder?.call(context, g, index);
+      return CustomPaint(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: widget.grids.mapIndexed((index, g) {
+            final header = widget.headerBuilder?.call(context, g, index);
+            final footer = widget.footerBuilder?.call(context, g, index);
 
-          return [
-            if (header != null) header,
-            SizedBox(
-              height: widget.layoutManager.heightForGrid(g, constraints),
-              child: GridPaint(grid: g),
-            ),
-            if (footer != null) footer,
-          ];
-        }).reduce((acc, v) => acc + v),
+            return [
+              if (header != null) header,
+              SizedBox(
+                height: widget.layoutManager.heightForGrid(g, constraints),
+                child: GridPaint(grid: g),
+              ),
+              if (footer != null) footer,
+            ];
+          }).reduce((acc, v) => acc + v),
+        ),
+        foregroundPainter: createCrossLinePainter(),
       );
     }
   }
+
+  CustomPainter createCrossLinePainter() => TrendChartCrossLinePainter(
+        chart: widget,
+        focusLocation: _focusLocation,
+        renderParams: renderParams,
+      );
+
+  void _hideCrossLine({
+    bool force = false,
+  }) =>
+      widget.controller.hideCrossLine(force: force);
 }
 
 class TrendChartScope extends InheritedWidget {

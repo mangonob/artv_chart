@@ -16,6 +16,7 @@ import 'package:artv_chart/trend_chart/series/line_series/line_series_style.dart
 import 'package:artv_chart/trend_chart/series/series.dart';
 import 'package:artv_chart/trend_chart/trend_chart.dart';
 import 'package:artv_chart/trend_chart/trend_chart_controller.dart';
+import 'package:artv_chart/utils/utils.dart';
 import 'package:example/data_generator.dart';
 import 'package:example/widgets/color_tile.dart';
 import 'package:example/widgets/options.dart';
@@ -130,6 +131,12 @@ class _KLineDemoState extends State<KLineDemo>
             maxUnit: 40,
             xRange: Range.length(_itemCount.toDouble()),
             onDoubleTap: () => _controller.resetInitialValue(animated: true),
+            footerBuilder: (ctx, _, idx) {
+              return when(
+                idx == 0,
+                Container(height: 30, color: Colors.white),
+              );
+            },
             grids: [
               Grid(
                 ySplitCount: 5,
@@ -157,12 +164,12 @@ class _KLineDemoState extends State<KLineDemo>
                 yLabel: yLabel,
               ),
               Grid(
-                identifier: "VOL",
                 ySplitCount: 3,
                 style: GridStyle(
                   height: 100,
                   margin: const EdgeInsets.only(top: 4, bottom: 10),
                 ),
+                boundaries: [FractionalPaddingBoundary(0.1)],
                 series: [
                   LineSeries(
                     _offsets,

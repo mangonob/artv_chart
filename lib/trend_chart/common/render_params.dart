@@ -7,16 +7,26 @@ import 'enum.dart';
 import 'range.dart';
 
 class RenderParams {
+  /// Width of per item in data series.
   final double unit;
+
+  /// Offset in pixel at left of the chart.
   final double xOffset;
+
+  /// Horizontal content padding in pixel, the value of top and bottom will be ignored.
   final EdgeInsets padding;
+
+  /// The data item have size like candle or not point, line etc.
   final bool isIgnoredUnitVolume;
+
   final ReserveMode xOffsetReserveMode;
+
   final Range xRange;
+
   final double chartWidth;
 
   /// Current point focus on
-  final double? focusPosition;
+  final double focusPosition;
 
   const RenderParams({
     required this.unit,
@@ -26,7 +36,7 @@ class RenderParams {
     required this.xRange,
     required this.chartWidth,
     this.isIgnoredUnitVolume = true,
-    this.focusPosition,
+    this.focusPosition = double.nan,
   });
 
   RenderParams copyWith({

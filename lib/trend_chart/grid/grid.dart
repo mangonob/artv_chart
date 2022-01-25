@@ -27,6 +27,7 @@ class Grid {
   final ValueFormatter<double>? yLabel;
   final List<CustomLine>? xCustomLines;
   final List<CustomLine>? yCustomLines;
+  final double Function(Grid, double xValue)? yValueForCrossLine;
 
   GridStyle get style => _style;
 
@@ -43,7 +44,8 @@ class Grid {
     this.yLabel,
     this.xCustomLines,
     this.yCustomLines,
-  })  : _style = style ?? GridStyle(),
+    this.yValueForCrossLine,
+  })  : _style = GridStyle().merge(style),
         _cache = GridCache();
 
   @override
@@ -59,7 +61,8 @@ class Grid {
           xLabel == other.xLabel &&
           yLabel == other.yLabel &&
           listEquals(xCustomLines, other.xCustomLines) &&
-          listEquals(yCustomLines, other.yCustomLines);
+          listEquals(yCustomLines, other.yCustomLines) &&
+          yValueForCrossLine == other.yValueForCrossLine;
 
   @override
   int get hashCode => hashValues(
@@ -73,6 +76,7 @@ class Grid {
         yLabel,
         hashList(xCustomLines),
         hashList(yCustomLines),
+        yValueForCrossLine,
       );
 
   CustomPainter createPainter(RenderParams renderParams) => GridPainter(
