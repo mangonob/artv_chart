@@ -1,21 +1,37 @@
+import 'package:artv_chart/trend_chart/common/style.dart';
 import 'package:flutter/material.dart';
 
 class DotSeriesStyle {
-  final double? circleSize;
-  final PaintingStyle? paintingStyle;
+  final double? circleRadius;
+  final double? strokeWidth;
+  final bool? isAntiAlias;
+  final Color? fillColor;
+
+  final LineStyle? _lineStyle;
+
+  LineStyle? get lineStyle => _lineStyle;
 
   DotSeriesStyle({
-    this.circleSize = 1,
-    this.paintingStyle = PaintingStyle.stroke,
-  });
+    this.circleRadius = 3,
+    this.strokeWidth = 1,
+    this.isAntiAlias = false,
+    LineStyle? lineStyle,
+    this.fillColor,
+  }) : _lineStyle = LineStyle(color: Colors.red[200]).merge(lineStyle);
 
   DotSeriesStyle copyWith({
-    double? circleSize,
-    PaintingStyle? paintingStyle,
+    double? radius,
+    double? strokeWidth,
+    bool? isAntiAlias,
+    Color? fillColor,
+    LineStyle? lineStyle,
   }) {
     return DotSeriesStyle(
-      circleSize: circleSize ?? circleSize,
-      paintingStyle: paintingStyle ?? paintingStyle,
+      circleRadius: radius ?? radius,
+      isAntiAlias: isAntiAlias ?? isAntiAlias,
+      lineStyle: lineStyle ?? lineStyle,
+      fillColor: fillColor ?? fillColor,
+      strokeWidth: strokeWidth ?? strokeWidth,
     );
   }
 
@@ -23,8 +39,11 @@ class DotSeriesStyle {
     if (other == null) return this;
 
     return copyWith(
-      circleSize: other.circleSize,
-      paintingStyle: other.paintingStyle,
+      radius: other.circleRadius,
+      isAntiAlias: other.isAntiAlias,
+      lineStyle: other.lineStyle,
+      fillColor: other.fillColor,
+      strokeWidth: other.strokeWidth,
     );
   }
 
@@ -32,10 +51,19 @@ class DotSeriesStyle {
   operator ==(Object other) {
     return identical(this, other) ||
         other is DotSeriesStyle &&
-            circleSize == other.circleSize &&
-            paintingStyle == other.paintingStyle;
+            circleRadius == other.circleRadius &&
+            isAntiAlias == other.isAntiAlias &&
+            lineStyle == other.lineStyle &&
+            strokeWidth == other.strokeWidth &&
+            fillColor == other.fillColor;
   }
 
   @override
-  int get hashCode => hashValues(circleSize, paintingStyle);
+  int get hashCode => hashValues(
+        circleRadius,
+        isAntiAlias,
+        lineStyle,
+        fillColor,
+        strokeWidth,
+      );
 }

@@ -5,20 +5,18 @@ import 'package:flutter/material.dart';
 class BarSeriesStyle {
   final Color? riseColor;
   final Color? fallColor;
-  final LineStyle? _lineStyle;
   final Distance? _distance;
+  final double? width;
 
   Distance? get distance => _distance;
-
-  LineStyle? get lineStyle => _lineStyle;
 
   BarSeriesStyle({
     this.riseColor = Colors.red,
     this.fallColor = Colors.green,
     LineStyle? lineStyle,
+    this.width,
     Distance? distance,
-  })  : _lineStyle = const LineStyle(size: 1).merge(lineStyle),
-        _distance = distance ??
+  }) : _distance = distance ??
             CombineDistance(
               distances: [
                 ValueDistance.absolute(1),
@@ -31,12 +29,13 @@ class BarSeriesStyle {
     Color? fallColor,
     LineStyle? lineStyle,
     Distance? distance,
+    double? width,
   }) =>
       BarSeriesStyle(
         riseColor: riseColor ?? this.riseColor,
         fallColor: fallColor ?? this.fallColor,
-        lineStyle: lineStyle ?? this.lineStyle,
         distance: distance ?? this.distance,
+        width: width ?? this.width,
       );
 
   BarSeriesStyle merge(BarSeriesStyle? other) {
@@ -45,8 +44,8 @@ class BarSeriesStyle {
     return copyWith(
       riseColor: other.riseColor,
       fallColor: other.fallColor,
-      lineStyle: other.lineStyle,
       distance: other.distance,
+      width: other.width,
     );
   }
 
@@ -55,14 +54,14 @@ class BarSeriesStyle {
       other is BarSeriesStyle &&
       riseColor == other.riseColor &&
       fallColor == other.fallColor &&
-      lineStyle == other.lineStyle &&
+      width == other.width &&
       distance == other.distance;
 
   @override
   int get hashCode => hashValues(
         riseColor,
         fallColor,
-        lineStyle,
         distance,
+        width,
       );
 }

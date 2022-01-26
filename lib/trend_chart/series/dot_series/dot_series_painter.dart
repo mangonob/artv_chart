@@ -10,7 +10,7 @@ import '../../grid/grid.dart';
 import 'dot_series.dart';
 
 class DotSeriesPainter extends CustomPainter
-    with HasCoordinator, CoordinatorProvider {
+    with CoordinatorProvider, HasCoordinator {
   final DotSeries series;
   final RenderParams renderParams;
   final Grid grid;
@@ -24,9 +24,7 @@ class DotSeriesPainter extends CustomPainter
   @override
   void paint(Canvas canvas, Size size) {
     if (series.datas.isEmpty) return;
-    canvas.save();
     _paintCircle(canvas, size);
-    canvas.restore();
   }
 
   void _paintCircle(Canvas canvas, Size size) {
@@ -41,47 +39,59 @@ class DotSeriesPainter extends CustomPainter
           .where((idx) => idx >= 0 && idx < series.datas.length)
           .forEach(
         (index) {
+          ///往左边多画一个点
           _drawCircle(
-              canvas,
-              convertPointFromGrid(
-                Offset(
-                  series.datas[max(0, index - 1)].dx,
-                  series.datas[max(0, index - 1)].dy,
-                ),
-              ));
+            canvas,
+            convertPointFromGrid(
+              Offset(
+                max(0, index - 1),
+                series.datas[max(0, index - 1)],
+              ),
+            ),
+            index,
+          );
+
+          ///往右边多画一个点
           if (index == valueRange.upper.toInt() &&
               index < series.datas.length - 1) {
             _drawCircle(
-                canvas,
-                convertPointFromGrid(
-                  Offset(
-                    series.datas[index].dx,
-                    series.datas[index].dy,
-                  ),
-                ));
+              canvas,
+              convertPointFromGrid(
+                Offset(
+                  index * 1.0,
+                  series.datas[index],
+                ),
+              ),
+              index,
+            );
             _drawCircle(
-                canvas,
-                convertPointFromGrid(
-                  Offset(
-                    series.datas[index + 1].dx,
-                    series.datas[index + 1].dy,
-                  ),
-                ));
+              canvas,
+              convertPointFromGrid(
+                Offset(
+                  index + 1,
+                  series.datas[index + 1],
+                ),
+              ),
+              index,
+            );
           }
         },
       );
     });
   }
 
-  void _drawCircle(Canvas canvas, Offset offset) {
+  void _drawCircle(Canvas canvas, Offset offset, int index) {
     canvas.drawCircle(
       offset,
-      3,
+      series.style.circleRadius!,
       Paint()
-        ..isAntiAlias = true
-        ..strokeWidth = series.style.circleSize!
-        ..style = series.style.paintingStyle!
-        ..color = series.color.call(offset),
+        ..isAntiAlias = series.style.isAntiAlias!
+        ..strokeWidth = series.style.strokeWidth!
+        ..style = series.style.fillColor != null
+            ? PaintingStyle.fill
+            : PaintingStyle.stroke
+        ..color = series.colorFn?.call(index) ??
+            (series.style.fillColor ?? series.style.lineStyle!.color!   ),
     );
   }
 

@@ -8,19 +8,17 @@ import 'dot_series_style.dart';
 
 typedef ColorConvertor<T> = Color Function(T);
 
-class DotSeries extends Series<Offset> {
+class DotSeries extends Series<double> {
   final DotSeriesStyle _style;
-  final ColorConvertor<Offset> _color;
+  final ColorConvertor<int>? _colorFn;
 
   DotSeries(
-    List<Offset> datas, {
+    List<double> datas, {
     DotSeriesStyle? lineSeriesStyle,
-    ValueConvertor<Offset>? yValue,
-    ColorConvertor<Offset>? color,
+    ValueConvertor<double>? yValue,
+    ColorConvertor<int>? color,
   })  : _style = DotSeriesStyle().merge(lineSeriesStyle),
-        _color = color ??
-            _DefaultDotSeriesColorConvertorConvertor
-                ._defaultDotSeriesColorConvertor,
+        _colorFn = color,
         super(
           datas: datas,
           yValue: yValue ??
@@ -29,7 +27,7 @@ class DotSeries extends Series<Offset> {
 
   DotSeriesStyle get style => _style;
 
-  ColorConvertor<Offset> get color => _color;
+  ColorConvertor<int>? get colorFn => _colorFn;
 
   // @override
   // CustomPainter createPainter(RenderParams renderParams, ) =>
@@ -47,16 +45,14 @@ class DotSeries extends Series<Offset> {
 
 class _DefaultDotSeriesYValueConvertor {
   static double _defaultDotSeriesYValue(
-    Offset offset,
+    double dy,
     int index,
-    Series<Offset> series,
+    Series<double> series,
   ) {
-    return offset.dy;
+    return dy;
   }
-}
 
-class _DefaultDotSeriesColorConvertorConvertor {
-  static Color _defaultDotSeriesColorConvertor(Offset offset) {
+  static Color _defaultDotSeriesColorConvertor(int index) {
     return Colors.green;
   }
 }

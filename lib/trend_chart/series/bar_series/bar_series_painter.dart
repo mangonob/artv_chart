@@ -1,3 +1,4 @@
+import 'dart:math';
 
 import 'package:artv_chart/trend_chart/common/painter/padding_painter.dart';
 import 'package:artv_chart/trend_chart/common/range.dart';
@@ -9,7 +10,7 @@ import '../../chart_coordinator.dart';
 import 'bar_series.dart';
 
 class BarSeriesPainter extends CustomPainter
-    with HasCoordinator, CoordinatorProvider {
+    with CoordinatorProvider, HasCoordinator {
   final BarSeries series;
   final RenderParams renderParams;
   final Grid grid;
@@ -46,11 +47,14 @@ class BarSeriesPainter extends CustomPainter
   @override
   void paint(Canvas canvas, Size size) {
     if (series.datas.isEmpty) return;
-    canvas.save();
-    _paintBody(canvas, size);
-    canvas.restore();
+    if (series.style.width != null) {
+      _paintWidthBody(canvas, size);
+    } else {
+      _paintBody(canvas, size);
+    }
   }
 
+  ///宽度不固定，宽度和间距会缩放
   void _paintBody(Canvas canvas, Size size) {
     PaddingPainter().paint(canvas, size,
         padding: grid.style.margin?.copyWith(left: 0, right: 0),
@@ -81,7 +85,7 @@ class BarSeriesPainter extends CustomPainter
           canvas.drawRect(
             body,
             Paint()
-              ..color = series.datas[index].dy > 0
+              ..color = series.datas[index] > 0
                   ? series.style.riseColor!
                   : series.style.fallColor!,
           );
@@ -90,22 +94,66 @@ class BarSeriesPainter extends CustomPainter
     });
   }
 
-  double _getTop(Offset offset, Range range) {
+  ///宽度固定，间距会缩放
+  void _paintWidthBody(Canvas canvas, Size size) {
+    PaddingPainter().paint(canvas, size,
+        padding: grid.style.margin?.copyWith(left: 0, right: 0),
+        routine: (Canvas canvas, Size size) {
+      coordinator = createCoordinator(size);
+      final valueRange = coordinator.xRange.intersection(renderParams.xRange);
+      valueRange
+          .toIterable()
+          .where((idx) => idx >= 0 && idx < series.datas.length)
+          .forEach(
+        (index) {
+          final gridBody = coordinator.convertRectFromGrid(Rect.fromLTRB(
+            index.toDouble(),
+            _getTop(series.datas[index], coordinator.yRange),
+            index + 1.0,
+            _getBottom(series.datas[index], coordinator.yRange),
+          ));
+          final body = Rect.fromPoints(
+            Offset(
+                gridBody.bottomLeft.dx -
+                    min((series.style.width ?? 0), renderParams.unit) / 2,
+                gridBody.bottomLeft.dy),
+            Offset(
+                gridBody.bottomLeft.dx +
+                    min((series.style.width ?? 0), renderParams.unit) / 2,
+                gridBody.topRight.dy),
+          );
+          canvas.drawRect(
+            body,
+            Paint()
+              ..color = series.datas[index] > 0
+                  ? series.style.riseColor!
+                  : series.style.fallColor!,
+          );
+        },
+      );
+    });
+  }
+
+  ///如果上涨，那最高点就是Y的值
+  ///否则如果range包含0 就从0开始，不然就从upper开始
+  double _getTop(double dy, Range range) {
     double result = 0;
-    if (offset.dy > 0) {
-      result = offset.dy;
+    if (dy > 0) {
+      result = dy;
     } else {
       result = range.contains(0) ? 0 : range.upper;
     }
     return result;
   }
 
-  double _getBottom(Offset offset, Range range) {
+  ///如果上涨，range包含0 就从0开始，不然就从lower开始
+  ///否则最低点就是dy的值
+  double _getBottom(double dy, Range range) {
     double result = 0;
-    if (offset.dy > 0) {
+    if (dy > 0) {
       result = range.contains(0) ? 0 : range.lower;
     } else {
-      result = offset.dy;
+      result = dy;
     }
     return result;
   }

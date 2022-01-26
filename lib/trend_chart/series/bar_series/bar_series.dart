@@ -6,14 +6,14 @@ import '../../grid/grid.dart';
 import '../series.dart';
 import 'bar_series_painter.dart';
 
-class BarSeries extends Series<Offset> {
+class BarSeries extends Series<double> {
   final BarSeriesStyle _style;
 
   BarSeriesStyle get style => _style;
 
   BarSeries(
-    List<Offset> datas, {
-    ValueConvertor<Offset>? yValue,
+    List<double> datas, {
+    ValueConvertor<double>? yValue,
     BarSeriesStyle? style,
   })  : _style = BarSeriesStyle().merge(style),
         super(
@@ -47,10 +47,10 @@ class BarSeries extends Series<Offset> {
 
 class _DefaultBarSeriesYValueConvertor {
   static double _defaultBarSeriesYValue(
-    Offset offset,
+      double dy,
     int index,
-    Series<Offset> series,
+    Series<double> series,
   ) {
-    return offset.dy;
+    return dy;
   }
 }

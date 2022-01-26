@@ -6,15 +6,14 @@ import '../series.dart';
 import 'line_series_painter.dart';
 import 'line_series_style.dart';
 
-class LineSeries extends Series<Offset> {
+class LineSeries extends Series<double> {
   final LineSeriesStyle _style;
 
   LineSeries(
-    List<Offset> datas, {
+    List<double> datas, {
     LineSeriesStyle? lineSeriesStyle,
-    ValueConvertor<Offset>? yValue,
-  })  : _style =
-            LineSeriesStyle().merge(lineSeriesStyle),
+    ValueConvertor<double>? yValue,
+  })  : _style = LineSeriesStyle().merge(lineSeriesStyle),
         super(
           datas: datas,
           yValue: yValue ??
@@ -39,10 +38,10 @@ class LineSeries extends Series<Offset> {
 
 class _DefaultLineSeriesYValueConvertor {
   static double _defaultLineSeriesYValue(
-    Offset offset,
+    double yValue,
     int index,
-    Series<Offset> series,
+    Series<double> series,
   ) {
-    return offset.dy;
+    return yValue;
   }
 }

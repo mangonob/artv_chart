@@ -24,9 +24,7 @@ class LineSeriesPainter extends CustomPainter
   @override
   void paint(Canvas canvas, Size size) {
     if (series.datas.isEmpty) return;
-    canvas.save();
     _paintLineChart(canvas, size);
-    canvas.restore();
   }
 
   @override
@@ -73,8 +71,8 @@ class LineSeriesPainter extends CustomPainter
           _offsetList.add(
             convertPointFromGrid(
               Offset(
-                series.datas[max(0, index - 1)].dx,
-                series.datas[max(0, index - 1)].dy,
+                max(0, index - 1),
+                series.datas[max(0, index - 1)],
               ),
             ),
           );
@@ -83,16 +81,16 @@ class LineSeriesPainter extends CustomPainter
             _offsetList.add(
               convertPointFromGrid(
                 Offset(
-                  series.datas[index].dx,
-                  series.datas[index].dy,
+                  index * 1.0,
+                  series.datas[index],
                 ),
               ),
             );
             _offsetList.add(
               convertPointFromGrid(
                 Offset(
-                  series.datas[index + 1].dx,
-                  series.datas[index + 1].dy,
+                  index + 1,
+                  series.datas[index + 1],
                 ),
               ),
             );
@@ -122,10 +120,11 @@ class LineSeriesPainter extends CustomPainter
       coordinator = createCoordinator(size);
       final valueRange = coordinator.xRange.intersection(renderParams.xRange);
       if (valueRange.lower.toInt() < 0) return;
+      ///往左边界多画一个点
       Offset lowerOffset = convertPointFromGrid(
         Offset(
-          series.datas[valueRange.lower.toInt()].dx,
-          series.datas[valueRange.lower.toInt()].dy,
+          valueRange.lower.floorToDouble(),
+          series.datas[valueRange.lower.toInt()],
         ),
       );
       linePath.moveTo(lowerOffset.dx, lowerOffset.dy);
@@ -133,11 +132,10 @@ class LineSeriesPainter extends CustomPainter
           .toIterable()
           .where((idx) => idx >= 0 && idx < series.datas.length)
           .forEach((index) {
-        if (index == valueRange.lower.toInt()) {}
         Offset currentOffset = convertPointFromGrid(
           Offset(
-            series.datas[index].dx,
-            series.datas[index].dy,
+            index * 1.0,
+            series.datas[index],
           ),
         );
         linePath.lineTo(currentOffset.dx, currentOffset.dy);
@@ -145,17 +143,14 @@ class LineSeriesPainter extends CustomPainter
 
       ///往右边多画一个点
       Offset upperOffset = convertPointFromGrid(Offset(
-          series
-              .datas[min(valueRange.upper.toInt() + 1, series.datas.length - 1)]
-              .dx,
-          series
-              .datas[min(valueRange.upper.toInt() + 1, series.datas.length - 1)]
-              .dy));
+          min(valueRange.upper.toInt() + 1, series.datas.length - 1),
+          series.datas[
+              min(valueRange.upper.toInt() + 1, series.datas.length - 1)]));
       linePath.lineTo(upperOffset.dx, upperOffset.dy);
       linePath.lineTo(upperOffset.dx, size.height);
       linePath.lineTo(
-          convertPointFromGrid(Offset(series.datas[valueRange.lower.toInt()].dx,
-                  series.datas[valueRange.lower.toInt()].dy))
+          convertPointFromGrid(Offset(valueRange.lower.floorToDouble(),
+                  series.datas[valueRange.lower.toInt()]))
               .dx,
           size.height);
 
