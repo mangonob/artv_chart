@@ -17,6 +17,9 @@ class GridPainter extends CustomPainter
   final RenderParams renderParams;
   final GridCache? gridCache;
 
+  /// Avoid hot reload error (late coordinator is not initialized)
+  bool _isCoordinatorReady = false;
+
   GridPainter({
     required this.grid,
     required this.renderParams,
@@ -27,7 +30,14 @@ class GridPainter extends CustomPainter
   bool shouldRepaint(covariant GridPainter oldDelegate) {
     final shouldRepaint =
         oldDelegate.grid != grid || oldDelegate.renderParams != renderParams;
+
     if (shouldRepaint) gridCache?.invlidate();
+
+    if (!shouldRepaint && oldDelegate._isCoordinatorReady) {
+      coordinator = oldDelegate.coordinator;
+      _isCoordinatorReady = true;
+    }
+
     return shouldRepaint;
   }
 
@@ -47,6 +57,7 @@ class GridPainter extends CustomPainter
       clip: false,
       routine: (Canvas canvas, Size size) {
         coordinator = createCoordinator(size);
+        _isCoordinatorReady = true;
 
         _paintGrid(canvas, size);
         _paintYLines(canvas, size);

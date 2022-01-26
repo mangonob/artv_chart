@@ -1,3 +1,4 @@
+import 'package:artv_chart/trend_chart/constant.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -15,10 +16,16 @@ class TrendChartController extends ChangeNotifier {
   final double initialXOffset;
   late AnimationController _animationController;
   bool _isSimulating = false;
+  int _focusIndex = 0;
 
   Animation<RenderParams>? _paramsAnimation;
 
   RenderParams get _renderParams => _state!.renderParams;
+
+  RenderParams get currentRenderParams => _renderParams;
+
+  /// Whether the controller bind to a [TrendChartState].
+  bool get hasClient => _state != null;
 
   TrendChartController({
     required TickerProvider vsync,
@@ -76,12 +83,17 @@ class TrendChartController extends ChangeNotifier {
     );
   }
 
+  void _ensureHasClient() {
+    assert(hasClient, "$runtimeType has not client.");
+  }
+
   void setRenderParams(
     RenderParams renderParams, {
     bool animated = false,
     Curve curve = Curves.easeOut,
     Duration duration = const Duration(milliseconds: 250),
   }) {
+    _ensureHasClient();
     stopAnimation();
     _interactiveStart();
 
@@ -191,6 +203,8 @@ class TrendChartController extends ChangeNotifier {
   void decelerate(
     Velocity velocity,
   ) {
+    _ensureHasClient();
+
     final simulation = _state!.widget.physic.createBallisticSimulation(
       createPosition(),
       -velocity.pixelsPerSecond.dx,
@@ -273,10 +287,10 @@ class TrendChartController extends ChangeNotifier {
       /// User location in grid
       if (gridPainter != null && activeGrid != null) {
         final focusPosition =
-            gridPainter.convertPointToGrid(Offset(position.dx, 0)).dx;
+            gridPainter.convertPointToGrid(Offset(position.dx, 0)).dx.round();
         final focusLocation = Offset(
           gridPainter
-              .convertPointFromGrid(Offset(focusPosition.roundToDouble(), 0))
+              .convertPointFromGrid(Offset(focusPosition.toDouble(), 0))
               .dx,
           position.dy,
         );
@@ -290,12 +304,12 @@ class TrendChartController extends ChangeNotifier {
           renderParams: _renderParams,
         );
         final focusPosition =
-            coordinator.convertPointToGrid(Offset(position.dx, 0)).dx;
+            coordinator.convertPointToGrid(Offset(position.dx, 0)).dx.round();
         final focusLocation = Offset(
           coordinator
-              .convertPointFromGrid(Offset(focusPosition.roundToDouble(), 0))
+              .convertPointFromGrid(Offset(focusPosition.toDouble(), 0))
               .dx,
-          double.nan,
+          double.infinity,
         );
         _mutate(
           (p) => p.copyWith(focusPosition: focusPosition),
@@ -308,20 +322,26 @@ class TrendChartController extends ChangeNotifier {
   void blur({
     bool force = false,
   }) {
+    if (_state == null || _state!.focusLocation == null) return;
+
     if (force) {
       _blur();
     } else if (_state?.widget.isAutoBlur ?? false) {
+      final _focusToBlur = _focusIndex;
+
       Future.delayed(_state!.widget.autoBlurDuration).then((_) {
-        _state.flatMap((s) {
-          if (s.widget.isAutoBlur) _blur();
-        });
+        if (_focusToBlur == _focusIndex) {
+          _state.flatMap((s) {
+            if (s.widget.isAutoBlur) _blur();
+          });
+        }
       });
     }
   }
 
   void _blur() {
     if (_state != null && _state!.mounted) {
-      _mutate((p) => p.copyWith(focusPosition: double.nan));
+      _mutate((p) => p.copyWith(focusPosition: kNullPosition));
       _unfocus();
     }
   }
@@ -331,20 +351,36 @@ class TrendChartController extends ChangeNotifier {
   void _update({
     RenderParams? renderParams,
     Offset? focusLocation,
-  }) =>
-      _state.flatMap((s) {
-        s.update(renderParams: renderParams, focusLocation: focusLocation);
-        notifyListeners();
-      });
+  }) {
+    _state.flatMap((s) {
+      if (s.focusLocation == null && focusLocation != null) _focusIndex += 1;
 
-  void _mutate(Mutator<RenderParams> mutator) => _state.flatMap((s) {
-        s.mutateRenderParams(mutator);
-        notifyListeners();
-      });
+      final oldFocusPosition = s.renderParams.focusPosition;
+      s.update(renderParams: renderParams, focusLocation: focusLocation);
+      final newFocusPosition = s.renderParams.focusPosition;
+
+      if (newFocusPosition != oldFocusPosition) {
+        s.widget.onFocusPositionChanged
+            ?.call(newFocusPosition == kNullPosition ? null : newFocusPosition);
+      }
+
+      notifyListeners();
+    });
+  }
+
+  void _mutate(Mutator<RenderParams> mutator) {
+    _state.flatMap((s) {
+      final newValue = mutator(s.renderParams);
+      if (newValue != s.renderParams) {
+        _update(renderParams: newValue);
+      }
+    });
+  }
 
   void _unfocus() => _state.flatMap((s) {
+        final oldFocusLocation = s.focusLocation;
         s.focusLocation = null;
-        notifyListeners();
+        if (oldFocusLocation != s.focusLocation) notifyListeners();
       });
 }
 

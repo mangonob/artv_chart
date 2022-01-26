@@ -1,7 +1,7 @@
-import 'package:artv_chart/utils/utils.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
+import '../../utils/utils.dart';
 import '../chart_coordinator.dart';
 import '../common/painter/padding_painter.dart';
 import '../common/range.dart';

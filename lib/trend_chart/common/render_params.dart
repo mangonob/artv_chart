@@ -26,7 +26,7 @@ class RenderParams {
   final double chartWidth;
 
   /// Current point focus on
-  final double focusPosition;
+  final int focusPosition;
 
   const RenderParams({
     required this.unit,
@@ -36,8 +36,13 @@ class RenderParams {
     required this.xRange,
     required this.chartWidth,
     this.isIgnoredUnitVolume = true,
-    this.focusPosition = double.nan,
+    this.focusPosition = kNullPosition,
   });
+
+  @override
+  String toString() =>
+      "$runtimeType { unit: $unit, xOffset: $xOffset, padding: $padding, xOffsetReserveMode: $xOffsetReserveMode, "
+      "xRange: $xRange, chartWidth: $chartWidth, isIgnoredUnitVolume: $isIgnoredUnitVolume, focusPosition: $focusPosition, }";
 
   RenderParams copyWith({
     double? unit,
@@ -47,7 +52,7 @@ class RenderParams {
     ReserveMode? xOffsetReserveMode,
     Range? xRange,
     double? chartWidth,
-    double? focusPosition,
+    int? focusPosition,
   }) =>
       RenderParams(
         unit: unit ?? this.unit,

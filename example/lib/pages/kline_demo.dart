@@ -60,6 +60,8 @@ class _KLineDemoState extends State<KLineDemo>
     _offsets = [];
     _candles = [];
 
+    _controller.addListener(_controllerListener);
+
     compute(
       _generateOffsets,
       _itemCount,
@@ -77,6 +79,10 @@ class _KLineDemoState extends State<KLineDemo>
         _candles = v;
       });
     });
+  }
+
+  _controllerListener() {
+    if (kDebugMode) print(_controller.currentRenderParams);
   }
 
   static List<Offset> _generateOffsets(int count) {
@@ -112,6 +118,7 @@ class _KLineDemoState extends State<KLineDemo>
   void dispose() {
     _controller.dispose();
     _layoutManager.dispose();
+
     super.dispose();
   }
 
@@ -134,6 +141,9 @@ class _KLineDemoState extends State<KLineDemo>
             crossLineStyle: LineStyle(color: _crossLineColor),
             xRange: Range.length(_itemCount.toDouble()),
             onDoubleTap: () => _controller.resetInitialValue(animated: true),
+            onFocusPositionChanged: (position) {
+              if (kDebugMode) print("Position $position");
+            },
             footerBuilder: (ctx, _, idx) {
               return when(
                 idx == 0,

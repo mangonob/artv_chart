@@ -48,6 +48,8 @@ class TrendChart extends StatefulWidget {
   /// Builder optional footer for every grid
   final GridWidgetBuilder? footerBuilder;
 
+  final ValueChanged<int?>? onFocusPositionChanged;
+
   LineStyle get crossLineStyle => _crossLineStyle;
 
   TrendChart({
@@ -69,6 +71,7 @@ class TrendChart extends StatefulWidget {
     this.isAutoBlur = false,
     this.autoBlurDuration = const Duration(milliseconds: 1000),
     LineStyle? crossLineStyle,
+    this.onFocusPositionChanged,
   })  : assert(minUnit <= maxUnit),
         _crossLineStyle =
             const LineStyle(color: Colors.grey, size: 1).merge(crossLineStyle),
@@ -104,7 +107,7 @@ class TrendChartState extends State<TrendChart> {
     });
   }
 
-  void mutateRenderParams(Mutator<RenderParams> mutator) {
+  void _mutate(Mutator<RenderParams> mutator) {
     final newValue = mutator(_renderParams);
     if (newValue != _renderParams) {
       update(renderParams: newValue);
@@ -127,14 +130,11 @@ class TrendChartState extends State<TrendChart> {
 
     widget.controller.bindState(this);
     widget.layoutManager.bindState(this);
-    widget.controller.addListener(_controllerListener);
-    widget.layoutManager.addListener(_managerListener);
 
     WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
       final box = context.findRenderObject() as RenderBox?;
       if (box != null) {
-        mutateRenderParams(
-            (params) => params.copyWith(chartWidth: box.size.width));
+        _mutate((params) => params.copyWith(chartWidth: box.size.width));
       }
     });
   }
@@ -147,10 +147,6 @@ class TrendChartState extends State<TrendChart> {
       widget.controller.blur();
     }
   }
-
-  _managerListener() {}
-
-  _controllerListener() {}
 
   @override
   Widget build(BuildContext context) {
@@ -181,9 +177,9 @@ class TrendChartState extends State<TrendChart> {
               (d) => widget.controller.updateCrossLine(d.localPosition);
           longPress.onLongPressMoveUpdate =
               (d) => widget.controller.updateCrossLine(d.localPosition);
-          longPress.onLongPressEnd = (_) => _hideCrossLine();
-          longPress.onLongPressCancel = () => _hideCrossLine();
-          longPress.onLongPressUp = () => _hideCrossLine();
+          longPress.onLongPressEnd = (_) => _blur();
+          longPress.onLongPressCancel = () => _blur();
+          longPress.onLongPressUp = () => _blur();
         },
       ),
       if (widget.isAllowHorizontalDrag)
@@ -281,7 +277,7 @@ class TrendChartState extends State<TrendChart> {
         renderParams: renderParams,
       );
 
-  void _hideCrossLine({
+  void _blur({
     bool force = false,
   }) =>
       widget.controller.blur(force: force);
