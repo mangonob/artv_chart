@@ -3,6 +3,8 @@ import 'package:tuple/tuple.dart';
 /// Function type that Transform values into a new form.
 typedef Mutator<T> = T Function(T);
 
+typedef ValueChangedWithPrevCallback<T> = void Function(T, T);
+
 /// Chainable Monad of nullable Object.
 extension NullableMonad<T> on T? {
   U? flatMap<U>(U? Function(T v) f) {

@@ -7,6 +7,7 @@ import 'common/enum.dart';
 import 'common/range.dart';
 import 'common/render_params.dart';
 import 'common/style.dart';
+import 'cross_line_info.dart';
 import 'grid/grid.dart';
 import 'grid/grid_paint.dart';
 import 'layout_manager.dart';
@@ -84,35 +85,37 @@ class TrendChart extends StatefulWidget {
 class TrendChartState extends State<TrendChart> {
   late RenderParams _renderParams;
   double? _scaleStartUnit;
-  Offset? _focusLocation;
+  final crossLineInfo = ValueNotifier<CrossLineInfo?>(null);
 
   RenderParams get renderParams => _renderParams;
 
-  Offset? get focusLocation => _focusLocation;
-  set focusLocation(Offset? newValue) => setState(() {
-        _focusLocation = newValue;
-      });
-
-  void update({
-    RenderParams? renderParams,
-    Offset? focusLocation,
+  void update(
+    RenderParams renderParams, {
+    ValueChangedWithPrevCallback<RenderParams>? updated,
   }) {
-    setState(() {
-      if (renderParams != null) {
+    if (_renderParams != renderParams) {
+      final prev = _renderParams;
+      setState(() {
         _renderParams = renderParams;
-      }
-      if (focusLocation != null) {
-        _focusLocation = focusLocation;
-      }
-    });
-  }
-
-  void _mutate(Mutator<RenderParams> mutator) {
-    final newValue = mutator(_renderParams);
-    if (newValue != _renderParams) {
-      update(renderParams: newValue);
+      });
+      _valueChangedChecker(prev, _renderParams);
+      updated?.call(prev, _renderParams);
     }
   }
+
+  _valueChangedChecker(RenderParams prev, RenderParams curr) {
+    if (prev.focusPosition != curr.focusPosition) {
+      WidgetsBinding.instance?.addPostFrameCallback((_) {
+        widget.onFocusPositionChanged?.call(curr.focusPosition);
+      });
+    }
+  }
+
+  void mutate(
+    Mutator<RenderParams> mutator, {
+    ValueChangedWithPrevCallback<RenderParams>? mutated,
+  }) =>
+      update(mutator(_renderParams), updated: mutated);
 
   @override
   void initState() {
@@ -134,7 +137,7 @@ class TrendChartState extends State<TrendChart> {
     WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
       final box = context.findRenderObject() as RenderBox?;
       if (box != null) {
-        _mutate((params) => params.copyWith(chartWidth: box.size.width));
+        mutate((params) => params.copyWith(chartWidth: box.size.width));
       }
     });
   }
@@ -229,10 +232,8 @@ class TrendChartState extends State<TrendChart> {
           GestureRecognizerFactoryWithHandlers<TapGestureRecognizer>(
         () => TapGestureRecognizer(),
         (tap) {
-          tap.onTapDown = (_) {
-            widget.controller.stopAnimation();
-            widget.controller.blur(force: true);
-          };
+          tap.onTapDown = (_) => widget.controller.stopAnimation();
+          tap.onTap = () => widget.controller.blur(force: true);
         },
       ),
       DoubleTapGestureRecognizer:
@@ -249,7 +250,14 @@ class TrendChartState extends State<TrendChart> {
     if (widget.grids.isEmpty) {
       return const SizedBox();
     } else {
-      return CustomPaint(
+      return ValueListenableBuilder<CrossLineInfo?>(
+        valueListenable: crossLineInfo,
+        builder: (ctx, value, child) {
+          return CustomPaint(
+            child: child,
+            foregroundPainter: createCrossLinePainter(),
+          );
+        },
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: widget.grids.mapIndexed((index, g) {
@@ -266,15 +274,14 @@ class TrendChartState extends State<TrendChart> {
             ];
           }).reduce((acc, v) => acc + v),
         ),
-        foregroundPainter: createCrossLinePainter(),
       );
     }
   }
 
   CustomPainter createCrossLinePainter() => TrendChartCrossLinePainter(
         chart: widget,
-        focusLocation: _focusLocation,
         renderParams: renderParams,
+        info: crossLineInfo.value,
       );
 
   void _blur({

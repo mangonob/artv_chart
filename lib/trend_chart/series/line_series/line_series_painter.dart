@@ -10,7 +10,7 @@ import '../../grid/grid.dart';
 import 'line_series.dart';
 
 class LineSeriesPainter extends CustomPainter
-    with HasCoordinator, CoordinatorProvider {
+    with CoordinatorProvider, HasCoordinator {
   final LineSeries series;
   final RenderParams renderParams;
   final Grid grid;
@@ -61,6 +61,7 @@ class LineSeriesPainter extends CustomPainter
         padding: grid.style.margin?.copyWith(left: 0, right: 0),
         routine: (Canvas canvas, Size size) {
       coordinator = createCoordinator(size);
+      prepareCoordnator(size);
       _offsetList.clear();
       final valueRange = coordinator.xRange.intersection(renderParams.xRange);
       if (valueRange.lower.toInt() < 0) return;

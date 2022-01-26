@@ -1,23 +1,61 @@
 import 'package:flutter/material.dart';
 
+import 'chart_coordinator.dart';
 import 'common/painter/line_painter.dart';
 import 'common/render_params.dart';
+import 'constant.dart';
+import 'cross_line_info.dart';
 import 'trend_chart.dart';
 
 class TrendChartCrossLinePainter extends CustomPainter {
   TrendChart chart;
   RenderParams renderParams;
-  Offset? focusLocation;
+  CrossLineInfo? info;
 
   TrendChartCrossLinePainter({
     required this.chart,
     required this.renderParams,
-    this.focusLocation,
+    this.info,
   });
+
+  ChartCoordinator? _coordinator;
+  ChartCoordinator get coordinator {
+    if (_coordinator == null) {
+      if (info != null) {
+        return ChartCoordinator(
+          grid: info!.grid,
+          size: info!.gridRect.size,
+          renderParams: renderParams,
+        );
+      } else {
+        return ChartCoordinator(
+          grid: chart.grids.first,
+          size: Size(renderParams.chartWidth, 1),
+          renderParams: renderParams,
+        );
+      }
+    }
+    return _coordinator!;
+  }
 
   @override
   void paint(Canvas canvas, Size size) {
-    if (focusLocation == null) return;
+    final focusLocation = Offset(
+      coordinator
+          .convertPointFromGrid(
+            Offset(
+                coordinator
+                    .convertPointToGrid(
+                        Offset(renderParams.focusLocation.dx, 0))
+                    .dx
+                    .roundToDouble(),
+                0),
+          )
+          .dx,
+      renderParams.focusLocation.dy,
+    );
+
+    if (renderParams.focusLocation == kNullLocation) return;
 
     canvas.clipRect(
       Rect.fromLTWH(
@@ -28,18 +66,20 @@ class TrendChartCrossLinePainter extends CustomPainter {
       ),
     );
 
-    LinePainter().paint(
-      canvas,
-      start: Offset(focusLocation!.dx, 0),
-      end: Offset(focusLocation!.dx, size.height),
-      style: chart.crossLineStyle,
-    );
-
-    if (focusLocation!.dy.isFinite && !focusLocation!.dy.isNaN) {
+    if (focusLocation.dx.isFinite && !focusLocation.dx.isNaN) {
       LinePainter().paint(
         canvas,
-        start: Offset(0, focusLocation!.dy),
-        end: Offset(size.width, focusLocation!.dy),
+        start: Offset(focusLocation.dx, 0),
+        end: Offset(focusLocation.dx, size.height),
+        style: chart.crossLineStyle,
+      );
+    }
+
+    if (focusLocation.dy.isFinite && !focusLocation.dy.isNaN) {
+      LinePainter().paint(
+        canvas,
+        start: Offset(0, focusLocation.dy),
+        end: Offset(size.width, focusLocation.dy),
         style: chart.crossLineStyle,
       );
     }
@@ -48,7 +88,6 @@ class TrendChartCrossLinePainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant TrendChartCrossLinePainter oldDelegate) {
     return _padding() != oldDelegate._padding() ||
-        focusLocation != oldDelegate.focusLocation ||
         renderParams != oldDelegate.renderParams;
   }
 

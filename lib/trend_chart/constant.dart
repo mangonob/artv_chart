@@ -1,4 +1,6 @@
+import 'package:flutter/material.dart';
+
 const double kScaleToFitGridUnit = 0;
 
 /// Invalid series data position (index) value
-const int kNullPosition = -1;
+const Offset kNullLocation = Offset.infinite;

@@ -26,7 +26,19 @@ class RenderParams {
   final double chartWidth;
 
   /// Current point focus on
-  final int focusPosition;
+  final Offset focusLocation;
+
+  int? get focusPosition {
+    if (focusLocation.dx.isFinite && !focusLocation.dx.isNaN) {
+      if (unit > 0) {
+        final delta = isIgnoredUnitVolume ? 0 : -0.5 * unit;
+        return ((focusLocation.dx + xOffset + delta - padding.left) / unit)
+            .round();
+      } else {
+        /// TODO: kScaleToFitGridUnit
+      }
+    }
+  }
 
   const RenderParams({
     required this.unit,
@@ -36,13 +48,13 @@ class RenderParams {
     required this.xRange,
     required this.chartWidth,
     this.isIgnoredUnitVolume = true,
-    this.focusPosition = kNullPosition,
+    this.focusLocation = kNullLocation,
   });
 
   @override
   String toString() =>
       "$runtimeType { unit: $unit, xOffset: $xOffset, padding: $padding, xOffsetReserveMode: $xOffsetReserveMode, "
-      "xRange: $xRange, chartWidth: $chartWidth, isIgnoredUnitVolume: $isIgnoredUnitVolume, focusPosition: $focusPosition, }";
+      "xRange: $xRange, chartWidth: $chartWidth, isIgnoredUnitVolume: $isIgnoredUnitVolume, focusLocation: $focusLocation, }";
 
   RenderParams copyWith({
     double? unit,
@@ -52,7 +64,7 @@ class RenderParams {
     ReserveMode? xOffsetReserveMode,
     Range? xRange,
     double? chartWidth,
-    int? focusPosition,
+    Offset? focusLocation,
   }) =>
       RenderParams(
         unit: unit ?? this.unit,
@@ -62,7 +74,7 @@ class RenderParams {
         xOffsetReserveMode: xOffsetReserveMode ?? this.xOffsetReserveMode,
         xRange: xRange ?? this.xRange,
         chartWidth: chartWidth ?? this.chartWidth,
-        focusPosition: focusPosition ?? this.focusPosition,
+        focusLocation: focusLocation ?? this.focusLocation,
       );
 
   @override
@@ -76,7 +88,7 @@ class RenderParams {
           xOffsetReserveMode == other.xOffsetReserveMode &&
           xRange == other.xRange &&
           chartWidth == other.chartWidth &&
-          focusPosition == other.focusPosition;
+          focusLocation == other.focusLocation;
 
   @override
   int get hashCode => hashValues(
@@ -87,7 +99,7 @@ class RenderParams {
         xOffsetReserveMode,
         xRange,
         chartWidth,
-        focusPosition,
+        focusLocation,
       );
 
   double get minExtend => padding.left;
@@ -111,7 +123,7 @@ class RenderParams {
       xOffsetReserveMode: b.xOffsetReserveMode,
       xRange: Range.lerp(a.xRange, b.xRange, t),
       chartWidth: lerpDouble(a.chartWidth, b.chartWidth, t)!,
-      focusPosition: b.focusPosition,
+      focusLocation: b.focusLocation,
     );
   }
 

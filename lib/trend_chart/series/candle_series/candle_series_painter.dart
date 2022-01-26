@@ -10,7 +10,7 @@ import 'painter/candle_painter.dart';
 import 'painter/value_remark_painter.dart';
 
 class CandleSeriesPainter extends CustomPainter
-    with HasCoordinator, CoordinatorProvider {
+    with CoordinatorProvider, HasCoordinator {
   final Grid grid;
   final CandleSeries series;
   final RenderParams renderParams;
@@ -41,7 +41,7 @@ class CandleSeriesPainter extends CustomPainter
     PaddingPainter().paint(canvas, size,
         padding: grid.style.margin?.copyWith(left: 0, right: 0),
         routine: (Canvas canvas, Size size) {
-      coordinator = createCoordinator(size);
+      prepareCoordnator(size);
       _paintCandles(canvas, size);
     });
   }

@@ -1,11 +1,11 @@
-import 'package:artv_chart/trend_chart/constant.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
 import '../utils/utils.dart';
-import 'chart_coordinator.dart';
 import 'common/render_params.dart';
+import 'constant.dart';
+import 'cross_line_info.dart';
 import 'grid/grid_painter.dart';
 import 'trend_chart.dart';
 
@@ -95,7 +95,6 @@ class TrendChartController extends ChangeNotifier {
   }) {
     _ensureHasClient();
     stopAnimation();
-    _interactiveStart();
 
     final clampedRenderParams = _clampRenderParams(renderParams);
 
@@ -184,8 +183,6 @@ class TrendChartController extends ChangeNotifier {
   }
 
   void applyOffset(double delta) {
-    _interactiveStart();
-
     if (delta != 0) {
       stopAnimation();
       final viewDelta = _state!.widget.physic.applyPhysicsToUserOffset(
@@ -228,8 +225,6 @@ class TrendChartController extends ChangeNotifier {
     Curve curve = Curves.easeOut,
     Duration duration = const Duration(milliseconds: 250),
   }) {
-    _interactiveStart();
-
     if (!(_renderParams.unit > 0)) return;
     assert(destUnit != null || scale != null);
 
@@ -282,39 +277,25 @@ class TrendChartController extends ChangeNotifier {
             (t) => t is RenderCustomPaint && t.painter is GridPainter,
           ) as RenderCustomPaint?;
       final gridPainter = maybePaint?.painter as GridPainter?;
-      final activeGrid = gridPainter?.grid;
+      final focusedGrid = gridPainter?.grid;
 
       /// User location in grid
-      if (gridPainter != null && activeGrid != null) {
-        final focusPosition =
-            gridPainter.convertPointToGrid(Offset(position.dx, 0)).dx.round();
-        final focusLocation = Offset(
-          gridPainter
-              .convertPointFromGrid(Offset(focusPosition.toDouble(), 0))
-              .dx,
-          position.dy,
+      if (gridPainter != null && focusedGrid != null) {
+        _state?.crossLineInfo.value = CrossLineInfo(
+          grid: focusedGrid,
+          gridRect: Rect.zero,
         );
-        _mutate((p) => p.copyWith(focusPosition: focusPosition));
-        _update(focusLocation: focusLocation);
+        _mutate((p) => p.copyWith(focusLocation: position));
       } else {
         /// User location out of grid
-        final coordinator = ChartCoordinator(
-          grid: _state!.widget.grids.first,
-          size: Size(box.size.width, 1),
-          renderParams: _renderParams,
-        );
-        final focusPosition =
-            coordinator.convertPointToGrid(Offset(position.dx, 0)).dx.round();
         final focusLocation = Offset(
-          coordinator
-              .convertPointFromGrid(Offset(focusPosition.toDouble(), 0))
-              .dx,
+          position.dx,
           double.infinity,
         );
+        _state?.crossLineInfo.value = null;
         _mutate(
-          (p) => p.copyWith(focusPosition: focusPosition),
+          (p) => p.copyWith(focusLocation: focusLocation),
         );
-        _update(focusLocation: focusLocation);
       }
     }
   }
@@ -322,7 +303,9 @@ class TrendChartController extends ChangeNotifier {
   void blur({
     bool force = false,
   }) {
-    if (_state == null || _state!.focusLocation == null) return;
+    if (_state == null || _state!.renderParams.focusLocation == kNullLocation) {
+      return;
+    }
 
     if (force) {
       _blur();
@@ -341,47 +324,25 @@ class TrendChartController extends ChangeNotifier {
 
   void _blur() {
     if (_state != null && _state!.mounted) {
-      _mutate((p) => p.copyWith(focusPosition: kNullPosition));
-      _unfocus();
+      _mutate((p) => p.copyWith(focusLocation: kNullLocation));
     }
   }
 
-  void _interactiveStart() => _blur();
-
-  void _update({
-    RenderParams? renderParams,
-    Offset? focusLocation,
-  }) {
+  void _update({required RenderParams renderParams}) {
     _state.flatMap((s) {
-      if (s.focusLocation == null && focusLocation != null) _focusIndex += 1;
-
-      final oldFocusPosition = s.renderParams.focusPosition;
-      s.update(renderParams: renderParams, focusLocation: focusLocation);
-      final newFocusPosition = s.renderParams.focusPosition;
-
-      if (newFocusPosition != oldFocusPosition) {
-        s.widget.onFocusPositionChanged
-            ?.call(newFocusPosition == kNullPosition ? null : newFocusPosition);
-      }
-
-      notifyListeners();
+      s.update(renderParams, updated: (p, v) {
+        notifyListeners();
+      });
     });
   }
 
   void _mutate(Mutator<RenderParams> mutator) {
     _state.flatMap((s) {
-      final newValue = mutator(s.renderParams);
-      if (newValue != s.renderParams) {
-        _update(renderParams: newValue);
-      }
+      s.mutate(mutator, mutated: (p, v) {
+        notifyListeners();
+      });
     });
   }
-
-  void _unfocus() => _state.flatMap((s) {
-        final oldFocusLocation = s.focusLocation;
-        s.focusLocation = null;
-        if (oldFocusLocation != s.focusLocation) notifyListeners();
-      });
 }
 
 extension _SafeCalmpingExtension on num {

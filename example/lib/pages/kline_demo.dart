@@ -81,9 +81,7 @@ class _KLineDemoState extends State<KLineDemo>
     });
   }
 
-  _controllerListener() {
-    if (kDebugMode) print(_controller.currentRenderParams);
-  }
+  _controllerListener() {}
 
   static List<Offset> _generateOffsets(int count) {
     final generator = DataGenerator.sinable();

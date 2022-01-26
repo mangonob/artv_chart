@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 
 import 'common/range.dart';
@@ -11,8 +9,9 @@ mixin CoordinatorProvider {
   ChartCoordinator createCoordinator(Size size);
 }
 
-mixin HasCoordinator {
+mixin HasCoordinator on CoordinatorProvider {
   late ChartCoordinator coordinator;
+  bool isCoordinatorReady = false;
 
   /// Convert point from grid to screen coordinate.
   Offset convertPointFromGrid(
@@ -37,6 +36,11 @@ mixin HasCoordinator {
     Rect rect,
   ) =>
       coordinator.convertRectToGrid(rect);
+
+  void prepareCoordnator(Size size) {
+    coordinator = createCoordinator(size);
+    isCoordinatorReady = true;
+  }
 }
 
 class ChartCoordinator {
