@@ -1,3 +1,4 @@
+import 'package:artv_chart/utils/utils.dart';
 import 'package:flutter/material.dart';
 
 import 'chart_coordinator.dart';
@@ -22,19 +23,20 @@ class TrendChartCrossLinePainter extends CustomPainter {
   ChartCoordinator get coordinator {
     if (_coordinator == null) {
       if (info != null) {
-        return ChartCoordinator(
+        _coordinator = ChartCoordinator(
           grid: info!.grid,
           size: info!.gridRect.size,
           renderParams: renderParams,
         );
       } else {
-        return ChartCoordinator(
+        _coordinator = ChartCoordinator(
           grid: chart.grids.first,
           size: Size(renderParams.chartWidth, 1),
           renderParams: renderParams,
         );
       }
     }
+
     return _coordinator!;
   }
 

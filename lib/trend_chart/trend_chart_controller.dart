@@ -1,11 +1,13 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:tuple/tuple.dart';
 
 import '../utils/utils.dart';
 import 'common/render_params.dart';
 import 'constant.dart';
 import 'cross_line_info.dart';
+import 'grid/grid.dart';
 import 'grid/grid_painter.dart';
 import 'trend_chart.dart';
 
@@ -265,41 +267,59 @@ class TrendChartController extends ChangeNotifier {
     }
   }
 
-  void updateCrossLine(Offset position) {
-    if (_state == null || !_state!.mounted) return;
-    final context = _state!.context;
+  void updateCrossLine(Offset location) {
+    final _foundGrid = _findGrid(location);
 
-    final box = context.findRenderObject() as RenderBox?;
-    if (box != null) {
-      final result = BoxHitTestResult();
-      box.hitTest(result, position: position);
-      final maybePaint = result.path.map((e) => e.target).firstWhereOrNull(
-            (t) => t is RenderCustomPaint && t.painter is GridPainter,
-          ) as RenderCustomPaint?;
-      final gridPainter = maybePaint?.painter as GridPainter?;
-      final focusedGrid = gridPainter?.grid;
+    if (currentRenderParams.focusPosition == null) _focusIndex += 1;
 
-      if (currentRenderParams.focusPosition == null) _focusIndex += 1;
-
-      /// User location in grid
-      if (gridPainter != null && focusedGrid != null) {
-        _state?.crossLineInfo.value = CrossLineInfo(
-          grid: focusedGrid,
-          gridRect: Rect.zero,
-        );
-        _mutate((p) => p.copyWith(focusLocation: position));
-      } else {
-        /// User location out of grid
-        final focusLocation = Offset(
-          position.dx,
-          double.infinity,
-        );
-        _state?.crossLineInfo.value = null;
-        _mutate(
-          (p) => p.copyWith(focusLocation: focusLocation),
-        );
-      }
+    if (_foundGrid != null) {
+      _state?.crossLineInfo.value = CrossLineInfo(
+        grid: _foundGrid.item1,
+        gridRect: _foundGrid.item2,
+      );
+      _mutate((p) => p.copyWith(focusLocation: location));
+    } else {
+      /// User location out of grid
+      final focusLocation = Offset(
+        location.dx,
+        double.infinity,
+      );
+      _state?.crossLineInfo.value = null;
+      _mutate(
+        (p) => p.copyWith(focusLocation: focusLocation),
+      );
     }
+  }
+
+  Tuple2<Grid, Rect>? _findGrid(Offset position) {
+    return _state
+        .flatMap((state) => state.context)
+        .flatMap((ctx) => ctx.findRenderObject() as RenderBox?)
+        .flatMap(
+      (box) {
+        final result = BoxHitTestResult();
+
+        box.hitTest(result, position: position);
+
+        final maybeRender = result.path.map((e) => e.target).firstWhereOrNull(
+              (t) => t is RenderCustomPaint && t.painter is GridPainter,
+            ) as RenderCustomPaint?;
+
+        return maybeRender.flatMap((render) {
+          final painter = render.painter as GridPainter;
+          final grid = painter.grid;
+          final start = Offset.zero;
+          final end = Offset(render.size.width, render.size.height);
+
+          final rect = Rect.fromPoints(
+            box.globalToLocal(render.localToGlobal(start)),
+            box.globalToLocal(render.localToGlobal(end)),
+          );
+
+          return Tuple2(grid, rect);
+        });
+      },
+    );
   }
 
   void blur({
@@ -324,6 +344,21 @@ class TrendChartController extends ChangeNotifier {
     }
   }
 
+  void _updateCrossLineInfo() {
+    _state.flatMap((state) {
+      if (state.renderParams.focusLocation != kNullLocation) {
+        final _foundGrid = _findGrid(state.renderParams.focusLocation);
+
+        if (_foundGrid != null) {
+          state.crossLineInfo.value = CrossLineInfo(
+            grid: _foundGrid.item1,
+            gridRect: _foundGrid.item2,
+          );
+        }
+      }
+    });
+  }
+
   void _blur() {
     if (_state != null && _state!.mounted) {
       _mutate((p) => p.copyWith(focusLocation: kNullLocation));
@@ -334,6 +369,7 @@ class TrendChartController extends ChangeNotifier {
     _state.flatMap((s) {
       s.update(renderParams, updated: (p, v) {
         notifyListeners();
+        _updateCrossLineInfo();
       });
     });
   }
@@ -342,6 +378,7 @@ class TrendChartController extends ChangeNotifier {
     _state.flatMap((s) {
       s.mutate(mutator, mutated: (p, v) {
         notifyListeners();
+        _updateCrossLineInfo();
       });
     });
   }
