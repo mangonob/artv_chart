@@ -44,7 +44,7 @@ class _KLineDemoState extends State<KLineDemo>
 
   /// 自定义样式
   bool _isAutoHiddenCrossLine = true;
-  bool _isAligned = true;
+  bool _isAligned = false;
   CandleType _candleType = CandleType.fill;
   Color _riseColor = Colors.red;
   Color _fallColor = Colors.green;
