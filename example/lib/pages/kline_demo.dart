@@ -38,7 +38,7 @@ class _KLineDemoState extends State<KLineDemo>
     with SingleTickerProviderStateMixin, AutomaticKeepAliveClientMixin {
   late TrendChartController _controller;
   late LayoutManager _layoutManager;
-  late List<Offset> _offsets;
+  late List<double> _offsets;
   late List<CandleEntry> _candles;
   final int _itemCount = 10000;
 
@@ -85,14 +85,11 @@ class _KLineDemoState extends State<KLineDemo>
 
   _controllerListener() {}
 
-  static List<Offset> _generateOffsets(int count) {
+  static List<double> _generateOffsets(int count) {
     final generator = DataGenerator.sinable();
     return List.generate(
       count,
-      (index) => Offset(
-        index.toDouble(),
-        generator.generate(index).first.toDouble(),
-      ),
+      (index) => generator.generate(index).first.toDouble(),
     );
   }
 

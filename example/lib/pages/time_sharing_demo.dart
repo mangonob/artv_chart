@@ -28,7 +28,7 @@ class _TimeSharingDemoState extends State<TimeSharingDemo>
     with SingleTickerProviderStateMixin, AutomaticKeepAliveClientMixin {
   late TrendChartController _controller;
   late LayoutManager _layoutManager;
-  late List<Offset> _offsets;
+  late List<double> _offsets;
   final int _itemCount = 10000;
 
   bool _isAutoHiddenCrossLine = false;
@@ -54,14 +54,11 @@ class _TimeSharingDemoState extends State<TimeSharingDemo>
     });
   }
 
-  static List<Offset> _generateOffsets(int count) {
+  static List<double> _generateOffsets(int count) {
     final generator = DataGenerator.sinable();
     return List.generate(
       count,
-      (index) => Offset(
-        index.toDouble(),
-        generator.generate(index).first.toDouble(),
-      ),
+      (index) => generator.generate(index).first.toDouble(),
     );
   }
 
