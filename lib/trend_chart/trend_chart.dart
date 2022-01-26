@@ -154,6 +154,12 @@ class TrendChartState extends State<TrendChart> {
     if (!oldWidget.isAutoBlur && widget.isAutoBlur) {
       widget.controller.blur();
     }
+
+    mutate((p) => p.copyWith(
+          xOffsetReserveMode: widget.xOffsetReserveMode,
+          isIgnoredUnitVolume: widget.isIgnoredUnitVolume,
+          xRange: widget.xRange,
+        ));
   }
 
   @override
