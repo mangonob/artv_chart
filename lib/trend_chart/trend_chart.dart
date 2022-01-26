@@ -104,9 +104,14 @@ class TrendChartState extends State<TrendChart> {
   }
 
   _valueChangedChecker(RenderParams prev, RenderParams curr) {
-    if (prev.focusPosition != curr.focusPosition) {
+    final prevPosition = prev.focusPosition
+        .flatMap((p) => widget.xRange.contains(p.toDouble()) ? p : null);
+    final currPosition = curr.focusPosition
+        .flatMap((p) => widget.xRange.contains(p.toDouble()) ? p : null);
+
+    if (prevPosition != currPosition) {
       WidgetsBinding.instance?.addPostFrameCallback((_) {
-        widget.onFocusPositionChanged?.call(curr.focusPosition);
+        widget.onFocusPositionChanged?.call(currPosition);
       });
     }
   }

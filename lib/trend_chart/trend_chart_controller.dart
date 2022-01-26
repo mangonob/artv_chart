@@ -279,6 +279,8 @@ class TrendChartController extends ChangeNotifier {
       final gridPainter = maybePaint?.painter as GridPainter?;
       final focusedGrid = gridPainter?.grid;
 
+      if (currentRenderParams.focusPosition == null) _focusIndex += 1;
+
       /// User location in grid
       if (gridPainter != null && focusedGrid != null) {
         _state?.crossLineInfo.value = CrossLineInfo(
