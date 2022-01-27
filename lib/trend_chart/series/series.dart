@@ -34,7 +34,7 @@ abstract class Series<D> {
     );
     final end = min(max(xRange.upper.ceil(), 0), datas.length);
     if (end > start) {
-      return Tuple2(datas.getRange(start, end), start);
+      return Tuple2(ListSlice(datas, start, end), start);
     } else {
       return const Tuple2([], -1);
     }
