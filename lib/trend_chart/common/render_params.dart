@@ -33,8 +33,10 @@ class RenderParams {
     if (focusLocation.dx.isValid) {
       if (unit > 0) {
         final delta = isIgnoredUnitVolume ? 0 : -0.5 * unit;
-        return ((focusLocation.dx + xOffset + delta - padding.left) / unit)
-            .round();
+        final position =
+            ((focusLocation.dx + xOffset + delta - padding.left) / unit)
+                .round();
+        return when(xRange.contains(position.toDouble()), position);
       } else {
         /// TODO: kScaleToFitGridUnit
       }

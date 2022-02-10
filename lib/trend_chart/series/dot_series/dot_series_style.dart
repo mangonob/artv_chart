@@ -1,5 +1,6 @@
-import 'package:artv_chart/trend_chart/common/style.dart';
 import 'package:flutter/material.dart';
+
+import '../../common/style.dart';
 
 class DotSeriesStyle {
   final double? circleRadius;

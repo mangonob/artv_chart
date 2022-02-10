@@ -1,10 +1,10 @@
-import 'package:artv_chart/trend_chart/series/bar_series/bar_series_style.dart';
 import 'package:flutter/material.dart';
 
 import '../../common/render_params.dart';
 import '../../grid/grid.dart';
 import '../series.dart';
 import 'bar_series_painter.dart';
+import 'bar_series_style.dart';
 
 class BarSeries extends Series<double> {
   final BarSeriesStyle _style;
@@ -47,7 +47,7 @@ class BarSeries extends Series<double> {
 
 class _DefaultBarSeriesYValueConvertor {
   static double _defaultBarSeriesYValue(
-      double dy,
+    double dy,
     int index,
     Series<double> series,
   ) {

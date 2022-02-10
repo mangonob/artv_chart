@@ -104,10 +104,8 @@ class TrendChartState extends State<TrendChart> {
   }
 
   _valueChangedChecker(RenderParams prev, RenderParams curr) {
-    final prevPosition = prev.focusPosition
-        .flatMap((p) => widget.xRange.contains(p.toDouble()) ? p : null);
-    final currPosition = curr.focusPosition
-        .flatMap((p) => widget.xRange.contains(p.toDouble()) ? p : null);
+    final prevPosition = prev.focusPosition;
+    final currPosition = curr.focusPosition;
 
     if (prevPosition != currPosition) {
       WidgetsBinding.instance?.addPostFrameCallback((_) {

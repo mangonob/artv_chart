@@ -7,6 +7,7 @@ import '../common/render_params.dart';
 import '../common/style.dart';
 import '../grid/grid_style.dart';
 import '../series/series.dart';
+import 'attachment/trend_chart_attachment.dart';
 import 'boundary.dart';
 import 'custom_line.dart';
 import 'grid_cache.dart';
@@ -28,6 +29,7 @@ class Grid {
   final List<CustomLine>? xCustomLines;
   final List<CustomLine>? yCustomLines;
   final double Function(Grid, double xValue)? yValueForCrossLine;
+  final List<TrendChartAttachment> attachments;
 
   GridStyle get style => _style;
 
@@ -45,6 +47,7 @@ class Grid {
     this.xCustomLines,
     this.yCustomLines,
     this.yValueForCrossLine,
+    this.attachments = const [],
   })  : _style = GridStyle().merge(style),
         _cache = GridCache();
 
@@ -62,7 +65,8 @@ class Grid {
           yLabel == other.yLabel &&
           listEquals(xCustomLines, other.xCustomLines) &&
           listEquals(yCustomLines, other.yCustomLines) &&
-          yValueForCrossLine == other.yValueForCrossLine;
+          yValueForCrossLine == other.yValueForCrossLine &&
+          listEquals(attachments, other.attachments);
 
   @override
   int get hashCode => hashValues(
@@ -77,6 +81,7 @@ class Grid {
         hashList(xCustomLines),
         hashList(yCustomLines),
         yValueForCrossLine,
+        hashList(attachments),
       );
 
   CustomPainter createPainter(RenderParams renderParams) => GridPainter(

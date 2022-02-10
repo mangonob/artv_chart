@@ -7,8 +7,8 @@ extension RectUtilsExtension on Rect {
     return Rect.fromLTWH(
       left + insets.left,
       top + insets.top,
-      width + insets.horizontal,
-      height + insets.vertical,
+      width - insets.horizontal,
+      height - insets.vertical,
     );
   }
 

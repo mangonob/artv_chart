@@ -1,13 +1,10 @@
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:tuple/tuple.dart';
 
 import '../utils/utils.dart';
 import 'common/render_params.dart';
 import 'constant.dart';
 import 'cross_line_info.dart';
-import 'grid/grid.dart';
 import 'grid/grid_painter.dart';
 import 'trend_chart.dart';
 
@@ -273,53 +270,55 @@ class TrendChartController extends ChangeNotifier {
     if (currentRenderParams.focusPosition == null) _focusIndex += 1;
 
     if (_foundGrid != null) {
-      _state?.crossLineInfo.value = CrossLineInfo(
-        grid: _foundGrid.item1,
-        gridRect: _foundGrid.item2,
-      );
-      _mutate((p) => p.copyWith(focusLocation: location));
-    } else {
-      /// User location out of grid
-      final focusLocation = Offset(
-        location.dx,
-        double.infinity,
-      );
-      _state?.crossLineInfo.value = null;
-      _mutate(
-        (p) => p.copyWith(focusLocation: focusLocation),
-      );
+      _state?.crossLineInfo.value = _foundGrid;
     }
+
+    _mutate((p) => p.copyWith(focusLocation: location));
   }
 
-  Tuple2<Grid, Rect>? _findGrid(Offset position) {
+  CrossLineInfo? _findGrid(Offset position) {
     return _state
         .flatMap((state) => state.context)
         .flatMap((ctx) => ctx.findRenderObject() as RenderBox?)
         .flatMap(
       (box) {
-        final result = BoxHitTestResult();
+        final gridPaints = _findTopPosteritiesOfExactType<RenderCustomPaint>(
+          box,
+          test: (r) => r.painter is GridPainter,
+        );
 
-        box.hitTest(result, position: position);
-
-        final maybeRender = result.path.map((e) => e.target).firstWhereOrNull(
-              (t) => t is RenderCustomPaint && t.painter is GridPainter,
-            ) as RenderCustomPaint?;
-
-        return maybeRender.flatMap((render) {
-          final painter = render.painter as GridPainter;
-          final grid = painter.grid;
+        final entries = gridPaints.map((paint) {
+          final painter = paint.painter as GridPainter;
           const start = Offset.zero;
-          final end = Offset(render.size.width, render.size.height);
+          final end = Offset(paint.size.width, paint.size.height);
 
           final rect = Rect.fromPoints(
-            box.globalToLocal(render.localToGlobal(start)),
-            box.globalToLocal(render.localToGlobal(end)),
+            box.globalToLocal(paint.localToGlobal(start)),
+            box.globalToLocal(paint.localToGlobal(end)),
           );
-
-          return Tuple2(grid, rect);
+          return CrossLineEntry(grid: painter.grid, gridRect: rect);
         });
+
+        return CrossLineInfo(visibleGridEntries: entries.toList());
       },
     );
+  }
+
+  List<T> _findTopPosteritiesOfExactType<T extends RenderObject>(
+    RenderObject renderObject, {
+    required bool Function(T) test,
+  }) {
+    List<T> children = [];
+
+    renderObject.visitChildren((child) {
+      if (child is T && test(child)) {
+        children.add(child);
+      } else {
+        children.addAll(_findTopPosteritiesOfExactType<T>(child, test: test));
+      }
+    });
+
+    return children;
   }
 
   void blur({
@@ -350,10 +349,7 @@ class TrendChartController extends ChangeNotifier {
         final _foundGrid = _findGrid(state.renderParams.focusLocation);
 
         if (_foundGrid != null) {
-          state.crossLineInfo.value = CrossLineInfo(
-            grid: _foundGrid.item1,
-            gridRect: _foundGrid.item2,
-          );
+          state.crossLineInfo.value = _foundGrid;
         }
       }
     });

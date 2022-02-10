@@ -1,7 +1,7 @@
-import 'package:artv_chart/trend_chart/common/render_params.dart';
-import 'package:artv_chart/trend_chart/grid/grid.dart';
 import 'package:flutter/material.dart';
 
+import '../../common/render_params.dart';
+import '../../grid/grid.dart';
 import '../series.dart';
 import 'dot_series_painter.dart';
 import 'dot_series_style.dart';

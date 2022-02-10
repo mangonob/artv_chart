@@ -1,12 +1,12 @@
 import 'dart:math';
 
-import 'package:artv_chart/trend_chart/common/painter/padding_painter.dart';
-import 'package:artv_chart/trend_chart/common/range.dart';
-import 'package:artv_chart/trend_chart/common/render_params.dart';
-import 'package:artv_chart/trend_chart/grid/grid.dart';
 import 'package:flutter/material.dart';
 
 import '../../chart_coordinator.dart';
+import '../../common/painter/padding_painter.dart';
+import '../../common/range.dart';
+import '../../common/render_params.dart';
+import '../../grid/grid.dart';
 import 'bar_series.dart';
 
 class BarSeriesPainter extends CustomPainter

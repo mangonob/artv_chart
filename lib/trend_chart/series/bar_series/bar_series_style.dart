@@ -1,6 +1,7 @@
-import 'package:artv_chart/trend_chart/common/style.dart';
-import 'package:artv_chart/trend_chart/common/value_distance.dart';
 import 'package:flutter/material.dart';
+
+import '../../common/style.dart';
+import '../../common/value_distance.dart';
 
 class BarSeriesStyle {
   final Color? riseColor;

@@ -1,5 +1,7 @@
+import 'package:artv_chart/trend_chart/common/render_params.dart';
 import 'package:flutter/material.dart';
 
+import 'attachment_painter.dart';
 import 'attachment_style.dart';
 
 enum AttachmentPosition {
@@ -9,24 +11,47 @@ enum AttachmentPosition {
   right,
 }
 
+extension AttachmentPositionExtension on AttachmentPosition {
+  bool get isVertical =>
+      this == AttachmentPosition.top || this == AttachmentPosition.bottom;
+
+  bool get isHorizontal =>
+      this == AttachmentPosition.left || this == AttachmentPosition.right;
+
+  Alignment defaultAlignment() {
+    switch (this) {
+      case AttachmentPosition.top:
+        return Alignment.bottomCenter;
+      case AttachmentPosition.left:
+        return Alignment.centerRight;
+      case AttachmentPosition.right:
+        return Alignment.centerLeft;
+      case AttachmentPosition.bottom:
+        return Alignment.topCenter;
+    }
+  }
+}
+
 typedef AttachmentContentFn = String? Function(int position);
 
 class TrendChartAttachment {
   final AttachmentStyle _style;
   final bool? isBounded;
   final AttachmentPosition position;
-  final Alignment? alignment;
+  final Alignment _alignment;
   final String? Function(int position)? contentFn;
 
   AttachmentStyle get style => _style;
+  Alignment get alignment => _alignment;
 
   TrendChartAttachment({
     required this.position,
+    Alignment? alignment,
     AttachmentStyle? style,
     this.isBounded = true,
-    this.alignment,
     this.contentFn,
-  }) : _style = const AttachmentStyle().merge(style);
+  })  : _style = AttachmentStyle().merge(style),
+        _alignment = alignment ?? position.defaultAlignment();
 
   TrendChartAttachment copyWith({
     AttachmentStyle? style,
@@ -55,7 +80,13 @@ class TrendChartAttachment {
     );
   }
 
-  AttachmentPainter createPainter() => AttachmentPainter(this);
+  AttachmentPainter createPainter({
+    required RenderParams renderParams,
+  }) =>
+      AttachmentPainter(
+        this,
+        renderParams: renderParams,
+      );
 
   @override
   operator ==(Object other) =>
@@ -74,16 +105,4 @@ class TrendChartAttachment {
         alignment,
         contentFn,
       );
-}
-
-class AttachmentPainter {
-  final TrendChartAttachment attachment;
-
-  AttachmentPainter(this.attachment);
-
-  void paint(
-    Canvas canvas,
-    Size size, {
-    required Offset focusPosition,
-  }) {}
 }

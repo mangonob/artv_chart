@@ -22,10 +22,11 @@ class TrendChartCrossLinePainter extends CustomPainter {
   ChartCoordinator? _coordinator;
   ChartCoordinator get coordinator {
     if (_coordinator == null) {
-      if (info != null) {
+      if (info != null && info!.visibleGridEntries.isNotEmpty) {
+        final entry = info!.visibleGridEntries.first;
         _coordinator = ChartCoordinator(
-          grid: info!.grid,
-          size: info!.gridRect.size,
+          grid: entry.grid,
+          size: entry.gridRect.size,
           renderParams: renderParams,
         );
       } else {
@@ -46,12 +47,12 @@ class TrendChartCrossLinePainter extends CustomPainter {
       coordinator
           .convertPointFromGrid(
             Offset(
-                coordinator
-                    .convertPointToGrid(
-                        Offset(renderParams.focusLocation.dx, 0))
-                    .dx
-                    .roundToDouble(),
-                0),
+              coordinator
+                  .convertPointToGrid(renderParams.focusLocation)
+                  .dx
+                  .roundToDouble(),
+              0,
+            ),
           )
           .dx,
       renderParams.focusLocation.dy,
@@ -59,31 +60,51 @@ class TrendChartCrossLinePainter extends CustomPainter {
 
     if (renderParams.focusLocation == kNullLocation) return;
 
-    canvas.clipRect(
-      Rect.fromLTWH(
-        0,
-        _padding().top,
-        size.width,
-        size.height - _padding().vertical,
-      ),
-    );
-
+    // Paint vertical line
     if (focusLocation.dx.isValid) {
       LinePainter().paint(
         canvas,
-        start: Offset(focusLocation.dx, 0),
-        end: Offset(focusLocation.dx, size.height),
+        start: Offset(focusLocation.dx, _padding().top),
+        end: Offset(focusLocation.dx, size.height - _padding().bottom),
         style: chart.crossLineStyle,
       );
     }
 
-    if (focusLocation.dy.isValid) {
-      LinePainter().paint(
-        canvas,
-        start: Offset(0, focusLocation.dy),
-        end: Offset(size.width, focusLocation.dy),
-        style: chart.crossLineStyle,
-      );
+    if (info != null) {
+      for (final entry in info!.visibleGridEntries) {
+        final grid = entry.grid;
+        final yValueFn = grid.yValueForCrossLine;
+        final contentRect =
+            entry.gridRect.inset(grid.style.margin ?? EdgeInsets.zero);
+
+        /// Paint horizontal line if needed
+        if (contentRect.contains(focusLocation)) {
+          if (yValueFn == null) {
+            if (focusLocation.dy.isValid) {
+              LinePainter().paint(
+                canvas,
+                start: Offset(0, focusLocation.dy),
+                end: Offset(size.width, focusLocation.dy),
+                style: chart.crossLineStyle,
+              );
+            }
+          }
+        }
+
+        for (final attch in grid.attachments) {
+          canvas.save();
+          canvas.translate(contentRect.left, contentRect.top);
+          attch.createPainter(renderParams: renderParams).paint(
+                canvas,
+                contentRect.size,
+                focusLocation: focusLocation.translate(
+                  -contentRect.left,
+                  -contentRect.top,
+                ),
+              );
+          canvas.restore();
+        }
+      }
     }
   }
 

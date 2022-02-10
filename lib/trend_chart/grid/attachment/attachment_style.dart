@@ -1,19 +1,29 @@
 import 'package:flutter/material.dart';
 
 class AttachmentStyle {
-  final TextStyle? textStyle;
+  final TextStyle? _textStyle;
 
   /// Attachment
   final Decoration? decoration;
   final EdgeInsets? padding;
   final EdgeInsets? margin;
 
-  const AttachmentStyle({
-    this.textStyle,
-    this.decoration,
-    this.padding = const EdgeInsets.symmetric(horizontal: 2),
-    this.margin = const EdgeInsets.all(0),
-  });
+  TextStyle? get textStyle => _textStyle;
+
+  AttachmentStyle({
+    TextStyle? textStyle,
+    Decoration? decoration,
+    this.padding = kAttachmentStyleDefaultPadding,
+    this.margin = kAttachmentStyleDefaultMargin,
+  })  : _textStyle = const TextStyle(
+          fontSize: 10,
+          color: Colors.black87,
+        ).merge(textStyle),
+        decoration = decoration ??
+            BoxDecoration(
+              color: Colors.grey[300],
+              borderRadius: BorderRadius.circular(1),
+            );
 
   AttachmentStyle copyWith({
     TextStyle? textStyle,
@@ -58,3 +68,7 @@ class AttachmentStyle {
         margin,
       );
 }
+
+const kAttachmentStyleDefaultPadding = EdgeInsets.symmetric(horizontal: 2);
+
+const kAttachmentStyleDefaultMargin = EdgeInsets.zero;

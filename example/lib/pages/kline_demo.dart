@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:artv_chart/trend_chart/common/enum.dart';
 import 'package:artv_chart/trend_chart/common/range.dart';
 import 'package:artv_chart/trend_chart/common/style.dart';
+import 'package:artv_chart/trend_chart/grid/attachment/trend_chart_attachment.dart';
 import 'package:artv_chart/trend_chart/grid/boundary.dart';
 import 'package:artv_chart/trend_chart/grid/grid.dart';
 import 'package:artv_chart/trend_chart/grid/grid_style.dart';
@@ -141,9 +142,6 @@ class _KLineDemoState extends State<KLineDemo>
             crossLineStyle: LineStyle(color: _crossLineColor),
             xRange: Range.length(_itemCount.toDouble()),
             onDoubleTap: () => _controller.resetInitialValue(animated: true),
-            onFocusPositionChanged: (position) {
-              if (kDebugMode) print("Position $position");
-            },
             footerBuilder: (ctx, _, idx) {
               return when(
                 idx == 0,
@@ -175,20 +173,14 @@ class _KLineDemoState extends State<KLineDemo>
                 ],
                 // xLabel: xLabel,
                 yLabel: yLabel,
-              ),
-              Grid(
-                ySplitCount: 3,
-                style: GridStyle(
-                  height: 100,
-                  margin: const EdgeInsets.only(top: 40, bottom: 40),
-                ),
-                boundaries: [FractionalPaddingBoundary(0.1)],
-                series: [
-                  LineSeries(
-                    _offsets,
-                    lineSeriesStyle: LineSeriesStyle(
-                      lineStyle: const LineStyle(color: Colors.blue),
-                    ),
+                attachments: [
+                  TrendChartAttachment(
+                    position: AttachmentPosition.left,
+                    contentFn: (i) => i.toString(),
+                  ),
+                  TrendChartAttachment(
+                    position: AttachmentPosition.bottom,
+                    contentFn: (i) => i.toString(),
                   ),
                 ],
               ),
@@ -208,6 +200,12 @@ class _KLineDemoState extends State<KLineDemo>
                       gradientColors: [Colors.blue, Colors.blue.withAlpha(0)],
                     ),
                   ),
+                ],
+                attachments: [
+                  TrendChartAttachment(
+                    position: AttachmentPosition.right,
+                    contentFn: (i) => i.toString(),
+                  )
                 ],
               ),
             ],
