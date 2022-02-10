@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
+import '../../utils/utils.dart';
 import '../constant.dart';
 import 'enum.dart';
 import 'range.dart';
@@ -29,7 +30,7 @@ class RenderParams {
   final Offset focusLocation;
 
   int? get focusPosition {
-    if (focusLocation.dx.isFinite && !focusLocation.dx.isNaN) {
+    if (focusLocation.dx.isValid) {
       if (unit > 0) {
         final delta = isIgnoredUnitVolume ? 0 : -0.5 * unit;
         return ((focusLocation.dx + xOffset + delta - padding.left) / unit)

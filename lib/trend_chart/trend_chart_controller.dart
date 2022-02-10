@@ -308,7 +308,7 @@ class TrendChartController extends ChangeNotifier {
         return maybeRender.flatMap((render) {
           final painter = render.painter as GridPainter;
           final grid = painter.grid;
-          final start = Offset.zero;
+          const start = Offset.zero;
           final end = Offset(render.size.width, render.size.height);
 
           final rect = Rect.fromPoints(

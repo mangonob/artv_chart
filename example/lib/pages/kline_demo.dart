@@ -126,10 +126,11 @@ class _KLineDemoState extends State<KLineDemo>
     return Container(
       color: Colors.white,
       child: ListView(
-        // physics: const NeverScrollableScrollPhysics(),
+        // physics: const ClampingScrollPhysics(),
         children: [
           TrendChart(
             controller: _controller,
+            physic: const BouncingScrollPhysics(),
             layoutManager: _layoutManager,
             isIgnoredUnitVolume: false,
             minUnit: 2,
@@ -174,6 +175,22 @@ class _KLineDemoState extends State<KLineDemo>
                 ],
                 // xLabel: xLabel,
                 yLabel: yLabel,
+              ),
+              Grid(
+                ySplitCount: 3,
+                style: GridStyle(
+                  height: 100,
+                  margin: const EdgeInsets.only(top: 40, bottom: 40),
+                ),
+                boundaries: [FractionalPaddingBoundary(0.1)],
+                series: [
+                  LineSeries(
+                    _offsets,
+                    lineSeriesStyle: LineSeriesStyle(
+                      lineStyle: const LineStyle(color: Colors.blue),
+                    ),
+                  ),
+                ],
               ),
               Grid(
                 ySplitCount: 3,

@@ -70,7 +70,7 @@ abstract class CandlePainter {
       final lineStyle = style.lineStyle;
 
       /// 蜡体宽度不高于线宽时，跳过绘制
-      if (body.width > (lineStyle?.size ?? 1)) {
+      if (body.isValid && body.width > (lineStyle?.size ?? 1)) {
         paintBody(
           canvas,
           rect: body,
@@ -86,12 +86,14 @@ abstract class CandlePainter {
         Offset(position.toDouble(), lower),
       );
 
-      paintWick(
-        canvas,
-        line: coordinator.convertRectFromGrid(line),
-        body: when(isBodyPainted, body),
-        color: color,
-      );
+      if (line.isValid) {
+        paintWick(
+          canvas,
+          line: coordinator.convertRectFromGrid(line),
+          body: when(isBodyPainted, body),
+          color: color,
+        );
+      }
     }
   }
 

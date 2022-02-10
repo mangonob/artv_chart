@@ -1,3 +1,4 @@
+import '../../../utils/utils.dart';
 import 'package:flutter/material.dart';
 
 import '../enum.dart';
@@ -14,6 +15,8 @@ class LinePainter {
     required Offset end,
     required LineStyle style,
   }) {
+    if (!start.isValid || !end.isValid) return;
+
     switch (style.type ?? LineType.solid) {
       case LineType.solid:
         canvas.drawLine(

@@ -55,6 +55,8 @@ class TrendChartAttachment {
     );
   }
 
+  AttachmentPainter createPainter() => AttachmentPainter(this);
+
   @override
   operator ==(Object other) =>
       other is TrendChartAttachment &&
@@ -72,4 +74,16 @@ class TrendChartAttachment {
         alignment,
         contentFn,
       );
+}
+
+class AttachmentPainter {
+  final TrendChartAttachment attachment;
+
+  AttachmentPainter(this.attachment);
+
+  void paint(
+    Canvas canvas,
+    Size size, {
+    required Offset focusPosition,
+  }) {}
 }

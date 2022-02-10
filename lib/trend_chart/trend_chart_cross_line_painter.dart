@@ -1,6 +1,6 @@
-import 'package:artv_chart/utils/utils.dart';
 import 'package:flutter/material.dart';
 
+import '../utils/utils.dart';
 import 'chart_coordinator.dart';
 import 'common/painter/line_painter.dart';
 import 'common/render_params.dart';
@@ -68,7 +68,7 @@ class TrendChartCrossLinePainter extends CustomPainter {
       ),
     );
 
-    if (focusLocation.dx.isFinite && !focusLocation.dx.isNaN) {
+    if (focusLocation.dx.isValid) {
       LinePainter().paint(
         canvas,
         start: Offset(focusLocation.dx, 0),
@@ -77,7 +77,7 @@ class TrendChartCrossLinePainter extends CustomPainter {
       );
     }
 
-    if (focusLocation.dy.isFinite && !focusLocation.dy.isNaN) {
+    if (focusLocation.dy.isValid) {
       LinePainter().paint(
         canvas,
         start: Offset(0, focusLocation.dy),

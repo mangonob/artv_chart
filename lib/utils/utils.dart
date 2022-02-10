@@ -1,5 +1,8 @@
 import 'package:tuple/tuple.dart';
 
+export './extensions/geometry_extensions.dart';
+export './extensions/num_extension.dart';
+
 /// Function type that Transform values into a new form.
 typedef Mutator<T> = T Function(T);
 

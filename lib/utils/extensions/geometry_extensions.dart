@@ -11,6 +11,8 @@ extension RectUtilsExtension on Rect {
       height + insets.vertical,
     );
   }
+
+  bool get isValid => !hasNaN;
 }
 
 extension OffsetUtilsExtension on Offset {
@@ -22,4 +24,6 @@ extension OffsetUtilsExtension on Offset {
         dx ?? this.dx,
         dy ?? this.dy,
       );
+
+  bool get isValid => !dx.isNaN && !dy.isNaN;
 }
