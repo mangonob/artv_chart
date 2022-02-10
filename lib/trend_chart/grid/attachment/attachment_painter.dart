@@ -17,16 +17,17 @@ class AttachmentPainter {
   void paint(
     Canvas canvas,
     Size size, {
-    required Offset focusLocation,
+    required Offset crossLineLocation,
   }) {
     final position = renderParams.focusPosition;
     if (position == null) return;
     final content = attachment.contentFn?.call(position);
     if (content == null) return;
 
-    final anchor = _anchorOfLocation(focusLocation, size: size);
+    final anchor = _anchorOfLocation(crossLineLocation, size: size);
 
-    if (Rect.fromLTWH(0, 0, size.width, size.height).contains(focusLocation) ||
+    if (Rect.fromLTWH(0, 0, size.width, size.height)
+            .contains(crossLineLocation) ||
         attachment.position.isVertical) {
       final style = attachment.style;
       final padding = style.padding ?? kAttachmentStyleDefaultPadding;

@@ -28,7 +28,7 @@ class Grid {
   final ValueFormatter<double>? yLabel;
   final List<CustomLine>? xCustomLines;
   final List<CustomLine>? yCustomLines;
-  final double Function(Grid, double xValue)? yValueForCrossLine;
+  final double Function(Grid, int position)? yValueForCrossLine;
   final List<TrendChartAttachment> attachments;
 
   GridStyle get style => _style;

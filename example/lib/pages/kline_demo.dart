@@ -44,7 +44,7 @@ class _KLineDemoState extends State<KLineDemo>
   final int _itemCount = 10000;
 
   /// 自定义样式
-  bool _isAutoHiddenCrossLine = true;
+  bool _isAutoHiddenCrossLine = false;
   bool _isAligned = false;
   CandleType _candleType = CandleType.fill;
   Color _riseColor = Colors.red;
@@ -173,6 +173,8 @@ class _KLineDemoState extends State<KLineDemo>
                 ],
                 // xLabel: xLabel,
                 yLabel: yLabel,
+                // TODO: Fix draw OHLC candle.
+                yValueForCrossLine: (_, i) => _candles[i].close ?? 0,
                 attachments: [
                   TrendChartAttachment(
                     position: AttachmentPosition.left,

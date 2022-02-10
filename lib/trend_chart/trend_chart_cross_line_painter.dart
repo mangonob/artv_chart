@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:collection/collection.dart';
 
 import '../utils/utils.dart';
 import 'chart_coordinator.dart';
@@ -24,11 +25,7 @@ class TrendChartCrossLinePainter extends CustomPainter {
     if (_coordinator == null) {
       if (info != null && info!.visibleGridEntries.isNotEmpty) {
         final entry = info!.visibleGridEntries.first;
-        _coordinator = ChartCoordinator(
-          grid: entry.grid,
-          size: entry.gridRect.size,
-          renderParams: renderParams,
-        );
+        _coordinator = entry.createCoordinator(renderParams: renderParams);
       } else {
         _coordinator = ChartCoordinator(
           grid: chart.grids.first,
@@ -71,24 +68,28 @@ class TrendChartCrossLinePainter extends CustomPainter {
     }
 
     if (info != null) {
+      final maybeFocusEntry = info!.visibleGridEntries
+          .where((e) => e.gridRect.contains(focusLocation))
+          .firstOrNull;
+
+      final crossLocation = maybeFocusEntry?.getCrossLineLocation(
+            focusLocation,
+            renderParams: renderParams,
+          ) ??
+          focusLocation;
+
       for (final entry in info!.visibleGridEntries) {
         final grid = entry.grid;
-        final yValueFn = grid.yValueForCrossLine;
-        final contentRect =
-            entry.gridRect.inset(grid.style.margin ?? EdgeInsets.zero);
+        final contentRect = entry.contentRect;
 
         /// Paint horizontal line if needed
-        if (contentRect.contains(focusLocation)) {
-          if (yValueFn == null) {
-            if (focusLocation.dy.isValid) {
-              LinePainter().paint(
-                canvas,
-                start: Offset(0, focusLocation.dy),
-                end: Offset(size.width, focusLocation.dy),
-                style: chart.crossLineStyle,
-              );
-            }
-          }
+        if (contentRect.contains(crossLocation) && crossLocation.dy.isValid) {
+          LinePainter().paint(
+            canvas,
+            start: Offset(0, crossLocation.dy),
+            end: Offset(size.width, crossLocation.dy),
+            style: chart.crossLineStyle,
+          );
         }
 
         for (final attch in grid.attachments) {
@@ -97,7 +98,7 @@ class TrendChartCrossLinePainter extends CustomPainter {
           attch.createPainter(renderParams: renderParams).paint(
                 canvas,
                 contentRect.size,
-                focusLocation: focusLocation.translate(
+                crossLineLocation: crossLocation.translate(
                   -contentRect.left,
                   -contentRect.top,
                 ),
