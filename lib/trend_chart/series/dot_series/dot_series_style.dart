@@ -4,7 +4,6 @@ import '../../common/style.dart';
 
 class DotSeriesStyle {
   final double? circleRadius;
-  final double? strokeWidth;
   final Color? fillColor;
 
   final LineStyle? _lineStyle;
@@ -13,7 +12,6 @@ class DotSeriesStyle {
 
   DotSeriesStyle({
     this.circleRadius = 3,
-    this.strokeWidth = 1,
     LineStyle? lineStyle,
     this.fillColor,
   }) : _lineStyle = LineStyle(color: Colors.red[200]).merge(lineStyle);
@@ -28,7 +26,6 @@ class DotSeriesStyle {
       circleRadius: radius ?? radius,
       lineStyle: lineStyle ?? lineStyle,
       fillColor: fillColor ?? fillColor,
-      strokeWidth: strokeWidth ?? strokeWidth,
     );
   }
 
@@ -39,7 +36,6 @@ class DotSeriesStyle {
       radius: other.circleRadius,
       lineStyle: other.lineStyle,
       fillColor: other.fillColor,
-      strokeWidth: other.strokeWidth,
     );
   }
 
@@ -49,7 +45,6 @@ class DotSeriesStyle {
         other is DotSeriesStyle &&
             circleRadius == other.circleRadius &&
             lineStyle == other.lineStyle &&
-            strokeWidth == other.strokeWidth &&
             fillColor == other.fillColor;
   }
 
@@ -58,6 +53,5 @@ class DotSeriesStyle {
         circleRadius,
         lineStyle,
         fillColor,
-        strokeWidth,
       );
 }

@@ -34,6 +34,17 @@ class LineSeries extends Series<double> {
         renderParams: renderParams,
         grid: grid,
       );
+
+  @override
+  operator ==(Object other) =>
+      identical(this, other) ||
+      other is LineSeries && _style == other._style && super == other;
+
+  @override
+  int get hashCode => hashValues(
+        super.hashCode,
+        _style,
+      );
 }
 
 class _DefaultLineSeriesYValueConvertor {

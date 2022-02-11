@@ -14,10 +14,10 @@ class DotSeries extends Series<double> {
 
   DotSeries(
     List<double> datas, {
-    DotSeriesStyle? dotSeriesStyle,
+    DotSeriesStyle? style,
     ValueConvertor<double>? yValue,
     ColorConvertor<int>? color,
-  })  : _style = DotSeriesStyle().merge(dotSeriesStyle),
+  })  : _style = DotSeriesStyle().merge(style),
         _colorFn = color,
         super(
           datas: datas,
@@ -40,6 +40,21 @@ class DotSeries extends Series<double> {
         series: this,
         renderParams: renderParams,
         grid: grid,
+      );
+
+  @override
+  operator ==(Object other) =>
+      identical(this, other) ||
+      other is DotSeries &&
+          _style == other._style &&
+          _colorFn == other._colorFn &&
+          super == other;
+
+  @override
+  int get hashCode => hashValues(
+        super.hashCode,
+        _style,
+        _colorFn,
       );
 }
 
