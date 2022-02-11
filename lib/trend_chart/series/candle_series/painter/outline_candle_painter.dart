@@ -21,6 +21,7 @@ class OutlineCandlePainter extends CandlePainter {
     Canvas canvas, {
     required Rect rect,
     required Color color,
+    required bool isRise,
   }) {
     final lineStyle = const LineStyle(
       size: 1,
@@ -31,6 +32,7 @@ class OutlineCandlePainter extends CandlePainter {
         canvas,
         rect: rect,
         color: color,
+        isRise: isRise,
       );
     } else {
       canvas.drawRect(

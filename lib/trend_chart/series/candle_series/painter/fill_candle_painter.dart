@@ -20,6 +20,7 @@ class FillCandlePainter extends CandlePainter {
     Canvas canvas, {
     required Rect rect,
     required Color color,
+    required bool isRise,
   }) {
     final lineStyle = const LineStyle(
       size: 1,

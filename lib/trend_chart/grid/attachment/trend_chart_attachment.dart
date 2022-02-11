@@ -1,6 +1,6 @@
-import 'package:artv_chart/trend_chart/common/render_params.dart';
 import 'package:flutter/material.dart';
 
+import '../../common/render_params.dart';
 import 'attachment_painter.dart';
 import 'attachment_style.dart';
 

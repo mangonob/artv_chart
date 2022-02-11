@@ -75,6 +75,7 @@ abstract class CandlePainter {
           canvas,
           rect: body,
           color: color,
+          isRise: close > open,
         );
         isBodyPainted = true;
       }
@@ -102,6 +103,7 @@ abstract class CandlePainter {
     Canvas canvas, {
     required Rect rect,
     required Color color,
+    required bool isRise,
   });
 
   /// Paint wick of candle.

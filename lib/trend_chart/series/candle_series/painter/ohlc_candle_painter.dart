@@ -21,6 +21,7 @@ class OHLCandlePainter extends CandlePainter {
     Canvas canvas, {
     required Rect rect,
     required Color color,
+    required bool isRise,
   }) {
     final lineStyle = const LineStyle(
       size: 1,
@@ -28,15 +29,15 @@ class OHLCandlePainter extends CandlePainter {
 
     LinePainter().paint(
       canvas,
-      start: rect.topLeft,
-      end: rect.topCenter,
+      start: isRise ? rect.bottomLeft : rect.topLeft,
+      end: isRise ? rect.bottomCenter : rect.topCenter,
       style: lineStyle,
     );
 
     LinePainter().paint(
       canvas,
-      start: rect.bottomCenter,
-      end: rect.bottomRight,
+      start: isRise ? rect.topCenter : rect.bottomCenter,
+      end: isRise ? rect.topRight : rect.bottomRight,
       style: lineStyle,
     );
   }

@@ -8,6 +8,7 @@ import 'bar_series_style.dart';
 
 class BarSeries extends Series<double> {
   final BarSeriesStyle _style;
+  final bool isAlwaysPositive;
 
   BarSeriesStyle get style => _style;
 
@@ -15,6 +16,7 @@ class BarSeries extends Series<double> {
     List<double> datas, {
     ValueConvertor<double>? yValue,
     BarSeriesStyle? style,
+    this.isAlwaysPositive = false,
   })  : _style = BarSeriesStyle().merge(style),
         super(
           datas: datas,
@@ -36,12 +38,16 @@ class BarSeries extends Series<double> {
   @override
   operator ==(Object other) =>
       identical(this, other) ||
-      other is BarSeries && _style == other._style && super == other;
+      other is BarSeries &&
+          _style == other._style &&
+          isAlwaysPositive == other.isAlwaysPositive &&
+          super == other;
 
   @override
   int get hashCode => hashValues(
         super.hashCode,
         _style,
+        isAlwaysPositive,
       );
 }
 

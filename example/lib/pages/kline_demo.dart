@@ -45,7 +45,7 @@ class _KLineDemoState extends State<KLineDemo>
 
   /// 自定义样式
   bool _isAutoHiddenCrossLine = false;
-  bool _isAligned = false;
+  bool _isRaster = false;
   CandleType _candleType = CandleType.fill;
   Color _riseColor = Colors.red;
   Color _fallColor = Colors.green;
@@ -137,8 +137,7 @@ class _KLineDemoState extends State<KLineDemo>
             minUnit: 2,
             maxUnit: 40,
             isAutoBlur: _isAutoHiddenCrossLine,
-            xOffsetReserveMode:
-                _isAligned ? ReserveMode.ceil : ReserveMode.none,
+            xOffsetReserveMode: _isRaster ? ReserveMode.ceil : ReserveMode.none,
             crossLineStyle: LineStyle(color: _crossLineColor),
             xRange: Range.length(_itemCount.toDouble()),
             onDoubleTap: () => _controller.resetInitialValue(animated: true),
@@ -227,12 +226,12 @@ class _KLineDemoState extends State<KLineDemo>
                 }),
           ),
           ListTile(
-            title: const Text("对其边界"),
+            title: const Text("栅格化绘制"),
             trailing: CupertinoSwitch(
-                value: _isAligned,
+                value: _isRaster,
                 onChanged: (v) {
                   setState(() {
-                    _isAligned = v;
+                    _isRaster = v;
                   });
                 }),
           ),
