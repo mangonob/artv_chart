@@ -32,14 +32,14 @@ extension AttachmentPositionExtension on AttachmentPosition {
   }
 }
 
-typedef AttachmentContentFn = String? Function(int position);
+typedef AttachmentContentFn = String? Function(int position, double yValue);
 
 class TrendChartAttachment {
   final AttachmentStyle _style;
   final bool? isBounded;
   final AttachmentPosition position;
   final Alignment _alignment;
-  final String? Function(int position)? contentFn;
+  final AttachmentContentFn? contentFn;
 
   AttachmentStyle get style => _style;
   Alignment get alignment => _alignment;

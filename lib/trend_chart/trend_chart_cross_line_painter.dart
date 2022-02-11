@@ -93,17 +93,26 @@ class TrendChartCrossLinePainter extends CustomPainter {
         }
 
         for (final attch in grid.attachments) {
-          canvas.save();
-          canvas.translate(contentRect.left, contentRect.top);
-          attch.createPainter(renderParams: renderParams).paint(
-                canvas,
-                contentRect.size,
-                crossLineLocation: crossLocation.translate(
-                  -contentRect.left,
-                  -contentRect.top,
-                ),
-              );
-          canvas.restore();
+          final relCrossLineLocation = crossLocation.translate(
+            -contentRect.left,
+            -contentRect.top,
+          );
+          final coordinator =
+              entry.createCoordinator(renderParams: renderParams);
+          final point = coordinator.convertPointToGrid(relCrossLineLocation);
+          final content = attch.contentFn?.call(point.dx.round(), point.dy);
+
+          if (content != null) {
+            canvas.save();
+            canvas.translate(contentRect.left, contentRect.top);
+            attch.createPainter(renderParams: renderParams).paint(
+                  canvas,
+                  contentRect.size,
+                  crossLineLocation: relCrossLineLocation,
+                  content: content,
+                );
+            canvas.restore();
+          }
         }
       }
     }

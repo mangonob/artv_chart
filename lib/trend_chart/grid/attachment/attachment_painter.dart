@@ -18,11 +18,10 @@ class AttachmentPainter {
     Canvas canvas,
     Size size, {
     required Offset crossLineLocation,
+    required String content,
   }) {
     final position = renderParams.focusPosition;
     if (position == null) return;
-    final content = attachment.contentFn?.call(position);
-    if (content == null) return;
 
     final anchor = _anchorOfLocation(crossLineLocation, size: size);
 

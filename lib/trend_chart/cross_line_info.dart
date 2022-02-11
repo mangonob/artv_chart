@@ -33,15 +33,17 @@ class CrossLineEntry {
     final yValueFn = grid.yValueForCrossLine;
     if (yValueFn != null && renderParams.focusPosition != null) {
       final focusY = yValueFn.call(grid, renderParams.focusPosition!);
-      final coordinator = createCoordinator(renderParams: renderParams);
-      return Offset(
-        focusLocation.dx + contentRect.left,
-        coordinator.convertPointFromGrid(Offset(0, focusY)).dy +
-            contentRect.top,
-      );
-    } else {
-      return focusLocation;
+
+      if (focusY != null) {
+        final coordinator = createCoordinator(renderParams: renderParams);
+        return Offset(
+          focusLocation.dx + contentRect.left,
+          coordinator.convertPointFromGrid(Offset(0, focusY)).dy +
+              contentRect.top,
+        );
+      }
     }
+    return focusLocation;
   }
 }
 

@@ -21,12 +21,15 @@ import 'package:artv_chart/trend_chart/series/line_series/line_series_style.dart
 import 'package:artv_chart/trend_chart/series/series.dart';
 import 'package:artv_chart/trend_chart/trend_chart.dart';
 import 'package:artv_chart/trend_chart/trend_chart_controller.dart';
+import 'package:artv_chart/utils/utils.dart';
 import 'package:example/data_generator.dart';
+import 'package:example/utils/list.dart';
 import 'package:example/widgets/color_tile.dart';
 import 'package:example/widgets/options.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class KLineDemo extends StatefulWidget {
   const KLineDemo({
@@ -46,6 +49,8 @@ class _KLineDemoState extends State<KLineDemo>
   late List<double> _bars;
   late List<CandleEntry> _candles;
   final int _itemCount = 10000;
+
+  final _dateFormatter = DateFormat("yyyy/MM/dd");
 
   /// 自定义样式
   bool _isAutoHiddenCrossLine = false;
@@ -207,16 +212,18 @@ class _KLineDemoState extends State<KLineDemo>
                 ],
                 // xLabel: xLabel,
                 yLabel: yLabel,
-                // TODO: Fix draw OHLC candle.
-                yValueForCrossLine: (_, i) => _candles[i].close ?? 0,
+                yValueForCrossLine: when(
+                  !_isCrossLineFollowUser,
+                  (_, i) => _candles.maybeElementAt(i)?.close,
+                ),
                 attachments: [
                   TrendChartAttachment(
                     position: AttachmentPosition.left,
-                    contentFn: (i) => i.toString(),
+                    contentFn: yAttachmentContent,
                   ),
                   TrendChartAttachment(
                     position: AttachmentPosition.bottom,
-                    contentFn: (i) => i.toString(),
+                    contentFn: dateAttachmentContent,
                   ),
                 ],
               ),
@@ -227,6 +234,10 @@ class _KLineDemoState extends State<KLineDemo>
                   margin: const EdgeInsets.symmetric(vertical: 10),
                 ),
                 boundaries: [FractionalPaddingBoundary(0.1)],
+                yValueForCrossLine: when(
+                  !_isCrossLineFollowUser,
+                  (_, i) => _offsets.maybeElementAt(i),
+                ),
                 series: [
                   LineSeries(
                     _offsets,
@@ -239,7 +250,7 @@ class _KLineDemoState extends State<KLineDemo>
                 attachments: [
                   TrendChartAttachment(
                     position: AttachmentPosition.right,
-                    contentFn: (i) => i.toString(),
+                    contentFn: yAttachmentContent,
                   )
                 ],
               ),
@@ -249,6 +260,10 @@ class _KLineDemoState extends State<KLineDemo>
                   height: 70,
                   margin: const EdgeInsets.symmetric(vertical: 4),
                 ),
+                yValueForCrossLine: when(
+                  !_isCrossLineFollowUser,
+                  (_, i) => _bars.maybeElementAt(i)?.abs(),
+                ),
                 boundaries: [AlignBoundary(10)],
                 series: [
                   BarSeries(_bars, isAlwaysPositive: true),
@@ -256,7 +271,7 @@ class _KLineDemoState extends State<KLineDemo>
                 attachments: [
                   TrendChartAttachment(
                     position: AttachmentPosition.bottom,
-                    contentFn: (i) => i.toString(),
+                    contentFn: (i, y) => i.toString(),
                   )
                 ],
               ),
@@ -357,6 +372,16 @@ class _KLineDemoState extends State<KLineDemo>
 
   double yValue(Offset offset, int index, Series<Offset> series) {
     return offset.dy;
+  }
+
+  String? yAttachmentContent(int position, double yValue) {
+    return yValue.toStringAsFixed(3);
+  }
+
+  String? dateAttachmentContent(int position, double yValue) {
+    return _dateFormatter.format(
+      DateTime(2022, 1, 1).add(Duration(days: position)),
+    );
   }
 
   ChartLabel? xLabel(int index) {
