@@ -50,80 +50,91 @@ class BarSeriesPainter extends CustomPainter
     if (series.style.width != null) {
       _paintWidthBody(canvas, size);
     } else {
-      _paintBody(canvas, size);
+      _paintRect(canvas, size);
     }
   }
 
   ///宽度不固定，宽度和间距会缩放
-  void _paintBody(Canvas canvas, Size size) {
+  void _paintRect(Canvas canvas, Size size) {
     PaddingPainter().paint(canvas, size,
         padding: grid.style.margin?.copyWith(left: 0, right: 0),
         routine: (Canvas canvas, Size size) {
       coordinator = createCoordinator(size);
+      if (coordinator.yRange.contains(double.nan) ||
+          coordinator.xRange.upper < 0) return;
       final valueRange = coordinator.xRange.intersection(renderParams.xRange);
+      canvas.drawRect(
+        _getBarRect(valueRange.lower.floor()),
+        Paint()
+          ..color = series.datas[max(0, valueRange.lower.floor())] > 0
+              ? series.style.riseColor!
+              : series.style.fallColor!,
+      );
       valueRange
           .toIterable()
           .where((idx) => idx >= 0 && idx < series.datas.length)
           .forEach(
         (index) {
-          final gridBody = Rect.fromLTRB(
-            index - 0.5,
-            _getTop(series.datas[index], coordinator.yRange),
-            index + 0.5,
-            _getBottom(series.datas[index], coordinator.yRange),
-          );
-          Rect? body = coordinator.convertRectFromGrid(gridBody);
-          if (series.style.distance != null) {
-            final delta = series.style.distance!.apply(body.width) / 2;
-            body = Rect.fromLTRB(
-              body.left + delta,
-              body.top,
-              body.right - delta,
-              body.bottom,
-            );
-          }
           canvas.drawRect(
-            body,
+            _getBarRect(index),
             Paint()
               ..color = series.datas[index] > 0
                   ? series.style.riseColor!
                   : series.style.fallColor!,
           );
+
+          if (index == valueRange.upper.floor() &&
+              index < series.datas.length - 1) {
+            canvas.drawRect(
+              _getBarRect(index + 1),
+              Paint()
+                ..color = series.datas[index + 1] > 0
+                    ? series.style.riseColor!
+                    : series.style.fallColor!,
+            );
+          }
         },
       );
     });
   }
 
-  ///宽度固定，间距会缩放
+  ///根据range的index获取宽度不固定的rect，此时rect的宽度根据distance缩放
+  Rect _getBarRect(int index) {
+    final gridBody = Rect.fromLTRB(
+      index - 0.5,
+      _getTop(series.datas[index], coordinator.yRange),
+      index + 0.5,
+      _getBottom(series.datas[index], coordinator.yRange),
+    );
+    Rect? body = coordinator.convertRectFromGrid(gridBody);
+    if (series.style.distance != null) {
+      final delta = series.style.distance!.apply(body.width) / 2;
+      body = Rect.fromLTRB(
+        body.left + delta,
+        body.top,
+        body.right - delta,
+        body.bottom,
+      );
+    }
+    return body;
+  }
+
+  ///绘制宽度固定，间距会缩放的rect
   void _paintWidthBody(Canvas canvas, Size size) {
     PaddingPainter().paint(canvas, size,
         padding: grid.style.margin?.copyWith(left: 0, right: 0),
         routine: (Canvas canvas, Size size) {
       coordinator = createCoordinator(size);
+      if (coordinator.yRange.contains(double.nan) ||
+          coordinator.xRange.upper < 0) return;
       final valueRange = coordinator.xRange.intersection(renderParams.xRange);
       valueRange
           .toIterable()
           .where((idx) => idx >= 0 && idx < series.datas.length)
           .forEach(
         (index) {
-          final gridBody = coordinator.convertRectFromGrid(Rect.fromLTRB(
-            index.toDouble(),
-            _getTop(series.datas[index], coordinator.yRange),
-            index + 1.0,
-            _getBottom(series.datas[index], coordinator.yRange),
-          ));
-          final body = Rect.fromPoints(
-            Offset(
-                gridBody.bottomLeft.dx -
-                    min((series.style.width ?? 0), renderParams.unit) / 2,
-                gridBody.bottomLeft.dy),
-            Offset(
-                gridBody.bottomLeft.dx +
-                    min((series.style.width ?? 0), renderParams.unit) / 2,
-                gridBody.topRight.dy),
-          );
           canvas.drawRect(
-            body,
+            _getWidthBarRect(index),
             Paint()
               ..color = series.datas[index] > 0
                   ? series.style.riseColor!
@@ -132,6 +143,26 @@ class BarSeriesPainter extends CustomPainter
         },
       );
     });
+  }
+
+  ///根据range的index获取宽度固定的rect，此时rect的最大宽度不能大于renderParams.unit
+  Rect _getWidthBarRect(int index) {
+    final gridBody = coordinator.convertRectFromGrid(Rect.fromLTRB(
+      index.toDouble(),
+      _getTop(series.datas[index], coordinator.yRange),
+      index + 1.0,
+      _getBottom(series.datas[index], coordinator.yRange),
+    ));
+    return Rect.fromPoints(
+      Offset(
+          gridBody.bottomLeft.dx -
+              min((series.style.width ?? 0), renderParams.unit) / 2,
+          gridBody.bottomLeft.dy),
+      Offset(
+          gridBody.bottomLeft.dx +
+              min((series.style.width ?? 0), renderParams.unit) / 2,
+          gridBody.topRight.dy),
+    );
   }
 
   ///如果上涨，那最高点就是Y的值

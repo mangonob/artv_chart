@@ -8,6 +8,8 @@ class LineStyle {
   final Color? color;
   final double? size;
   final LineType? type;
+  final StrokeCap? strokeCap;
+  final StrokeJoin? strokeJoin;
 
   /// Pattern when line type is [LineType.dash] or [LineType.dot]
   /// Eg: pattern [2, 1] of [LineType.dash] will draw "-- -- --"
@@ -19,6 +21,8 @@ class LineStyle {
     this.size = 1,
     this.type = LineType.solid,
     this.pattern = const [2, 2],
+    this.strokeCap = StrokeCap.butt,
+    this.strokeJoin = StrokeJoin.miter,
   });
 
   LineStyle copyWith({
@@ -28,12 +32,16 @@ class LineStyle {
     LinePattern? pattern,
     double? singlePointSize,
     PaintingStyle? paintingStyle,
+    StrokeCap? strokeCap,
+    StrokeJoin? strokeJoin,
   }) {
     return LineStyle(
       color: color ?? this.color,
       size: size ?? this.size,
       type: type ?? this.type,
       pattern: pattern ?? this.pattern,
+      strokeCap: strokeCap ?? this.strokeCap,
+      strokeJoin: strokeJoin ?? this.strokeJoin,
     );
   }
 
@@ -45,6 +53,8 @@ class LineStyle {
       size: other.size,
       type: other.type,
       pattern: other.pattern,
+      strokeCap: other.strokeCap,
+      strokeJoin: other.strokeJoin,
     );
   }
 
@@ -55,6 +65,8 @@ class LineStyle {
             color == other.color &&
             size == other.size &&
             type == other.type &&
+            strokeCap == other.strokeCap &&
+            strokeJoin == other.strokeJoin &&
             pattern == other.pattern;
   }
 
@@ -63,6 +75,8 @@ class LineStyle {
         color,
         size,
         type,
+        strokeCap,
+        strokeJoin,
         hashList(pattern),
       );
 }

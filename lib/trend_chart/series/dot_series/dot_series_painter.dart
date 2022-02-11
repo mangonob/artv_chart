@@ -31,45 +31,41 @@ class DotSeriesPainter extends CustomPainter
         padding: grid.style.margin?.copyWith(left: 0, right: 0),
         routine: (Canvas canvas, Size size) {
       coordinator = createCoordinator(size);
+      if (coordinator.yRange.contains(double.nan) ||
+          coordinator.xRange.upper < 0) return;
       final valueRange = coordinator.xRange.intersection(renderParams.xRange);
-      if (valueRange.lower.toInt() < 0) return;
+
+      ///往左边多画一个点
+      _drawCircle(
+        canvas,
+        Offset(
+          valueRange.lower.floorToDouble(),
+          series.datas[max(0, valueRange.lower.floor())],
+        ),
+        valueRange.lower.floor(),
+      );
       valueRange
           .toIterable()
           .where((idx) => idx >= 0 && idx < series.datas.length)
           .forEach(
         (index) {
-          ///往左边多画一个点
           _drawCircle(
             canvas,
-            convertPointFromGrid(
-              Offset(
-                max(0, index - 1),
-                series.datas[max(0, index - 1)],
-              ),
+            Offset(
+              index * 1.0,
+              series.datas[index],
             ),
             index,
           );
 
           ///往右边多画一个点
-          if (index == valueRange.upper.toInt() &&
+          if (index == valueRange.upper.floor() &&
               index < series.datas.length - 1) {
             _drawCircle(
               canvas,
-              convertPointFromGrid(
-                Offset(
-                  index * 1.0,
-                  series.datas[index],
-                ),
-              ),
-              index,
-            );
-            _drawCircle(
-              canvas,
-              convertPointFromGrid(
-                Offset(
-                  index + 1,
-                  series.datas[index + 1],
-                ),
+              Offset(
+                index + 1,
+                series.datas[index + 1],
               ),
               index,
             );
@@ -81,10 +77,9 @@ class DotSeriesPainter extends CustomPainter
 
   void _drawCircle(Canvas canvas, Offset offset, int index) {
     canvas.drawCircle(
-      offset,
+      convertPointFromGrid(offset),
       series.style.circleRadius!,
       Paint()
-        ..isAntiAlias = series.style.isAntiAlias!
         ..strokeWidth = series.style.strokeWidth!
         ..style = series.style.fillColor != null
             ? PaintingStyle.fill
