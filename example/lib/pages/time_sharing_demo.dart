@@ -1,4 +1,5 @@
 import 'package:artv_chart/trend_chart/common/range.dart';
+import 'package:artv_chart/trend_chart/common/style.dart';
 import 'package:artv_chart/trend_chart/grid/boundary.dart';
 import 'package:artv_chart/trend_chart/grid/grid.dart';
 import 'package:artv_chart/trend_chart/grid/grid_style.dart';
@@ -6,6 +7,7 @@ import 'package:artv_chart/trend_chart/grid/label/chart_label.dart';
 import 'package:artv_chart/trend_chart/grid/label/text_label.dart';
 import 'package:artv_chart/trend_chart/layout_manager.dart';
 import 'package:artv_chart/trend_chart/series/line_series/line_series.dart';
+import 'package:artv_chart/trend_chart/series/line_series/line_series_style.dart';
 import 'package:artv_chart/trend_chart/series/series.dart';
 import 'package:artv_chart/trend_chart/trend_chart.dart';
 import 'package:artv_chart/trend_chart/trend_chart_controller.dart';
@@ -29,7 +31,7 @@ class _TimeSharingDemoState extends State<TimeSharingDemo>
   late TrendChartController _controller;
   late LayoutManager _layoutManager;
   late List<double> _offsets;
-  final int _itemCount = 10000;
+  final int _itemCount = 500;
 
   bool _isAutoHiddenCrossLine = false;
 
@@ -40,7 +42,7 @@ class _TimeSharingDemoState extends State<TimeSharingDemo>
   void initState() {
     super.initState();
 
-    _controller = TrendChartController(vsync: this);
+    _controller = TrendChartController(vsync: this, initialUnit: 0.8);
     _layoutManager = LayoutManager();
     _offsets = [];
 
@@ -78,40 +80,7 @@ class _TimeSharingDemoState extends State<TimeSharingDemo>
       child: ListView(
         // physics: const NeverScrollableScrollPhysics(),
         children: [
-          TrendChart(
-            controller: _controller,
-            layoutManager: _layoutManager,
-            isIgnoredUnitVolume: false,
-            minUnit: 2,
-            maxUnit: 40,
-            xRange: Range.length(_itemCount.toDouble()),
-            onDoubleTap: () => _controller.resetInitialValue(animated: true),
-            grids: [
-              Grid(
-                ySplitCount: 5,
-                style: GridStyle(
-                  ratio: 0.8,
-                  margin: const EdgeInsets.all(10).copyWith(bottom: 20),
-                  labelStyle: const TextStyle(color: Colors.blue),
-                ),
-                boundaries: [AlignBoundary(5 * 10)],
-                series: [
-                  LineSeries(_offsets),
-                ],
-                // xLabel: xLabel,
-                yLabel: yLabel,
-              ),
-              // Grid(
-              //   style: GridStyle(
-              //     height: 100,
-              //     decoration: BoxDecoration(
-              //       border: Border.all(
-              //           color: Colors.grey[200] ?? Colors.grey, width: 1),
-              //     ),
-              //   ),
-              // ),
-            ],
-          ),
+          LayoutBuilder(builder: _buildChart),
           Container(
             color: Colors.grey[100],
             height: 16,
@@ -128,6 +97,53 @@ class _TimeSharingDemoState extends State<TimeSharingDemo>
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildChart(BuildContext context, BoxConstraints constraints) {
+    return TrendChart(
+      physic: const ClampingScrollPhysics(),
+      controller: _controller,
+      layoutManager: _layoutManager,
+      isIgnoredUnitVolume: false,
+      minUnit: constraints.maxWidth / _itemCount,
+      maxUnit: constraints.maxWidth / _itemCount,
+      xRange: Range.length(_itemCount.toDouble()),
+      onDoubleTap: () => _controller.resetInitialValue(animated: true),
+      grids: [
+        Grid(
+          ySplitCount: 5,
+          style: GridStyle(
+            ratio: 0.8,
+            margin: const EdgeInsets.all(10).copyWith(bottom: 20),
+            labelStyle: const TextStyle(color: Colors.blue),
+          ),
+          boundaries: [AlignBoundary(5 * 10)],
+          series: [
+            LineSeries(
+              _offsets,
+              lineSeriesStyle: LineSeriesStyle(
+                lineStyle: const LineStyle(color: Colors.blue),
+                paintingStyle: PaintingStyle.fill,
+                gradientColors: [Colors.blue, Colors.blue.withAlpha(0)],
+              ),
+            ),
+            // BarSeries(_offsets),
+            // DotSeries(_offsets),
+          ],
+          // xLabel: xLabel,
+          yLabel: yLabel,
+        ),
+        // Grid(
+        //   style: GridStyle(
+        //     height: 100,
+        //     decoration: BoxDecoration(
+        //       border: Border.all(
+        //           color: Colors.grey[200] ?? Colors.grey, width: 1),
+        //     ),
+        //   ),
+        // ),
+      ],
     );
   }
 
