@@ -102,9 +102,17 @@ class BarSeriesPainter extends CustomPainter
   Rect _getBarRect(int index) {
     final gridBody = Rect.fromLTRB(
       index - 0.5,
-      _getTop(series.datas[index], coordinator.yRange),
+      _getTop(
+          series.isAlwaysPositive
+              ? series.datas[index].abs()
+              : series.datas[index],
+          coordinator.yRange),
       index + 0.5,
-      _getBottom(series.datas[index], coordinator.yRange),
+      _getBottom(
+          series.isAlwaysPositive
+              ? series.datas[index].abs()
+              : series.datas[index],
+          coordinator.yRange),
     );
     Rect? body = coordinator.convertRectFromGrid(gridBody);
     if (series.style.distance != null) {
@@ -149,9 +157,17 @@ class BarSeriesPainter extends CustomPainter
   Rect _getWidthBarRect(int index) {
     final gridBody = coordinator.convertRectFromGrid(Rect.fromLTRB(
       index.toDouble(),
-      _getTop(series.datas[index], coordinator.yRange),
+      _getTop(
+          series.isAlwaysPositive
+              ? series.datas[index].abs()
+              : series.datas[index],
+          coordinator.yRange),
       index + 1.0,
-      _getBottom(series.datas[index], coordinator.yRange),
+      _getBottom(
+          series.isAlwaysPositive
+              ? series.datas[index].abs()
+              : series.datas[index],
+          coordinator.yRange),
     ));
     return Rect.fromPoints(
       Offset(

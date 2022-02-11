@@ -1,5 +1,7 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
+import '../../common/range.dart';
 import '../../common/render_params.dart';
 import '../../grid/grid.dart';
 import '../series.dart';
@@ -49,6 +51,24 @@ class BarSeries extends Series<double> {
         _style,
         isAlwaysPositive,
       );
+
+  @override
+  Range yRange(Range xRange) {
+    if (!isAlwaysPositive) {
+      return super.yRange(xRange);
+    } else {
+      if (yValue == null) {
+        return const Range.empty();
+      } else {
+        final yValues = this.yValues(xRange);
+
+        return yValues.foldIndexed(
+          const Range.empty(),
+          (index, range, value) => range.extend(value.abs()),
+        );
+      }
+    }
+  }
 }
 
 class _DefaultBarSeriesYValueConvertor {
