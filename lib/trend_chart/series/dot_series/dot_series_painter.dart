@@ -80,7 +80,7 @@ class DotSeriesPainter extends CustomPainter
       convertPointFromGrid(offset),
       series.style.circleRadius!,
       Paint()
-        ..strokeWidth = series.style.strokeWidth!
+        ..strokeWidth = series.style.lineStyle!.size!
         ..style = series.style.fillColor != null
             ? PaintingStyle.fill
             : PaintingStyle.stroke
