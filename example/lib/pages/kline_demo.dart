@@ -10,9 +10,11 @@ import 'package:artv_chart/trend_chart/grid/grid_style.dart';
 import 'package:artv_chart/trend_chart/grid/label/chart_label.dart';
 import 'package:artv_chart/trend_chart/grid/label/text_label.dart';
 import 'package:artv_chart/trend_chart/layout_manager.dart';
+import 'package:artv_chart/trend_chart/series/bar_series/bar_series.dart';
 import 'package:artv_chart/trend_chart/series/candle_series/candle_entry.dart';
 import 'package:artv_chart/trend_chart/series/candle_series/candle_series.dart';
 import 'package:artv_chart/trend_chart/series/candle_series/candle_series_style.dart';
+import 'package:artv_chart/trend_chart/series/dot_series/dot_series.dart';
 import 'package:artv_chart/trend_chart/series/line_series/line_series.dart';
 import 'package:artv_chart/trend_chart/series/line_series/line_series_style.dart';
 import 'package:artv_chart/trend_chart/series/series.dart';
@@ -40,12 +42,15 @@ class _KLineDemoState extends State<KLineDemo>
   late TrendChartController _controller;
   late LayoutManager _layoutManager;
   late List<double> _offsets;
+  late List<double> _dots;
+  late List<double> _bars;
   late List<CandleEntry> _candles;
   final int _itemCount = 10000;
 
   /// 自定义样式
   bool _isAutoHiddenCrossLine = false;
   bool _isRaster = false;
+  bool _isMainIndexHidden = true;
   CandleType _candleType = CandleType.fill;
   Color _riseColor = Colors.red;
   Color _fallColor = Colors.green;
@@ -61,6 +66,8 @@ class _KLineDemoState extends State<KLineDemo>
     _controller = TrendChartController(vsync: this);
     _layoutManager = LayoutManager();
     _offsets = [];
+    _dots = [];
+    _bars = [];
     _candles = [];
 
     _controller.addListener(_controllerListener);
@@ -71,6 +78,24 @@ class _KLineDemoState extends State<KLineDemo>
     ).then((v) {
       setState(() {
         _offsets = v;
+      });
+    });
+
+    compute(
+      _generateOffsets,
+      _itemCount,
+    ).then((v) {
+      setState(() {
+        _dots = v.map((e) => e - 3000).toList();
+      });
+    });
+
+    compute(
+      _generateOffsets,
+      _itemCount,
+    ).then((v) {
+      setState(() {
+        _bars = v;
       });
     });
 
@@ -141,18 +166,12 @@ class _KLineDemoState extends State<KLineDemo>
             crossLineStyle: LineStyle(color: _crossLineColor),
             xRange: Range.length(_itemCount.toDouble()),
             onDoubleTap: () => _controller.resetInitialValue(animated: true),
-            footerBuilder: (ctx, _, idx) {
-              return when(
-                idx == 0,
-                Container(height: 30, color: Colors.white),
-              );
-            },
             grids: [
               Grid(
                 ySplitCount: 5,
                 style: GridStyle(
                   ratio: 0.8,
-                  margin: const EdgeInsets.all(10).copyWith(bottom: 20),
+                  margin: const EdgeInsets.symmetric(vertical: 4),
                   labelStyle:
                       const TextStyle(fontSize: 9, color: Colors.blueGrey),
                 ),
@@ -169,6 +188,14 @@ class _KLineDemoState extends State<KLineDemo>
                       fallColor: _fallColor,
                     ),
                   ),
+                  if (!_isMainIndexHidden) DotSeries(_dots),
+                  if (!_isMainIndexHidden)
+                    LineSeries(
+                      _dots,
+                      lineSeriesStyle: LineSeriesStyle(
+                        lineStyle: const LineStyle(color: Colors.orange),
+                      ),
+                    ),
                 ],
                 // xLabel: xLabel,
                 yLabel: yLabel,
@@ -188,8 +215,8 @@ class _KLineDemoState extends State<KLineDemo>
               Grid(
                 ySplitCount: 3,
                 style: GridStyle(
-                  height: 100,
-                  margin: const EdgeInsets.only(top: 4, bottom: 10),
+                  height: 90,
+                  margin: const EdgeInsets.symmetric(vertical: 10),
                 ),
                 boundaries: [FractionalPaddingBoundary(0.1)],
                 series: [
@@ -197,14 +224,30 @@ class _KLineDemoState extends State<KLineDemo>
                     _offsets,
                     lineSeriesStyle: LineSeriesStyle(
                       lineStyle: const LineStyle(color: Colors.blue),
-                      paintingStyle: PaintingStyle.fill,
-                      gradientColors: [Colors.blue, Colors.blue.withAlpha(0)],
                     ),
                   ),
+                  DotSeries(_dots),
                 ],
                 attachments: [
                   TrendChartAttachment(
                     position: AttachmentPosition.right,
+                    contentFn: (i) => i.toString(),
+                  )
+                ],
+              ),
+              Grid(
+                ySplitCount: 1,
+                style: GridStyle(
+                  height: 70,
+                  margin: const EdgeInsets.symmetric(vertical: 4),
+                ),
+                boundaries: [AlignBoundary(10)],
+                series: [
+                  BarSeries(_bars, isAlwaysPositive: true),
+                ],
+                attachments: [
+                  TrendChartAttachment(
+                    position: AttachmentPosition.bottom,
                     contentFn: (i) => i.toString(),
                   )
                 ],
@@ -214,6 +257,16 @@ class _KLineDemoState extends State<KLineDemo>
           Container(
             color: Colors.grey[100],
             height: 16,
+          ),
+          ListTile(
+            title: const Text("显示主图指标"),
+            trailing: CupertinoSwitch(
+                value: !_isMainIndexHidden,
+                onChanged: (v) {
+                  setState(() {
+                    _isMainIndexHidden = !v;
+                  });
+                }),
           ),
           ListTile(
             title: const Text("十字线自动消失"),
