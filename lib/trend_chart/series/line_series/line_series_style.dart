@@ -28,8 +28,7 @@ class LineSeriesStyle {
     List<Color>? gradientColors,
     LineStyle? lineStyle,
   })  : _lineStyle = LineStyle(color: Colors.red[200]).merge(lineStyle),
-        _gradientColors =
-            gradientColors ?? [Colors.red, Colors.red.withOpacity(0)];
+        _gradientColors = gradientColors;
 
   LineSeriesStyle copyWith({
     Color? color,

@@ -49,7 +49,7 @@ class LineSeriesPainter extends CustomPainter
 
   void _paintLineChart(Canvas canvas, Size size) {
     _paintLine(canvas, size);
-    if (series.style.paintingStyle == PaintingStyle.fill) {
+    if (series.style.gradientColors?.isNotEmpty ?? false) {
       _paintFill(canvas, size);
     }
   }
@@ -60,49 +60,44 @@ class LineSeriesPainter extends CustomPainter
         routine: (Canvas canvas, Size size) {
       coordinator = createCoordinator(size);
       prepareCoordnator(size);
+      if (coordinator.yRange.contains(double.nan) ||
+          coordinator.xRange.upper < 0) return;
+
       _offsetList.clear();
       final valueRange = coordinator.xRange.intersection(renderParams.xRange);
-      if (valueRange.lower.toInt() < 0) return;
-      valueRange
+
+      ///往左边画一个点
+      _offsetList.add(
+        convertPointFromGrid(
+          Offset(
+            valueRange.lower.floorToDouble(),
+            series.datas[max(0, valueRange.lower.floor())],
+          ),
+        ),
+      );
+      List<Offset> tempList = valueRange
           .toIterable()
           .where((idx) => idx >= 0 && idx < series.datas.length)
-          .forEach(
-        (index) {
-          _offsetList.add(
-            convertPointFromGrid(
-              Offset(
-                max(0, index - 1),
-                series.datas[max(0, index - 1)],
-              ),
-            ),
-          );
-          if (index == valueRange.upper.toInt() &&
-              index < series.datas.length - 1) {
-            _offsetList.add(
-              convertPointFromGrid(
+          .map((e) => convertPointFromGrid(
                 Offset(
-                  index * 1.0,
-                  series.datas[index],
+                  e * 1.0,
+                  series.datas[e],
                 ),
-              ),
-            );
-            _offsetList.add(
-              convertPointFromGrid(
-                Offset(
-                  index + 1,
-                  series.datas[index + 1],
-                ),
-              ),
-            );
-          }
-        },
-      );
+              ))
+          .toList();
 
+      ///往右边画一个点
+      tempList.add(convertPointFromGrid(
+        Offset(
+          min(valueRange.upper.ceilToDouble(), series.datas.length - 1),
+          series.datas[min(valueRange.upper.ceil(), series.datas.length - 1)],
+        ),
+      ));
+      _offsetList.addAll(tempList);
       canvas.drawPoints(
         _isDrawLine ? PointMode.polygon : PointMode.points,
         _offsetList,
         Paint()
-          ..strokeCap = _isDrawLine ? StrokeCap.butt : StrokeCap.round
           ..color = series.style.lineStyle!.color!
           ..strokeWidth = _isDrawLine
               ? series.style.lineStyle!.size!
@@ -118,8 +113,10 @@ class LineSeriesPainter extends CustomPainter
         padding: grid.style.margin?.copyWith(left: 0, right: 0),
         routine: (Canvas canvas, Size size) {
       coordinator = createCoordinator(size);
+      if (coordinator.yRange.contains(double.nan) ||
+          coordinator.xRange.upper < 0) return;
       final valueRange = coordinator.xRange.intersection(renderParams.xRange);
-      if (valueRange.lower.toInt() < 0) return;
+
       ///往左边界多画一个点
       Offset lowerOffset = convertPointFromGrid(
         Offset(
@@ -142,12 +139,15 @@ class LineSeriesPainter extends CustomPainter
       });
 
       ///往右边多画一个点
-      Offset upperOffset = convertPointFromGrid(Offset(
-          min(valueRange.upper.toInt() + 1, series.datas.length - 1),
-          series.datas[
-              min(valueRange.upper.toInt() + 1, series.datas.length - 1)]));
-      linePath.lineTo(upperOffset.dx, upperOffset.dy);
-      linePath.lineTo(upperOffset.dx, size.height);
+      final nextOffset =
+          min(valueRange.upper.toInt() + 1, series.datas.length - 1);
+      if (nextOffset > 0) {
+        Offset upperOffset = convertPointFromGrid(Offset(
+            min(valueRange.upper.toInt() + 1, series.datas.length - 1),
+            series.datas[nextOffset]));
+        linePath.lineTo(upperOffset.dx, upperOffset.dy);
+        linePath.lineTo(upperOffset.dx, size.height);
+      }
       linePath.lineTo(
           convertPointFromGrid(Offset(valueRange.lower.floorToDouble(),
                   series.datas[valueRange.lower.toInt()]))
@@ -157,9 +157,12 @@ class LineSeriesPainter extends CustomPainter
       canvas.drawPath(
           linePath,
           Paint()
-            ..isAntiAlias = true
-            ..strokeWidth = 1.0
+            ..strokeWidth = series.style.lineStyle!.size!
             ..style = PaintingStyle.fill
+            ..strokeCap = _isDrawLine
+                ? series.style.lineStyle!.strokeCap!
+                : StrokeCap.round
+            ..strokeJoin = series.style.lineStyle!.strokeJoin!
             ..shader = LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
