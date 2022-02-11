@@ -14,10 +14,10 @@ class DotSeries extends Series<double> {
 
   DotSeries(
     List<double> datas, {
-    DotSeriesStyle? lineSeriesStyle,
+    DotSeriesStyle? dotSeriesStyle,
     ValueConvertor<double>? yValue,
     ColorConvertor<int>? color,
-  })  : _style = DotSeriesStyle().merge(lineSeriesStyle),
+  })  : _style = DotSeriesStyle().merge(dotSeriesStyle),
         _colorFn = color,
         super(
           datas: datas,
@@ -50,9 +50,5 @@ class _DefaultDotSeriesYValueConvertor {
     Series<double> series,
   ) {
     return dy;
-  }
-
-  static Color _defaultDotSeriesColorConvertor(int index) {
-    return Colors.green;
   }
 }
