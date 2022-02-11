@@ -35,6 +35,8 @@ class TrendChart extends StatefulWidget {
   final bool isAutoBlur;
   final Duration autoBlurDuration;
 
+  final bool isScrollZoomEnable;
+
   /// Use [GestureDetector.onHorizontalDragUpdate] detecte multi fingers drag,
   /// that maybe cause scale action get no sensitive.
   final bool isAllowHorizontalDrag;
@@ -71,6 +73,7 @@ class TrendChart extends StatefulWidget {
     this.isAllowHorizontalDrag = true,
     this.isAutoBlur = false,
     this.autoBlurDuration = const Duration(milliseconds: 1000),
+    this.isScrollZoomEnable = true,
     LineStyle? crossLineStyle,
     this.onFocusPositionChanged,
   })  : assert(minUnit <= maxUnit),
@@ -194,7 +197,7 @@ class TrendChartState extends State<TrendChart> {
           longPress.onLongPressUp = () => _blur();
         },
       ),
-      if (widget.isAllowHorizontalDrag)
+      if (widget.isScrollZoomEnable && widget.isAllowHorizontalDrag)
         HorizontalDragGestureRecognizer: GestureRecognizerFactoryWithHandlers<
             HorizontalDragGestureRecognizer>(
           () => HorizontalDragGestureRecognizer(),
@@ -207,36 +210,37 @@ class TrendChartState extends State<TrendChart> {
             };
           },
         ),
-      ScaleGestureRecognizer:
-          GestureRecognizerFactoryWithHandlers<ScaleGestureRecognizer>(
-        () => ScaleGestureRecognizer(),
-        (scale) {
-          scale.onStart = (_) {
-            _scaleStartUnit = _renderParams.unit;
-          };
+      if (widget.isScrollZoomEnable)
+        ScaleGestureRecognizer:
+            GestureRecognizerFactoryWithHandlers<ScaleGestureRecognizer>(
+          () => ScaleGestureRecognizer(),
+          (scale) {
+            scale.onStart = (_) {
+              _scaleStartUnit = _renderParams.unit;
+            };
 
-          scale.onUpdate = (d) {
-            if (d.pointerCount == 1) {
-              widget.controller.applyOffset(d.focalPointDelta.dx);
-            } else {
-              if (_scaleStartUnit != null) {
-                widget.controller.interactive(
-                  destUnit: d.horizontalScale * _scaleStartUnit!,
-                  anchorX: d.localFocalPoint.dx,
-                  deltaX: d.focalPointDelta.dx,
-                );
+            scale.onUpdate = (d) {
+              if (d.pointerCount == 1) {
+                widget.controller.applyOffset(d.focalPointDelta.dx);
+              } else {
+                if (_scaleStartUnit != null) {
+                  widget.controller.interactive(
+                    destUnit: d.horizontalScale * _scaleStartUnit!,
+                    anchorX: d.localFocalPoint.dx,
+                    deltaX: d.focalPointDelta.dx,
+                  );
+                }
               }
-            }
-          };
+            };
 
-          scale.onEnd = (d) {
-            _scaleStartUnit = null;
-            if (d.pointerCount == 0) {
-              widget.controller.decelerate(d.velocity);
-            }
-          };
-        },
-      ),
+            scale.onEnd = (d) {
+              _scaleStartUnit = null;
+              if (d.pointerCount == 0) {
+                widget.controller.decelerate(d.velocity);
+              }
+            };
+          },
+        ),
       TapGestureRecognizer:
           GestureRecognizerFactoryWithHandlers<TapGestureRecognizer>(
         () => TapGestureRecognizer(),

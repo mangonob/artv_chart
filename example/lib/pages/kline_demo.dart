@@ -15,12 +15,12 @@ import 'package:artv_chart/trend_chart/series/candle_series/candle_entry.dart';
 import 'package:artv_chart/trend_chart/series/candle_series/candle_series.dart';
 import 'package:artv_chart/trend_chart/series/candle_series/candle_series_style.dart';
 import 'package:artv_chart/trend_chart/series/dot_series/dot_series.dart';
+import 'package:artv_chart/trend_chart/series/dot_series/dot_series_style.dart';
 import 'package:artv_chart/trend_chart/series/line_series/line_series.dart';
 import 'package:artv_chart/trend_chart/series/line_series/line_series_style.dart';
 import 'package:artv_chart/trend_chart/series/series.dart';
 import 'package:artv_chart/trend_chart/trend_chart.dart';
 import 'package:artv_chart/trend_chart/trend_chart_controller.dart';
-import 'package:artv_chart/utils/utils.dart';
 import 'package:example/data_generator.dart';
 import 'package:example/widgets/color_tile.dart';
 import 'package:example/widgets/options.dart';
@@ -49,6 +49,7 @@ class _KLineDemoState extends State<KLineDemo>
 
   /// 自定义样式
   bool _isAutoHiddenCrossLine = false;
+  bool _isCrossLineFollowUser = true;
   bool _isRaster = false;
   bool _isMainIndexHidden = true;
   CandleType _candleType = CandleType.fill;
@@ -188,7 +189,14 @@ class _KLineDemoState extends State<KLineDemo>
                       fallColor: _fallColor,
                     ),
                   ),
-                  if (!_isMainIndexHidden) DotSeries(_dots),
+                  if (!_isMainIndexHidden)
+                    DotSeries(
+                      _dots,
+                      dotSeriesStyle: DotSeriesStyle(
+                        circleRadius: 2,
+                        lineStyle: const LineStyle(color: Colors.blue),
+                      ),
+                    ),
                   if (!_isMainIndexHidden)
                     LineSeries(
                       _dots,
@@ -275,6 +283,16 @@ class _KLineDemoState extends State<KLineDemo>
                 onChanged: (v) {
                   setState(() {
                     _isAutoHiddenCrossLine = v;
+                  });
+                }),
+          ),
+          ListTile(
+            title: const Text("十字线跟随手势"),
+            trailing: CupertinoSwitch(
+                value: _isCrossLineFollowUser,
+                onChanged: (v) {
+                  setState(() {
+                    _isCrossLineFollowUser = v;
                   });
                 }),
           ),

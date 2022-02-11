@@ -106,6 +106,7 @@ class _TimeSharingDemoState extends State<TimeSharingDemo>
       controller: _controller,
       layoutManager: _layoutManager,
       isIgnoredUnitVolume: false,
+      isScrollZoomEnable: false,
       minUnit: constraints.maxWidth / _itemCount,
       maxUnit: constraints.maxWidth / _itemCount,
       xRange: Range.length(_itemCount.toDouble()),
