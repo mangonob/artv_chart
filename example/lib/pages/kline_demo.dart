@@ -197,7 +197,7 @@ class _KLineDemoState extends State<KLineDemo>
                   if (!_isMainIndexHidden)
                     DotSeries(
                       _dots,
-                      dotSeriesStyle: DotSeriesStyle(
+                      style: DotSeriesStyle(
                         circleRadius: 2,
                         lineStyle: const LineStyle(color: Colors.blue),
                       ),
